@@ -4,6 +4,7 @@
 
 package frc.robot.handlers;
 
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -24,13 +25,15 @@ public class Intake extends SubsystemBase implements StateSubsystem {
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
   private final StringPublisher stateShower = stateTable.getStringTopic("IntakeState").publish(); 
-
+  private final DoublePublisher DoubleShower = stateTable.getDoubleTopic("AngleAdder").publish(); 
+  private double angleAdder = 0;
 
   public enum IntakeStates implements State {
     IDLE,
     BROKEN,
     OUT,
     INTAKING,
+    RAISING,
     MANUAL,
   }
 
@@ -51,20 +54,35 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case OUT:
         stateShower.set("OUT");
-        intake.setDegrees(90);
+        // intake.setDegrees(-118);
         intake.setSpeed(0);
         break;
       case INTAKING:
         stateShower.set("INTAKING");
-        intake.setDegrees(90);
-        intake.setSpeed(1.0);
+
+        // intake.setDegrees(-118);
+        intake.setSpeed(-.5);
+        intake.setDegrees(70);
+        break;
+
+      case RAISING:
+        stateShower.set("RAISING");
+
+        // intake.setDegrees(0);
+        intake.setSpeed(-.5);
+
+        angleAdder = 0;
+        break;
+
       default:
         stateShower.set("UNKNOWN");
         break;
     }
+    currentState = desiredState;
   }
 
   public void update(){
+    
     switch (currentState) {
       case IDLE:
         break;
@@ -72,6 +90,16 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         break;
+      case RAISING:
+        intake.setDegrees(angleAdder);
+        if(angleAdder < 70){
+        angleAdder += 0.4;
+
+        }
+        DoubleShower.set(angleAdder);
+
+        break;
+
       default:
         break;
     }

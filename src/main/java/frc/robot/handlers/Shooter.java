@@ -8,31 +8,37 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.s_Shooter;
 
-public class Example extends SubsystemBase implements StateSubsystem {
-  /** Creates a new Example. */
-  public Example() {
+public class Shooter extends SubsystemBase implements StateSubsystem {
+  /** Creates a new Shooter. */
+  public Shooter() {
     stateShower.set("IDLE");
   }
 
-  private static Example m_Instance;
-  private ExampleStates desiredState, currentState = ExampleStates.IDLE;
+  private static Shooter m_Instance;
+  private ShooterStates desiredState, currentState = ShooterStates.IDLE;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
-  private final StringPublisher stateShower = stateTable.getStringTopic("ExampleState").publish(); //TODO: Change with name
+  private final StringPublisher stateShower = stateTable.getStringTopic("ShooterState").publish();
 
+  private s_Shooter Shooter = s_Shooter.getInstance();
 
-  public enum ExampleStates implements State {
+  public enum ShooterStates implements State {
     IDLE,
     BROKEN,
+    SHOOTING,
     MANUAL,
+    REVVING,
   }
 
   public void handleStateTransition(){
     switch (desiredState) {
       case IDLE:
         stateShower.set("IDLE");
+        Shooter.setIndexVolts(0);
+        Shooter.setShooterVolts(0);
         break;
       case BROKEN:
         stateShower.set("BROKEN");
@@ -40,12 +46,21 @@ public class Example extends SubsystemBase implements StateSubsystem {
       case MANUAL:
         stateShower.set("MANUAL");
         break;
+      case SHOOTING:
+        stateShower.set("SHOOTING");
+        Shooter.setIndexSpeed(.65);
+        Shooter.setShooterVolts(4.93);
+
+        break;
+      case REVVING:
+        stateShower.set("SHOOTING");
+        Shooter.setIndexSpeed(0);
+        Shooter.setShooterVolts(5.33);
+
       default:
         stateShower.set("UNKNOWN");
         break;
     }
-    currentState = desiredState;
-
   }
 
   public void update(){
@@ -64,14 +79,14 @@ public class Example extends SubsystemBase implements StateSubsystem {
   
   public void setDesiredState(State state) {
     if (this.desiredState != state) {
-      desiredState = (ExampleStates) state;
+      desiredState = (ShooterStates) state;
       handleStateTransition();
     }
   }
 
-  public static Example getInstance(){
+  public static Shooter getInstance(){
     if(m_Instance == null){
-      m_Instance = new Example();
+      m_Instance = new Shooter();
     }
     return m_Instance;
   }

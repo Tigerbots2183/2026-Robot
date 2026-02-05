@@ -60,8 +60,8 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   .withControlMode(ControlMode.CLOSED_LOOP)
   .withFollowers(Pair.of(rPivotTalonFX, false))
   // Feedback Constants (PID Constants)
-  .withClosedLoopController(80, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(185))
-  .withSimClosedLoopController(80, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(185))
+  .withClosedLoopController(100, 0, 0, DegreesPerSecond.of(280), DegreesPerSecondPerSecond.of(365))
+  .withSimClosedLoopController(100, 0, 0, DegreesPerSecond.of(280), DegreesPerSecondPerSecond.of(365))
   // Feedforward Constants
   .withFeedforward(new ArmFeedforward(0, 0, 0))
   .withSimFeedforward(new ArmFeedforward(0, 0, 0))
@@ -73,7 +73,7 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   // Motor properties to prevent over currenting.
   .withMotorInverted(false)
   .withIdleMode(MotorMode.BRAKE)
-  .withStatorCurrentLimit(Amps.of(60))
+  .withStatorCurrentLimit(Amps.of(70))
   .withClosedLoopRampRate(Seconds.of(0.05))
   .withOpenLoopRampRate(Seconds.of(0.05));
 
@@ -85,9 +85,9 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
   private ArmConfig armCfg = new ArmConfig(talonSmartMotorController)
   // Soft limit is applied to the SmartMotorControllers PID
-  .withSoftLimits(Degrees.of(0), Degrees.of(90))
+  .withSoftLimits(Degrees.of(-125), Degrees.of(0))
   // Hard limit is applied to the simulation.
-  .withHardLimit(Degrees.of(0), Degrees.of(90))
+  .withHardLimit(Degrees.of(-125), Degrees.of(0))
   // Starting position is where your arm starts
   .withStartingPosition(Degrees.of(0))
   // Length and mass of your arm for sim.
@@ -115,6 +115,14 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
   public void setSpeed(double dutyCycle){
     intakeRoller.set(dutyCycle);
+  }
+
+  public TalonFX getLeftPivotTalonFX(){
+    return lPivotTalonFX;
+  }
+
+  public TalonFX getRightPivotTalonFx(){
+    return rPivotTalonFX;
   }
 
   public boolean initialized = false; 
