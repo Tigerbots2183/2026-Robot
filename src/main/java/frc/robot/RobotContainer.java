@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.IO.TurretIO;
 import frc.robot.generated.TunerConstants;
 import frc.robot.handlers.Intake;
 import frc.robot.handlers.Shooter;
@@ -29,6 +29,8 @@ public class RobotContainer {
     private Intake H_Intake = Intake.getInstance();
     private Spindex H_Spindex = Spindex.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
+
+    private TurretIO IO_Turret = TurretIO.getInstance();
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                         // speed
@@ -100,10 +102,10 @@ public class RobotContainer {
         joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
         joystick.y().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
 
-        joystick.pov(0).onTrue(Commands.runOnce(()-> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
-        joystick.pov(0).onFalse(Commands.runOnce(()-> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+        joystick.pov(0).onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+        joystick.pov(0).onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
 
-  joystick.b().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
+        joystick.b().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
         joystick.b().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
 
         joystick.a().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
