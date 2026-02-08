@@ -17,7 +17,9 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
     initialized = true;
   }
 
-  private SparkFlex SpindexFlex = new SparkFlex(40, MotorType.kBrushless);
+  private SparkFlex SpindexFlexLeft = new SparkFlex(40, MotorType.kBrushless); // black wheel
+  private SparkFlex SpindexFlexRight = new SparkFlex(41, MotorType.kBrushless); // blue wheel
+  
 
   public static s_Spindex getInstance(){
     if (m_Instance == null) {
@@ -27,7 +29,9 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setVoltage(double volts){
-    SpindexFlex.setVoltage(volts);
+    SpindexFlexLeft.setVoltage(volts);
+    SpindexFlexRight.setVoltage(volts/2);
+
   }
 
   public boolean initialized = false; 
@@ -41,7 +45,9 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void stop(){
-    SpindexFlex.stopMotor();
+    SpindexFlexLeft.stopMotor();
+    SpindexFlexRight.stopMotor();
+
   }
 
   @Override

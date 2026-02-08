@@ -7,6 +7,7 @@ package frc.robot.handlers;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.s_Spindex;
 
@@ -48,11 +49,10 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
         break;
       case FEEDING:
         stateShower.set("FEEDING");
-        Spindex.setVoltage(11);
         break;
       case STIRRING:
         stateShower.set("STIRRING");
-        Spindex.setVoltage(4);
+        Spindex.setVoltage(-1);
         break;
       case REVERSE: 
         stateShower.set("REVERSE");
@@ -72,6 +72,18 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
       case BROKEN:
         break;
       case MANUAL:
+        break;
+      case FEEDING:
+        double rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
+        if((rounded % 1) == 0 ){
+          Spindex.setVoltage(-3);
+          System.out.println(-2);
+        }else{
+          System.out.println((Timer.getTimestamp()) );
+        
+        Spindex.setVoltage(3);
+
+        }
         break;
       default:
         break;

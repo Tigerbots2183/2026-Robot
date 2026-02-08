@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
 
         // intake.setDegrees(-118);
         intake.setSpeed(-.5);
-        intake.setDegrees(70);
+        // intake.setDegrees(70);
         break;
 
       case RAISING:
@@ -93,7 +93,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
       case RAISING:
         intake.setDegrees(angleAdder);
         if(angleAdder < 70){
-        angleAdder += 0.4;
+        angleAdder += 0.8;
 
         }
         DoubleShower.set(angleAdder);
