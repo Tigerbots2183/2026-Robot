@@ -7,8 +7,15 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinder;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,12 +31,15 @@ import frc.robot.handlers.Turret;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Intake;
 import frc.robot.subsystems.Touchboard.JukeboxUtil;
+import yams.exceptions.SwerveDriveConfigurationException;
 
 public class RobotContainer {
 
     private Intake H_Intake = Intake.getInstance();
     private Spindex H_Spindex = Spindex.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
+
+    
 
     private Turret H_Turret = Turret.getInstance();
 
@@ -42,6 +52,9 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.2).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    // private final SwerveRequest.FieldCentricFacingAngle driveAtPoint = new SwerveRequest.FieldCentricFacingAngle()
+    //         .withDeadband(MaxSpeed * 0.2).withRotationalDeadband(MaxAngularRate * 0.1)
+    //         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -55,6 +68,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
 
     public RobotContainer() {
+         
         configureBindings();
     }
 
@@ -68,8 +82,21 @@ public class RobotContainer {
                                                                                                    // (forward)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
+                        
                                                                                     // negative X (left)
                 ));
+
+        // driveAtPoint.withHeadingPID(30, 0, 0);
+
+        // drivetrain.setDefaultCommand(
+        //     drivetrain.applyRequest(() -> driveAtPoint.withVelocityX(-joystick.getLeftY() * MaxSpeed) 
+        //                 .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+        //                 .withTargetDirection(Rotation2d.fromRadians(Math.atan2(drivetrain.getState().Pose.getY() - 4,  drivetrain.getState().Pose.getY() - 8)))
+        // ));
+
+
+
+        
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -81,6 +108,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(
                 () -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
 
+        
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -106,6 +134,8 @@ public class RobotContainer {
         joystick.y().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
 
 
+        
+        joystick.pov(180).onTrue(AutoBuilder.pathfindToPose(new Pose2d(8,4, new Rotation2d()), CommandSwerveDrivetrain.pConstraints, 4.0));
         joystick.pov(0).onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
         joystick.pov(0).onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
 

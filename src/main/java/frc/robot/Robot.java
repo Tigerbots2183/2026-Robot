@@ -8,6 +8,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.HootAutoReplay;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -56,6 +58,7 @@ public class Robot extends TimedRobot {
         mJukebox.mOrchestra.play();
     }
 
+  
     @Override
     public void disabledPeriodic() {
         if (!mJukebox.mOrchestra.isPlaying()) {
@@ -98,16 +101,16 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
-        Supplier<Pose2d> goalPosition = ()-> new Pose2d(4.620419, 4.034631, new Rotation2d());
+        Supplier<Pose2d> goalPosition = () -> new Pose2d(4.620419, 4.034631, new Rotation2d());
 
         if (DriverStation.getAlliance().isPresent()) {
             if (DriverStation.getAlliance().get() == Alliance.Red) {
-                goalPosition = ()-> FlippingUtil.flipFieldPose(new Pose2d(4.620419, 4.034631, new Rotation2d()));
+                goalPosition = () -> FlippingUtil.flipFieldPose(new Pose2d(4.620419, 4.034631, new Rotation2d()));
 
             }
         }
 
-        Turret.getInstance().setGoal( goalPosition);
+        Turret.getInstance().setGoal(goalPosition);
     }
 
     @Override
