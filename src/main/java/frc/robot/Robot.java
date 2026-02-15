@@ -93,7 +93,7 @@ public class Robot extends TimedRobot {
     public void autonomousExit() {
     }
 
-    TurretIO test = TurretIO.getInstance();
+    // TurretIO test = TurretIO.getInstance();
 
     @Override
     public void teleopInit() {
@@ -101,16 +101,16 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
-        Supplier<Pose2d> goalPosition = () -> new Pose2d(4.620419, 4.034631, new Rotation2d());
+        // Supplier<Pose2d> goalPosition = () -> new Pose2d(4.620419, 4.034631, new Rotation2d());
 
-        if (DriverStation.getAlliance().isPresent()) {
-            if (DriverStation.getAlliance().get() == Alliance.Red) {
-                goalPosition = () -> FlippingUtil.flipFieldPose(new Pose2d(4.620419, 4.034631, new Rotation2d()));
+        // if (DriverStation.getAlliance().isPresent()) {
+        //     if (DriverStation.getAlliance().get() == Alliance.Red) {
+        //         goalPosition = () -> FlippingUtil.flipFieldPose(new Pose2d(4.620419, 4.034631, new Rotation2d()));
 
-            }
-        }
+        //     }
+        // }
 
-        Turret.getInstance().setGoal(goalPosition);
+        // Turret.getInstance().setGoal(goalPosition);
     }
 
     @Override
