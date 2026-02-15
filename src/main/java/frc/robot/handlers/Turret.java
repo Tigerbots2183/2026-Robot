@@ -69,6 +69,10 @@ public class Turret extends SubsystemBase implements StateSubsystem {
     goalPose.set(goalPosition.get());
   }
 
+  public Pose2d getGoal(){
+    return this.goalPosition;
+  }
+
   public void update() {
     if(turret.inaccurate.get() && currentState == TurretStates.TRACKING){
       setDesiredState(TurretStates.INACCURATE);
@@ -130,12 +134,14 @@ public class Turret extends SubsystemBase implements StateSubsystem {
       case UNWINDING:
         if(!unwindCommandBound){
           unwindCommandBound = true;
-          turret.getDegreeSetter(currentRotation).andThen(new InstantCommand(()->{
+          
+          Command turretResetter = turret.getDegreeSetter(currentRotation).andThen(new InstantCommand(()->{
             unwindCommandBound = false;
             setDesiredState(TurretStates.TRACKING);
             currentRotation = currentRotation % 360;
-          })).schedule();
-          
+          }));
+
+          CommandScheduler.getInstance().schedule(turretResetter);
         }
         
         break;

@@ -117,7 +117,8 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     if (degrees == previousDegrees) {
       return;
     } else{
-      turret.setAngle(Degrees.of(degrees)).schedule();
+      CommandScheduler.getInstance().schedule(turret.setAngle(Degrees.of(degrees)));
+
       previousDegrees = degrees;
     }
 

@@ -13,9 +13,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.handlers.Drivetrain;
+import frc.robot.handlers.Hood;
 import frc.robot.handlers.Intake;
 import frc.robot.handlers.Shooter;
 import frc.robot.handlers.Spindex;
+import frc.robot.handlers.Turret;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Intake;
 import frc.robot.subsystems.Touchboard.JukeboxUtil;
@@ -26,6 +28,9 @@ public class RobotContainer {
     private Spindex H_Spindex = Spindex.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
+
+    private Turret H_Turret = Turret.getInstance();
+    private Hood H_Hood = Hood.getInstance();
     
     private final CommandXboxController joystick = new CommandXboxController(0);
 
