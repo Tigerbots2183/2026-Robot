@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.IO.TurretIO;
 import frc.robot.generated.TunerConstants;
 
@@ -70,6 +69,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
       .withFeedforward(new SimpleMotorFeedforward(0.0,3.5, 0.0))
+      
       //0.0,5.5`
       // Setup Telemetry
       .withTelemetry("TurretMotor", TelemetryVerbosity.HIGH)
@@ -106,6 +106,13 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setDegrees(double degrees) {
+    
+    if(degrees >= 1060){
+      degrees = 1060;
+    } else if(degrees <= -1060){
+      degrees = -1060;
+    }
+
     if(Math.abs(degrees-turret.getAngle().in(Degrees)) <= 20 ){
       inaccurate = () -> false;
     } else {
@@ -151,6 +158,10 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     initialized = true;
   }
 
+  public void runSYSID() {
+    turret.sysId(Volts.of(12), Volts.of(0.5).per(Second), Seconds.of(12));
+  }
+  
   @Override
   public void periodic() {
     turret.updateTelemetry();

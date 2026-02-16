@@ -16,7 +16,6 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -32,16 +31,12 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   public static s_Drivetrain m_Instance;
   private CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
 
-  private Supplier<Pose2d> pose = () -> drivetrain.getState().Pose;
   private DoubleSupplier xStick;
   private DoubleSupplier yStick;
   private DoubleSupplier rotStick;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/CommandTrain");
-
-  private final DoublePublisher velocityXNT = driveStateTable.getDoubleTopic("velocityX").publish();
-  private final DoublePublisher velocityYMT = driveStateTable.getDoubleTopic("velocityY").publish();
 
   private final PIDController robotXController = new PIDController(9, 0, 0);
 

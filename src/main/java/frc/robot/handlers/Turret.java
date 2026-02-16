@@ -17,6 +17,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Turret;
+import frc.robot.subsystems.Touchboard.JukeboxUtil;
 import edu.wpi.first.wpilibj2.command.*;
 
 public class Turret extends SubsystemBase implements StateSubsystem {
@@ -201,6 +202,13 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
         turret.stop();
         break;
+      case SYSID:
+        stateShower.set("SYSID");
+        
+        JukeboxUtil.getInstance().mOrchestra.stop();
+
+        turret.runSYSID();
+        break;
       default:
         stateShower.set("UNKNOWN");
         break;
@@ -222,5 +230,6 @@ public class Turret extends SubsystemBase implements StateSubsystem {
     INACCURATE,
     MANUAL,
     UNWINDING,
+    SYSID,
   }
 }

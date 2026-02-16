@@ -4,14 +4,11 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import yams.units.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.MomentOfInertiaUnit;
 import frc.robot.IO.TurretIO;
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -19,12 +16,10 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import static edu.wpi.first.units.Units.*;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.remote.TalonFXWrapper;
-import yams.units.YUnits;
 import edu.wpi.first.wpilibj2.command.*;
 
 public class s_Hood extends SubsystemBase implements CheckableSubsystem {
@@ -46,7 +41,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withClosedLoopController(2, 0, 0, DegreesPerSecond.of(135), DegreesPerSecondPerSecond.of(90))
+      .withClosedLoopController(12, 0, 0, DegreesPerSecond.of(135), DegreesPerSecondPerSecond.of(90))
       // Configure Motor and Mechanism propertes
       .withGearing(new MechanismGearing(30 / 16, 40 / 20, 34 / 16, 210 / 40))
       .withIdleMode(MotorMode.BRAKE)
@@ -66,6 +61,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   PivotConfig m_config = new PivotConfig(motor)
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
       .withHardLimit(Degrees.of(0), Degrees.of(50)) // Hard limit bc wiring prevents infinite spinning
+      .withSoftLimits(Degrees.of(0), Degrees.of(50))
       .withTelemetry("Hood", TelemetryVerbosity.HIGH) // Telemetry
       .withMOI(KilogramSquareMeters.of(0.04475326));
 
@@ -80,6 +76,8 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setDegrees(double actualDegrees) {
+    actualDegrees %= 360;
+    
     CommandScheduler.getInstance().schedule(
         hood.setAngle(Degrees.of(actualDegrees)));
   }
