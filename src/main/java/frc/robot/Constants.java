@@ -1,11 +1,16 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.generated.TunerConstants;
 
 import static edu.wpi.first.units.Units.*;
+
+import com.pathplanner.lib.util.FlippingUtil;
 
 public final class Constants {
     public static class driveConstants {
@@ -16,6 +21,14 @@ public final class Constants {
                                                                                           // second
                                                                                           // max angular velocity
     }
+  public static class QuestNavConstants{
+    public static final Pose2d initalPose2dBlue = new Pose2d(3.25,4, Rotation2d.fromDegrees(-90)); 
+    public static final Pose2d initalPose2dRed = FlippingUtil.flipFieldPose(initalPose2dBlue); 
+    public static final Transform2d ROBOT_TO_QUEST = new Transform2d(-0.24,-0.314,Rotation2d.fromDegrees(-90));
+    // public static final Transform2d ROBOT_TO_QUEST = new Transform2d(-0.23-,-0.298,Rotation2d.fromDegrees(-90));
+
+
+  }
 
     public static class FieldConstants {
         public static final Distance FIELD_LENGTH = Inches.of(650.12);
