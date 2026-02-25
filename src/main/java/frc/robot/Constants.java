@@ -1,8 +1,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
@@ -22,10 +25,11 @@ public final class Constants {
                                                                                           // max angular velocity
     }
   public static class QuestNavConstants{
-    public static final Pose2d initalPose2dBlue = new Pose2d(3.25,4, Rotation2d.fromDegrees(-90)); 
-    public static final Pose2d initalPose2dRed = FlippingUtil.flipFieldPose(initalPose2dBlue); 
-    public static final Transform2d ROBOT_TO_QUEST = new Transform2d(-0.24,-0.314,Rotation2d.fromDegrees(-90));
-    // public static final Transform2d ROBOT_TO_QUEST = new Transform2d(-0.23-,-0.298,Rotation2d.fromDegrees(-90));
+    public static final Pose2d initalPose2d = new Pose2d(3.25,4, Rotation2d.fromDegrees(-90));  //Blue Ref
+
+    public static final Pose3d initalPose3dBlue = new Pose3d(initalPose2d);
+    public static final Pose3d initalPose3dRed = new Pose3d(FlippingUtil.flipFieldPose(initalPose2d)); 
+    public static final Transform3d ROBOT_TO_QUEST = new Transform3d(0.297, -0.238, 0.266, new Rotation3d());
 
 
   }

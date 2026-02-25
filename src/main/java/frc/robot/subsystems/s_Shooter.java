@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -18,8 +19,9 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
   }
 
   private SparkFlex indexFlex = new SparkFlex(50, MotorType.kBrushless);
-  private SparkFlex LShooter = new SparkFlex(51, MotorType.kBrushless);
-  private SparkFlex RShooter = new SparkFlex(52, MotorType.kBrushless);
+
+  private TalonFX leftTalonFlywheel = new TalonFX(7, "turret");
+  private TalonFX rightTalonFlywheel = new TalonFX(6, "turret");
 
 
   public static s_Shooter getInstance(){
@@ -46,8 +48,9 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
 
 
   public void setShooterVolts(double volts){
-    LShooter.setVoltage(-volts);
-    RShooter.setVoltage(volts);
+    leftTalonFlywheel.set(volts);
+    rightTalonFlywheel.set(-volts);
+
     //.53 /65%
   }
 

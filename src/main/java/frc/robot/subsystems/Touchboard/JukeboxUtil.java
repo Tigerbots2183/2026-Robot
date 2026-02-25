@@ -94,47 +94,47 @@ public class JukeboxUtil extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (newFileSubscriber.get()) {
-      mOrchestra.loadMusic(currentMusicFileSubscriber.get());
-      mOrchestra.play();
-      musicIsFinishedPublisher.set(false);
+    // if (newFileSubscriber.get()) {
+    //   mOrchestra.loadMusic(currentMusicFileSubscriber.get());
+    //   mOrchestra.play();
+    //   musicIsFinishedPublisher.set(false);
 
-      newFilePublisher.set(false);
-      System.out.println("fileLoaded");
-      System.out.println(currentMusicFileSubscriber.get());
-      prev = false;
-    }
+    //   newFilePublisher.set(false);
+    //   System.out.println("fileLoaded");
+    //   System.out.println(currentMusicFileSubscriber.get());
+    //   prev = false;
+    // }
 
-    if (stopSubscriber.get()) {
-      mOrchestra.stop();
-      stopPublisher.set(false);
-      System.out.println("MusicStopped");
-    }
+    // if (stopSubscriber.get()) {
+    //   mOrchestra.stop();
+    //   stopPublisher.set(false);
+    //   System.out.println("MusicStopped");
+    // }
 
-    if (pauseSubscriber.get()) {
-      mOrchestra.pause();
-      pausePublisher.set(false);
-      System.out.println("MusicPaused");
+    // if (pauseSubscriber.get()) {
+    //   mOrchestra.pause();
+    //   pausePublisher.set(false);
+    //   System.out.println("MusicPaused");
 
-    }
+    // }
 
-    if (playSubscriber.get()) {
-      mOrchestra.play();
-      playPublisher.set(false);
-      System.out.println("MusicPlayed");
-    }
+    // if (playSubscriber.get()) {
+    //   mOrchestra.play();
+    //   playPublisher.set(false);
+    //   System.out.println("MusicPlayed");
+    // }
 
-    if (restartSubscriber.get()) {
-      mOrchestra.loadMusic(currentMusicFileSubscriber.get());
-      mOrchestra.play();
-      System.out.println("restarted");
-      restartPublisher.set(false);
-    }
+    // if (restartSubscriber.get()) {
+    //   mOrchestra.loadMusic(currentMusicFileSubscriber.get());
+    //   mOrchestra.play();
+    //   System.out.println("restarted");
+    //   restartPublisher.set(false);
+    // }
 
-    if (mOrchestra.isPlaying() == false && prev == false && nextSongSubscriber.get()) {
-      musicIsFinishedPublisher.set(true);
-      System.out.println("Music Finished");
-      prev = true;
-    }
+    // if (mOrchestra.isPlaying() == false && prev == false && nextSongSubscriber.get()) {
+    //   musicIsFinishedPublisher.set(true);
+    //   System.out.println("Music Finished");
+    //   prev = true;
+    // }
   }
 }

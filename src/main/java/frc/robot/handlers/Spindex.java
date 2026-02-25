@@ -29,10 +29,10 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
   public enum SpindexStates implements State {
     IDLE,
     BROKEN,
+    ALTERNATE,
     FEEDING,
     MANUAL,
     REVERSE,
-    STIRRING,
   }
 
   public void handleStateTransition(){
@@ -47,16 +47,12 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
       case MANUAL:
         stateShower.set("MANUAL");
         break;
-      case FEEDING:
-        stateShower.set("FEEDING");
-        break;
-      case STIRRING:
-        stateShower.set("STIRRING");
-        Spindex.setVoltage(-1);
+      case ALTERNATE:
+        stateShower.set("ALTERNATE");
         break;
       case REVERSE: 
         stateShower.set("REVERSE");
-        Spindex.setVoltage(-11);
+        Spindex.setDiffVoltage(-11);
       default:
         stateShower.set("UNKNOWN");
         break;
@@ -73,18 +69,19 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         break;
-      case FEEDING:
+      case ALTERNATE:
         double rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
         if((rounded % 1) == 0 ){
-          Spindex.setVoltage(-3);
-          System.out.println(-2);
+          Spindex.setVoltage(-1.5);
         }else{
-          System.out.println((Timer.getTimestamp()) );
-        
-        Spindex.setVoltage(3);
+
+          
+        Spindex.setVoltage(1.5);
 
         }
         break;
+      case FEEDING:
+        Spindex.setFromBeamBreaks();
       default:
         break;
     }

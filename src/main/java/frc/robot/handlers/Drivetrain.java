@@ -22,9 +22,9 @@ public class Drivetrain extends SubsystemBase implements StateSubsystem {
   public Drivetrain() {
     stateShower.set("TELEOP");
 
-    inTrenchTrigger.onTrue(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TRENCH)));
+    inTrenchTrigger.and(Drivetrain.leftPressTrigger).onTrue(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TRENCH)));
     inTrenchTrigger.onFalse(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TELEOP)));
-
+    Drivetrain.leftPressTrigger.onFalse(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TELEOP)));
 
   }
 
@@ -40,7 +40,6 @@ public class Drivetrain extends SubsystemBase implements StateSubsystem {
   private CommandSwerveDrivetrain drive = TunerConstants.getInstance();
 
   private Trigger inTrenchTrigger = new Trigger(this::inTrenchZone);
-
 
   public enum DrivetrainStates implements State {
     IDLE,

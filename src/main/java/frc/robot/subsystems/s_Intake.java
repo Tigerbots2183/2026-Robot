@@ -78,9 +78,9 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
   private ArmConfig armCfg = new ArmConfig(talonSmartMotorController)
   // Soft limit is applied to the SmartMotorControllers PID
-  .withSoftLimits(Degrees.of(-125), Degrees.of(0))
-  // Hard limit is applied to the simulation.
-  .withHardLimit(Degrees.of(-125), Degrees.of(0))
+  .withSoftLimits(Degrees.of(-125), Degrees.of(135))
+  // // Hard limit is applied to the simulation.
+  .withHardLimit(Degrees.of(-125), Degrees.of(135))
   // Starting position is where your arm starts
   .withStartingPosition(Degrees.of(0))
   // Length and mass of your arm for sim.
@@ -104,6 +104,9 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   public void setDegrees(double deg){
     // intake.setAngle(Degrees.of(deg)).schedule();
     CommandScheduler.getInstance().schedule(intake.setAngle(Degrees.of(deg)));
+  }
+
+  public void overrideDeg(double deg){
   }
 
   public void setSpeed(double dutyCycle){

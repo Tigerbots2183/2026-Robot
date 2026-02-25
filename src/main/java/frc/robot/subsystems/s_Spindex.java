@@ -4,10 +4,14 @@
 
 package frc.robot.subsystems;
 
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.handlers.Spindex;
 
 public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Spindex. */
@@ -18,33 +22,70 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   }
 
   private SparkFlex SpindexFlexLeft = new SparkFlex(40, MotorType.kBrushless); // black wheel
-  private SparkFlex SpindexFlexRight = new SparkFlex(41, MotorType.kBrushless); // blue wheel
-  
+  private DigitalInput beamBreakLeft = new DigitalInput(9);
 
-  public static s_Spindex getInstance(){
+  private SparkFlex SpindexFlexRight = new SparkFlex(41, MotorType.kBrushless); // blue wheel
+  private DigitalInput beamBreakRight = new DigitalInput(8);
+
+  public static s_Spindex getInstance() {
     if (m_Instance == null) {
       m_Instance = new s_Spindex();
     }
     return m_Instance;
   }
 
-  public void setVoltage(double volts){
+  public void setVoltage(double volts) {
     SpindexFlexLeft.setVoltage(volts);
-    SpindexFlexRight.setVoltage(volts/2);
+    SpindexFlexRight.setVoltage(volts);
 
   }
 
-  public boolean initialized = false; 
+  public void setDiffVoltage(double volts) {
+    SpindexFlexLeft.setVoltage(-volts);
+    SpindexFlexRight.setVoltage(volts);
 
-  public boolean checkSubsystem(){
+  }
+
+  final double primaryVoltage = 1.5;
+  final double secondaryVoltage = 1.5;
+
+  public void setFromBeamBreaks() {
+
+    if (!beamBreakLeft.get() && !beamBreakRight.get()) {
+      double rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
+      if ((rounded % 1) == 0) {
+        SpindexFlexLeft.setVoltage(primaryVoltage);
+        SpindexFlexRight.setVoltage(secondaryVoltage);
+      } else {
+        SpindexFlexLeft.setVoltage(-secondaryVoltage);
+        SpindexFlexRight.setVoltage(-primaryVoltage);
+      }
+    } else if (!beamBreakLeft.get() && beamBreakRight.get()) {
+      SpindexFlexLeft.setVoltage(-secondaryVoltage);
+      SpindexFlexRight.setVoltage(-primaryVoltage);
+
+    } else if (!beamBreakRight.get() && beamBreakLeft.get()) {
+
+      SpindexFlexLeft.setVoltage(primaryVoltage);
+      SpindexFlexRight.setVoltage(secondaryVoltage);
+
+    } else {
+      SpindexFlexLeft.setVoltage(-primaryVoltage);
+      SpindexFlexRight.setVoltage(primaryVoltage);
+    }
+  }
+
+  public boolean initialized = false;
+
+  public boolean checkSubsystem() {
     return getInitialized();
   }
 
-  public boolean getInitialized(){
+  public boolean getInitialized() {
     return initialized;
   }
 
-  public void stop(){
+  public void stop() {
     SpindexFlexLeft.stopMotor();
     SpindexFlexRight.stopMotor();
 

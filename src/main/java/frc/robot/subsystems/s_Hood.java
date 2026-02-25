@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
+
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -19,6 +21,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.motorcontrollers.remote.TalonFXSWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 import edu.wpi.first.wpilibj2.command.*;
 
@@ -37,7 +40,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final DoublePublisher hoodDeg = driveStateTable.getDoubleTopic("HoodDegrees").publish();
 
-  TalonFX hoodMotor = new TalonFX(40);
+  TalonFXS hoodMotor = new TalonFXS(5, "turret");
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
@@ -54,7 +57,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
       .withOpenLoopRampRate(Seconds.of(0.0));
 
-  SmartMotorController motor = new TalonFXWrapper(hoodMotor,
+  SmartMotorController motor = new TalonFXSWrapper(hoodMotor,
       DCMotor.getMinion(1),
       motorConfig);
 
@@ -106,4 +109,5 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   public void simulationPeriodic() {
     hood.simIterate();
   }
+  
 }

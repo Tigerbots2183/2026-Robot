@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Telemetry {
     private final double MaxSpeed;
@@ -47,9 +49,19 @@ public class Telemetry {
     private final StructPublisher<ChassisSpeeds> driveSpeeds = driveStateTable.getStructTopic("Speeds", ChassisSpeeds.struct).publish();
     private final StructArrayPublisher<SwerveModuleState> driveModuleStates = driveStateTable.getStructArrayTopic("ModuleStates", SwerveModuleState.struct).publish();
     private final StructArrayPublisher<SwerveModuleState> driveModuleTargets = driveStateTable.getStructArrayTopic("ModuleTargets", SwerveModuleState.struct).publish();
-    private final StructArrayPublisher<SwerveModulePosition> driveModulePositions = driveStateTable.getStructArrayTopic("ModulePositions", SwerveModulePosition.struct).publish();
+    private final StructPublisher<SwerveModuleState> driveModuleState0 = driveStateTable.getStructTopic("ModuleState0", SwerveModuleState.struct).publish();
+    private final StructPublisher<SwerveModuleState> driveModuleState1 = driveStateTable.getStructTopic("ModuleState1", SwerveModuleState.struct).publish();
+    private final StructPublisher<SwerveModuleState> driveModuleState2 = driveStateTable.getStructTopic("ModuleState2", SwerveModuleState.struct).publish();
+    private final StructPublisher<SwerveModuleState> driveModuleState3 = driveStateTable.getStructTopic("ModuleState3", SwerveModuleState.struct).publish();
+
     private final DoublePublisher driveTimestamp = driveStateTable.getDoubleTopic("Timestamp").publish();
     private final DoublePublisher driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency").publish();
+
+    private final DoublePublisher mod1Offset = driveStateTable.getDoubleTopic("mod1").publish();
+    private final DoublePublisher mod2Offset = driveStateTable.getDoubleTopic("mod2").publish();
+    private final DoublePublisher mod3Offset = driveStateTable.getDoubleTopic("mod3").publish();
+    private final DoublePublisher mod4Offset = driveStateTable.getDoubleTopic("mod4").publish();
+
 
     /* Robot pose for field positioning */
     private final NetworkTable table = inst.getTable("Pose");
@@ -83,7 +95,7 @@ public class Telemetry {
     };
 
     private final double[] m_poseArray = new double[3];
-
+    private CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
     public void telemeterize(SwerveDriveState state) {
         /* Telemeterize the swerve drive state */
@@ -91,7 +103,11 @@ public class Telemetry {
         driveSpeeds.set(state.Speeds);
         driveModuleStates.set(state.ModuleStates);
         driveModuleTargets.set(state.ModuleTargets);
-        driveModulePositions.set(state.ModulePositions);
+        driveModuleState0.set(state.ModuleStates[0]);
+        driveModuleState1.set(state.ModuleStates[1]);
+        driveModuleState2.set(state.ModuleStates[2]);
+        driveModuleState3.set(state.ModuleStates[3]);
+
         driveTimestamp.set(state.Timestamp);
         driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
 
@@ -102,6 +118,13 @@ public class Telemetry {
         SignalLogger.writeStructArray("DriveState/ModuleTargets", SwerveModuleState.struct, state.ModuleTargets);
         SignalLogger.writeStructArray("DriveState/ModulePositions", SwerveModulePosition.struct, state.ModulePositions);
         SignalLogger.writeDouble("DriveState/OdometryPeriod", state.OdometryPeriod, "seconds");
+
+        mod1Offset.set(drivetrain.getModule(0).getEncoder().getAbsolutePosition().getValueAsDouble());
+        mod2Offset.set(drivetrain.getModule(1).getEncoder().getAbsolutePosition().getValueAsDouble());
+        mod3Offset.set(drivetrain.getModule(2).getEncoder().getAbsolutePosition().getValueAsDouble());
+        mod4Offset.set(drivetrain.getModule(3).getEncoder().getAbsolutePosition().getValueAsDouble());
+
+
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d");

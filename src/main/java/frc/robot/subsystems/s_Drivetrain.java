@@ -19,11 +19,16 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 
@@ -47,7 +52,7 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   private DoublePublisher PIDY = driveStateTable.getDoubleTopic("CALCY").publish();
   private DoublePublisher TrenchY = driveStateTable.getDoubleTopic("TrenchY").publish();
   private DoublePublisher RobotY = driveStateTable.getDoubleTopic("RobotY").publish();
-  
+
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.2).withRotationalDeadband(MaxAngularRate * 0.1)
@@ -56,11 +61,12 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   private final SwerveRequest.FieldCentricFacingAngle trenchDriveRequest = new SwerveRequest.FieldCentricFacingAngle()
       .withDeadband(MaxSpeed * 0.2).withRotationalDeadband(MaxAngularRate * 0.1)
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-      .withHeadingPID(20, 0, 0);
+      .withHeadingPID(12, 0, 0);
 
   private final Telemetry logger = new Telemetry(MaxSpeed);
 
   private final CommandXboxController controller = new CommandXboxController(0);
+  public Trigger leftPressTrigger = controller.leftStick();
 
   private DoubleSupplier setX;
   private DoubleSupplier setY;
@@ -82,9 +88,7 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   private Command trenchDrive = drivetrain.applyRequest(() -> trenchDriveRequest
       .withVelocityX(setX.getAsDouble() * MaxSpeed)
       .withVelocityY(calcY.getAsDouble())
-      .withTargetDirection(closestRot)
-      );
-
+      .withTargetDirection(closestRot));
 
   private PIDController trenchPIDY = new PIDController(12, 0, 0);
 
@@ -93,7 +97,12 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
     xStick = () -> controller.getLeftX();
     yStick = () -> controller.getLeftY();
-    rotStick = () -> controller.getRightX();
+
+    if(RobotBase.isReal()){
+      rotStick = () -> controller.getRightX();
+    }else{
+      rotStick = () -> controller.getRawAxis(2);
+    }
 
     final var idle = new SwerveRequest.Idle();
 
@@ -106,7 +115,6 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     controller.start().and(controller.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
     controller.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true));
-
     drivetrain.registerTelemetry(logger::telemeterize);
 
     drivetrain.setDefaultCommand(defaultDrive);
@@ -143,19 +151,29 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     setRot = () -> -rotStick.getAsDouble() * MaxAngularRate;
   }
 
-  public void setValuesTrench(){
+  public void setValuesTrench() {
     setX = () -> Math.copySign((yStick.getAsDouble() * yStick.getAsDouble()), (-yStick.getAsDouble()));
     // setRot = () -> -rotStick.getAsDouble() * MaxAngularRate;
-    if(robotPose.get().getRotation().getDegrees() > -90 && robotPose.get().getRotation().getDegrees() < 90){
+    if (robotPose.get().getRotation().getDegrees() > -90 && robotPose.get().getRotation().getDegrees() < 90) {
       closestRot = Rotation2d.fromDegrees(180);
 
     } else {
       closestRot = Rotation2d.fromDegrees(0);
     }
 
+    if (DriverStation.getAlliance().isPresent()) {
+      if (DriverStation.getAlliance().get() == Alliance.Red) {
+        calcY = () -> -trenchPIDY.calculate(robotPose.get().getY(), getTrenchY().in(Meters));
 
-    calcY = () -> -trenchPIDY.calculate(robotPose.get().getY(), getTrenchY().in(Meters));
-    
+      } else {
+        calcY = () -> trenchPIDY.calculate(robotPose.get().getY(), getTrenchY().in(Meters));
+
+      }
+    } else {
+      calcY = () -> trenchPIDY.calculate(robotPose.get().getY(), getTrenchY().in(Meters));
+
+    }
+
     PIDY.set(calcY.getAsDouble());
     TrenchY.set(getTrenchY().in(Meters));
     RobotY.set(robotPose.get().getY());
@@ -189,6 +207,7 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
+
     // This method will be called once per scheduler run
   }
 }

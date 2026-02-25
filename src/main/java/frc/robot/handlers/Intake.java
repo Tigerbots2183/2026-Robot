@@ -32,9 +32,11 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     IDLE,
     BROKEN,
     OUT,
+    REVERSE,
     INTAKING,
     RAISING,
     MANUAL,
+    HUMAN,
   }
 
   public void handleStateTransition(){
@@ -54,25 +56,36 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case OUT:
         stateShower.set("OUT");
-        // intake.setDegrees(-118);
+        intake.setDegrees(-100);
+
         intake.setSpeed(0);
         break;
       case INTAKING:
         stateShower.set("INTAKING");
 
         // intake.setDegrees(-118);
-        intake.setSpeed(-.5);
+        intake.setDegrees(-100);
+        intake.setSpeed(-1);
+        // intake.setDegrees(-12.5);
+
         // intake.setDegrees(70);
         break;
 
       case RAISING:
         stateShower.set("RAISING");
 
-        // intake.setDegrees(0);
+        intake.setDegrees(-100);
         intake.setSpeed(-.5);
 
-        angleAdder = 0;
+        angleAdder =  -100;
         break;
+      case REVERSE:
+        intake.setSpeed(-1);
+
+      case HUMAN:
+        stateShower.set("RAISING");
+        intake.setDegrees(0);
+        intake.setSpeed(-.75);
 
       default:
         stateShower.set("UNKNOWN");
@@ -92,7 +105,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case RAISING:
         intake.setDegrees(angleAdder);
-        if(angleAdder < 70){
+        if(angleAdder < -20){
         angleAdder += 0.8;
 
         }

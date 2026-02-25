@@ -23,7 +23,7 @@ import frc.robot.subsystems.s_Hood;
 public class Hood extends SubsystemBase implements StateSubsystem {
   /** Creates a new Hood. */
   private static Hood m_instance;
-  private HoodStates desiredState, currentState = HoodStates.TRACKING;
+  private HoodStates desiredState, currentState = HoodStates.MANUAL;
   private s_Hood hood = s_Hood.getInstance();
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
@@ -75,11 +75,15 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
 
+
+
         break;
       default:
         break;
     }
   }
+
+  double currentManualDeg = 0;
 
   public void handleStateTransition() {
     switch (desiredState) {
@@ -96,6 +100,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         stateShower.set("TRACKING");
         break;
       case MANUAL:
+        hood.setDegrees(currentManualDeg);
         stateShower.set("MANUAL");
         break;
       default:
@@ -104,6 +109,14 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     }
 
     currentState = desiredState;
+  }
+
+  public void increaseDeg(){
+    currentManualDeg++;
+  }
+
+  public void decreaseDeg(){
+    currentManualDeg--;
   }
 
   public void setDesiredState(State state) {
