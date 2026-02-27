@@ -207,7 +207,8 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
-
+    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-rsl");
+    drivetrain.addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
     // This method will be called once per scheduler run
   }
 }

@@ -29,6 +29,9 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState");
+  private final NetworkTable turretTable = networkTable.getTable("TurretState");
+
+  private DoublePublisher hoodManualAngle = turretTable.getDoubleTopic("ManualHoodAngle").publish();
   // private final NetworkTable hoodStateTable =
   // networkTable.getTable("HoodState");
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
@@ -42,6 +45,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
 
   public Hood() {
     stateShower.set("IDLE");
+        hood.setDegreeCommand();
 
   }
 
@@ -53,6 +57,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   }
 
   public void update() {
+
     switch (currentState) {
       case IDLE:
         hood.stop();
@@ -74,8 +79,8 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         hood.setDegrees(dist * 5);
         break;
       case MANUAL:
-
-
+        hoodManualAngle.set(currentManualDeg);
+        hood.setDegrees(currentManualDeg);
 
         break;
       default:
@@ -98,9 +103,11 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         break;
       case TRACKING:
         stateShower.set("TRACKING");
+        hood.setDegreeCommand();
         break;
       case MANUAL:
-        hood.setDegrees(currentManualDeg);
+        hood.setDegreeCommand();
+
         stateShower.set("MANUAL");
         break;
       default:
@@ -112,11 +119,12 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   }
 
   public void increaseDeg(){
-    currentManualDeg++;
+    currentManualDeg+= 10.0;
   }
 
   public void decreaseDeg(){
-    currentManualDeg--;
+    currentManualDeg-= 10.0;
+    
   }
 
   public void setDesiredState(State state) {

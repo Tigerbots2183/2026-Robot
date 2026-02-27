@@ -23,7 +23,7 @@ import frc.robot.handlers.Vision;
 public class s_Vision extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Example. */
   public static s_Vision m_Instance;
-  public static QuestNavSubsystem Qnav;
+  public static QuestNavSubsystem Qnav = QuestNavSubsystem.getInstance();
 
   public s_Vision() {
     initialized = true;

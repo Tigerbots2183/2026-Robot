@@ -62,13 +62,14 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   TalonFX turretMotor = new TalonFX(3);
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withClosedLoopController(16.0,0.0, .6, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
+      .withSimClosedLoopController(16.0,0.0, .6, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
       // 20,0,0.6
+      .withClosedLoopController(10.0,0.0, 0, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
       // Configure Motor and Mechanism properties
-      .withGearing(new MechanismGearing(144 / 18))
+      .withGearing(new MechanismGearing(144 / 15,5))
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
-      .withFeedforward(new SimpleMotorFeedforward(0.0,3.5, 0.0))
+      .withFeedforward(new SimpleMotorFeedforward(2.0,0.0, 0.0))
       
       //0.0,5.5`
       // Setup Telemetry
@@ -84,12 +85,16 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
 
   PivotConfig m_config = new PivotConfig(motor)
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
-      .withHardLimit(Degrees.of(-1080), Degrees.of(1080)) // Hard limit bc wiring prevents infinite spinning
-      .withSoftLimits(Degrees.of(-1060), Degrees.of(1060))
+      .withHardLimit(Degrees.of(0), Degrees.of(360)) // Hard limit bc wiring prevents infinite spinning
+      .withSoftLimits(Degrees.of(0), Degrees.of(360))
       .withTelemetry("Turret", TelemetryVerbosity.HIGH) // Telemetry
       .withMOI(yams.units.YUnits.PoundSquareInches.of(362.787082)); // MOI Calculation
 
   private Pivot turret = new Pivot(m_config); 
+
+  private double angle = 0;
+  private Command angleCommand = turret.setAngle(()->Degrees.of(angle)).ignoringDisable(true);
+
 
   public void stop() {
     turret.setVoltage(Voltage.ofBaseUnits(0.0, Millivolt));
@@ -105,13 +110,11 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     return initialized;
   }
 
+  public void setDegreeCommand(){
+    CommandScheduler.getInstance().schedule(angleCommand);
+  }
+
   public void setDegrees(double degrees) {
-    
-    if(degrees >= 1060){
-      degrees = 1060;
-    } else if(degrees <= -1060){
-      degrees = -1060;
-    }
 
     if(Math.abs(degrees-turret.getAngle().in(Degrees)) <= 20 ){
       inaccurate = () -> false;
@@ -124,9 +127,8 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     if (degrees == previousDegrees) {
       return;
     } else{
-      CommandScheduler.getInstance().schedule(turret.setAngle(Degrees.of(degrees)));
 
-      previousDegrees = degrees;
+      this.angle = degrees;
     }
 
     actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(), robotPose.get().getTranslation().getY(), 1,

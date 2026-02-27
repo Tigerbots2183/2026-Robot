@@ -4,6 +4,7 @@
 
 package frc.robot.handlers;
 
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -13,7 +14,8 @@ import frc.robot.subsystems.s_Shooter;
 public class Shooter extends SubsystemBase implements StateSubsystem {
   /** Creates a new Shooter. */
   public Shooter() {
-    stateShower.set("IDLE");
+    stateShower.set("SHOOTING");
+
   }
 
   private static Shooter m_Instance;
@@ -22,6 +24,10 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
   private final StringPublisher stateShower = stateTable.getStringTopic("ShooterState").publish();
+
+  private final NetworkTable turretTable = networkTable.getTable("TurretState");
+  
+  private final DoublePublisher flywheelRpm = turretTable.getDoubleTopic("Flywheel Rpm").publish();
 
   private s_Shooter Shooter = s_Shooter.getInstance();
 
@@ -38,7 +44,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
       case IDLE:
         stateShower.set("IDLE");
         Shooter.setIndexVolts(0);
-        Shooter.setShooterVolts(0);
+        Shooter.setStopCommand();
         break;
       case BROKEN:
         stateShower.set("BROKEN");
@@ -49,13 +55,15 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
       case SHOOTING:
         stateShower.set("SHOOTING");
         Shooter.setIndexSpeed(.65);
-        Shooter.setShooterVolts(4.93);
+        Shooter.setShooterCommand();
+        Shooter.setRPM(3370);
 
         break;
       case REVVING:
-        stateShower.set("SHOOTING");
+        stateShower.set("REVVING");
         Shooter.setIndexSpeed(0);
-        Shooter.setShooterVolts(5.33);
+        Shooter.setShooterCommand();
+        Shooter.setRPM(3370);
 
       default:
         stateShower.set("UNKNOWN");
@@ -64,6 +72,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   }
 
   public void update(){
+    flywheelRpm.set(Shooter.getVelocity());
     switch (currentState) {
       case IDLE:
         break;

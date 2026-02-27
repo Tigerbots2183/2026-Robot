@@ -17,6 +17,9 @@ import yams.mechanisms.positional.Pivot;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import static edu.wpi.first.units.Units.*;
+
+import java.util.function.DoubleSupplier;
+
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -40,19 +43,20 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final DoublePublisher hoodDeg = driveStateTable.getDoubleTopic("HoodDegrees").publish();
 
+
   TalonFXS hoodMotor = new TalonFXS(5, "turret");
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withClosedLoopController(12, 0, 0, DegreesPerSecond.of(135), DegreesPerSecondPerSecond.of(90))
+      .withClosedLoopController(40, 0, 0, DegreesPerSecond.of(135), DegreesPerSecondPerSecond.of(90))
       // Configure Motor and Mechanism propertes
-      .withGearing(new MechanismGearing(30 / 16, 40 / 20, 34 / 16, 210 / 40))
+      .withGearing(new MechanismGearing(30 / 16, 40 / 20, 34 / 16, 210 / 40, 2.5))
       .withIdleMode(MotorMode.BRAKE)
-      .withMotorInverted(false)
+      .withMotorInverted(true)
       // Setup Telemetry\
       .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
       // Power Optimization
-      .withStatorCurrentLimit(Amps.of(15))
+      .withStatorCurrentLimit(Amps.of(30))
       .withClosedLoopRampRate(Seconds.of(0.0))
 
       .withOpenLoopRampRate(Seconds.of(0.0));
@@ -70,6 +74,11 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   private Pivot hood = new Pivot(m_config);
 
+  Double angle = 0.0;
+    private Command stopCommand = hood.set(0);
+  private Command setAngleCommand = hood.setAngle(()-> Degrees.of(angle)).ignoringDisable(true);
+
+
   public boolean checkSubsystem() {
     return getInitialized();
   }
@@ -78,16 +87,19 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     return initialized;
   }
 
+  public void setDegreeCommand(){
+    CommandScheduler.getInstance().schedule(setAngleCommand);
+  }
+
   public void setDegrees(double actualDegrees) {
-    actualDegrees %= 360;
-    
-    CommandScheduler.getInstance().schedule(
-        hood.setAngle(Degrees.of(actualDegrees)));
+    angle = actualDegrees;
+    // CommandScheduler.getInstance().schedule(
+    //     hood.setAngle(Degrees.of(actualDegrees)));
   }
 
   public void stop() {
-    CommandScheduler.getInstance().schedule(
-        hood.set(0));
+    // CommandScheduler.getInstance().schedule(
+    //     stopCommand);
   }
 
   public static s_Hood getInstance() {
@@ -109,5 +121,5 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   public void simulationPeriodic() {
     hood.simIterate();
   }
-  
+
 }

@@ -22,6 +22,7 @@ import frc.robot.handlers.Intake;
 import frc.robot.handlers.Shooter;
 import frc.robot.handlers.Spindex;
 import frc.robot.handlers.Turret;
+import frc.robot.handlers.Vision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.s_Intake;
@@ -34,8 +35,8 @@ public class RobotContainer {
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
     // private QuestNavSubsystem Q_Nav = QuestNavSubsystem.getInstance();
-
-    // private Turret H_Turret = Turret.getInstance();
+    // private Vision H_Vision = Vision.getInstance();
+    private Turret H_Turret = Turret.getInstance();
     private Hood H_Hood = Hood.getInstance();
 
     

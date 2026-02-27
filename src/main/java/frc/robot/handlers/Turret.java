@@ -55,6 +55,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
 
     goalPose.set(goalPosition);
+    turret.setDegreeCommand();
     stateShower.set("TRACKING");
   }
 
@@ -110,20 +111,20 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
         currentRotation += currentRotationChange;
 
-        if(currentRotation > 1040){
+        // if(currentRotation > 360){
 
-          currentRotation = (currentRotation % 360) -360;
+        //   currentRotation = (currentRotation % 360);
 
-          this.setDesiredState(TurretStates.UNWINDING);
+        //   this.setDesiredState(TurretStates.UNWINDING);
 
-          return;
-        } else if (currentRotation < -1040){
-          currentRotation = (currentRotation % 360) + 360;
+        //   return;
+        // } else if (currentRotation < 0){
+        //   currentRotation = (currentRotation % 360);
 
-          this.setDesiredState(TurretStates.UNWINDING);
+        //   this.setDesiredState(TurretStates.UNWINDING);
 
-          return;
-        }
+        //   return;
+        // }
 
         turret.setDegrees(currentRotation);
 
@@ -189,12 +190,14 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         stateShower.set("TRACKING");
         turret.stop();
         unwindCommandBound = false;
+        turret.setDegreeCommand();
         goalPose.set(goalPosition);
         break;
       case INACCURATE:
         stateShower.set("INACCURATE");
         turret.stop();
         unwindCommandBound = false;
+        turret.setDegreeCommand();
         goalPose.set(goalPosition);
         break;
       case UNWINDING:

@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
@@ -25,11 +26,11 @@ public class Drivetrain extends SubsystemBase implements StateSubsystem {
     inTrenchTrigger.and(Drivetrain.leftPressTrigger).onTrue(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TRENCH)));
     inTrenchTrigger.onFalse(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TELEOP)));
     Drivetrain.leftPressTrigger.onFalse(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TELEOP)));
-
+    RobotModeTriggers.teleop().onTrue(Commands.runOnce(()-> this.setDesiredState(DrivetrainStates.TELEOP)));
   }
 
   private static Drivetrain m_Instance;
-  private DrivetrainStates desiredState, currentState = DrivetrainStates.TELEOP;
+  private DrivetrainStates desiredState, currentState = DrivetrainStates.IDLE;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
