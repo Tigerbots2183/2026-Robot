@@ -19,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Hood;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meter;
+
 import frc.robot.subsystems.Touchboard.NumberComponent;
 
 public class Hood extends SubsystemBase implements StateSubsystem {
@@ -77,11 +80,14 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         Pose2d robotPose = robotPoseSupplier.get();
         Pose2d translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        double dist = Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
-            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2));
+        double dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
         goalDistance.set(dist);
 
-        hood.setDegrees(dist * 5);
+        if(dist < 12+1.83333333333){
+        hood.setDegrees(((Meter.of(dist).in(Feet)) * 1.43284)+8.03284);
+
+        }
         break;
       case MANUAL:
         // hoodManualAngle.set(()-> tbAngle.getValue());

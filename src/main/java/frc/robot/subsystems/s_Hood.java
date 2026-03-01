@@ -91,7 +91,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     CommandScheduler.getInstance().schedule(setAngleCommand);
   }
 
-  
+
 
   public void setDegrees(double actualDegrees) {
     angle = actualDegrees;
