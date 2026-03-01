@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -115,6 +117,8 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     controller.start().and(controller.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
     controller.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true));
+    controller.start().onTrue(Commands.runOnce(()->QuestNavSubsystem.getInstance().setPose(new Pose3d(new Pose2d(drivetrain.getState().Pose.getTranslation(), Rotation2d.fromDegrees(180))) )).ignoringDisable(true));
+
     drivetrain.registerTelemetry(logger::telemeterize);
 
     drivetrain.setDefaultCommand(defaultDrive);
@@ -207,8 +211,8 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
-    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-rsl");
-    drivetrain.addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
+    // LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-rsl");
+    // drivetrain.addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
     // This method will be called once per scheduler run
   }
 }

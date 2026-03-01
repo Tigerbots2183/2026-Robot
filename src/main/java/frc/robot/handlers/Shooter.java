@@ -4,17 +4,26 @@
 
 package frc.robot.handlers;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.s_Shooter;
+import frc.robot.subsystems.Touchboard.NumberComponent;
 
 public class Shooter extends SubsystemBase implements StateSubsystem {
   /** Creates a new Shooter. */
+  NumberComponent manualRpm;
+  NumberComponent manualIndex;
+
   public Shooter() {
     stateShower.set("SHOOTING");
+    manualRpm = new NumberComponent("tbRpm");
+    manualIndex = new NumberComponent("tbIndex");
+
 
   }
 
@@ -37,6 +46,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     SHOOTING,
     MANUAL,
     REVVING,
+    REVERSE,
   }
 
   public void handleStateTransition(){
@@ -54,16 +64,24 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case SHOOTING:
         stateShower.set("SHOOTING");
-        Shooter.setIndexSpeed(.65);
+        Shooter.setIndexVolts(9.6);
         Shooter.setShooterCommand();
-        Shooter.setRPM(3370);
-
+        Shooter.setRPM(()->manualRpm.getValue());
         break;
+
       case REVVING:
         stateShower.set("REVVING");
         Shooter.setIndexSpeed(0);
         Shooter.setShooterCommand();
-        Shooter.setRPM(3370);
+        Shooter.setRPM(()->manualRpm.getValue());
+
+        break;
+
+      case REVERSE:
+        Shooter.setIndexSpeed(-1);
+        Shooter.setShooterCommand();
+        Shooter.setRPM(-500);
+        break;
 
       default:
         stateShower.set("UNKNOWN");

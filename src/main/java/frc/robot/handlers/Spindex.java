@@ -104,7 +104,6 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
 
   @Override
   public void periodic() {
-    update();
-    // This method will be called once per scheduler run
+    // update(); Ran in seperate addPeriodic in robot!!!!!
   }
 }

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Hood;
+import frc.robot.subsystems.Touchboard.NumberComponent;
 
 public class Hood extends SubsystemBase implements StateSubsystem {
   /** Creates a new Hood. */
@@ -43,9 +44,13 @@ public class Hood extends SubsystemBase implements StateSubsystem {
 
   private final DoublePublisher goalDistance = driveStateTable.getDoubleTopic("GoalDistance").publish();
 
+  private NumberComponent tbAngle;
+
   public Hood() {
     stateShower.set("IDLE");
         hood.setDegreeCommand();
+    tbAngle = new NumberComponent("tbAngle");
+
 
   }
 
@@ -79,8 +84,8 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         hood.setDegrees(dist * 5);
         break;
       case MANUAL:
-        hoodManualAngle.set(currentManualDeg);
-        hood.setDegrees(currentManualDeg);
+        // hoodManualAngle.set(()-> tbAngle.getValue());
+        hood.setDegrees(()-> tbAngle.getValue());
 
         break;
       default:
@@ -119,11 +124,11 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   }
 
   public void increaseDeg(){
-    currentManualDeg+= 10.0;
+    currentManualDeg+= 2.5;
   }
 
   public void decreaseDeg(){
-    currentManualDeg-= 10.0;
+    currentManualDeg-= 2.5;
     
   }
 

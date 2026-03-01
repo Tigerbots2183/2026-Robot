@@ -15,6 +15,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -65,7 +66,7 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
       .withFeedforward(new SimpleMotorFeedforward(0, 0.1304, 0))
       .withSimFeedforward(new SimpleMotorFeedforward(0, 0.1304, 0))
       // Telemetry name and verbosity level
-      .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
+      // .withTelemetry("ShooterMotor", TelemetryVerbosity.LOW)
       .withGearing(new MechanismGearing(GearBox.fromTeeth(38, 40)))
       // Motor properties to prevent over currenting.
       .withMotorInverted(false)
@@ -81,9 +82,9 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
       // Mass of the flywheel.
       .withMass(Pounds.of(4.3983595))
       // Maximum speed of the shooter.
-      .withUpperSoftLimit(RPM.of(5000))
+      .withUpperSoftLimit(RPM.of(5000));
       // Telemetry name and verbosity for the arm.
-      .withTelemetry("Flywheel", TelemetryVerbosity.HIGH);
+      // .withTelemetry("Flywheel", TelemetryVerbosity.LOW);
 
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);
@@ -115,10 +116,18 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
   public void setIndexVolts(double volts) {
     indexFlex.setVoltage(volts);
   }
-
+  public void setIndexVolts(DoubleSupplier volts) {
+    indexFlex.setVoltage(volts.getAsDouble());
+  }
   public void setIndexSpeed(double dutyCycle) {
     indexFlex.set(dutyCycle);
   }
+  
+  
+  public void setIndexSpeed(DoubleSupplier dutyCycle) {
+    indexFlex.set(dutyCycle.getAsDouble());
+  }
+
 
   public void setShooterCommand(){
     CommandScheduler.getInstance().schedule(setShooter);
@@ -138,6 +147,11 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
     this.rpm = rpm;
   }
 
+    public void setRPM(DoubleSupplier rpm) {
+    this.rpm = rpm.getAsDouble();
+  }
+
+
   public double getVelocity(){
     return shooter.getSpeed().in(RPM);
   }
@@ -152,7 +166,7 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
-    shooter.updateTelemetry();
+    // shooter.updateTelemetry();
     // This method will be called once per scheduler run
   }
 

@@ -85,7 +85,7 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
     seeded.set(false);
     LimelightHelpers.PoseEstimate rsl = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-rsl");
 
-    if (rsl.tagCount >= 3) {
+    if (rsl.tagCount >= 2) {
       sinceSeeded = Timer.getTimestamp();
       lastSeededPose.set(rsl.pose);
       seeded.set(true);

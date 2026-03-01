@@ -21,10 +21,13 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import static edu.wpi.first.units.Units.*;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.remote.TalonFXWrapper;
+
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -41,43 +44,45 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
 
   private double previousTimestamp = 0;
   private double previousYamsDegrees = 0;
-  
-  public Supplier<Boolean> inaccurate = ()-> false;
+
+  public Supplier<Boolean> inaccurate = () -> false;
   private final TurretIO turretSimulation = TurretIO.getInstance();
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
-  private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
+  private final NetworkTable driveStateTable = networkTable.getTable("TurretState");
   private final DoublePublisher yamsRotation = driveStateTable.getDoubleTopic("yamsRotation").publish();
   private final DoublePublisher yamsVelocity = driveStateTable.getDoubleTopic("yamsVelocity").publish();
   private final DoublePublisher degreesOff = driveStateTable.getDoubleTopic("degreesOff").publish();
-
 
   private final StructPublisher<Pose3d> yamsAngleShowerPose = driveStateTable
       .getStructTopic("yamsAngleShowerPose", Pose3d.struct).publish();
 
   private final StructPublisher<Pose3d> actualAngleShowerPose = driveStateTable
       .getStructTopic("actualAngleShowerPose", Pose3d.struct).publish();
-  
-  private Supplier<Pose2d> robotPose = ()-> TunerConstants.getInstance().getState().Pose;
+
+  private Supplier<Pose2d> robotPose = () -> TunerConstants.getInstance().getState().Pose;
 
   TalonFX turretMotor = new TalonFX(3);
+
+  double[] ratio = { 144 / 15, 5, 1.1};
+
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withSimClosedLoopController(16.0,0.0, .6, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
+      .withSimClosedLoopController(16.0, 0.0, .6, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
       // 20,0,0.6
-      .withClosedLoopController(10.0,0.0, 0, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
+      .withClosedLoopController(10.0, 0.0, 0, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
       // Configure Motor and Mechanism properties
-      .withGearing(new MechanismGearing(144 / 15,5))
+      .withGearing(new MechanismGearing(new GearBox(ratio)))
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
-      .withFeedforward(new SimpleMotorFeedforward(2.0,0.0, 0.0))
-      
-      //0.0,5.5`
+      .withFeedforward(new SimpleMotorFeedforward(1.35, 0.0, 0.0))
+
+      // 0.0,5.5`
       // Setup Telemetry
-      .withTelemetry("TurretMotor", TelemetryVerbosity.HIGH)
+      .withTelemetry("TurretMotor", TelemetryVerbosity.LOW)
       // Power Optimization
       .withStatorCurrentLimit(Amps.of(60))
       .withClosedLoopRampRate(Seconds.of(0.0))
-      
+
       .withOpenLoopRampRate(Seconds.of(0.0));
   SmartMotorController motor = new TalonFXWrapper(turretMotor,
       DCMotor.getKrakenX60(1),
@@ -87,14 +92,13 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
       .withHardLimit(Degrees.of(0), Degrees.of(360)) // Hard limit bc wiring prevents infinite spinning
       .withSoftLimits(Degrees.of(0), Degrees.of(360))
-      .withTelemetry("Turret", TelemetryVerbosity.HIGH) // Telemetry
+      .withTelemetry("Turret", TelemetryVerbosity.LOW) // Telemetry
       .withMOI(yams.units.YUnits.PoundSquareInches.of(362.787082)); // MOI Calculation
 
-  private Pivot turret = new Pivot(m_config); 
+  private Pivot turret = new Pivot(m_config);
 
   private double angle = 0;
-  private Command angleCommand = turret.setAngle(()->Degrees.of(angle)).ignoringDisable(true);
-
+  private Command angleCommand = turret.setAngle(() -> Degrees.of(angle)).ignoringDisable(true);
 
   public void stop() {
     turret.setVoltage(Voltage.ofBaseUnits(0.0, Millivolt));
@@ -110,42 +114,79 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     return initialized;
   }
 
-  public void setDegreeCommand(){
+  public void setDegreeCommand() {
     CommandScheduler.getInstance().schedule(angleCommand);
   }
 
-  public void setDegrees(double degrees) {
-
-    if(Math.abs(degrees-turret.getAngle().in(Degrees)) <= 20 ){
+  public void setDegrees(DoubleSupplier degreesSupplier) {
+    Double degrees = degreesSupplier.getAsDouble();
+    if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 20) {
       inaccurate = () -> false;
     } else {
       inaccurate = () -> true;
     }
 
-    degreesOff.set(Math.abs(degrees-turret.getAngle().in(Degrees)));
+    degreesOff.set(Math.abs(degrees - turret.getAngle().in(Degrees)));
 
     if (degrees == previousDegrees) {
       return;
-    } else{
+    } else {
 
       this.angle = degrees;
     }
 
-    actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(), robotPose.get().getTranslation().getY(), 1,
-            new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));    
+    actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(),
+        robotPose.get().getTranslation().getY(), 1,
+        new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
 
-    yamsVelocity.set((turret.getAngle().in(Degrees) - previousYamsDegrees) /(Timer.getTimestamp() - previousTimestamp));
+    yamsVelocity
+        .set((turret.getAngle().in(Degrees) - previousYamsDegrees) / (Timer.getTimestamp() - previousTimestamp));
 
-    previousYamsDegrees = turret.getAngle().in(Degrees) ;   
+    previousYamsDegrees = turret.getAngle().in(Degrees);
     previousTimestamp = Timer.getTimestamp();
     // turretSimulation.setTurretDegrees(degrees);
   }
 
-  public Command getDegreeSetter(double degrees){
-    //Returns the command that sets current degrees to turret 
+  public void setDegrees(double degrees) {
+    if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 20) {
+      inaccurate = () -> false;
+    } else {
+      inaccurate = () -> true;
+    }
 
+    degreesOff.set(Math.abs(degrees - turret.getAngle().in(Degrees)));
 
-    return turret.setAngle(Degrees.of(degrees)).until(()-> turret.getAngle().in(Degrees) < degrees + 10 && turret.getAngle().in(Degrees) > degrees - 10);
+    if (degrees == previousDegrees) {
+      return;
+    } else {
+
+      this.angle = degrees;
+    }
+
+    actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(),
+        robotPose.get().getTranslation().getY(), 1,
+        new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
+
+    yamsVelocity
+        .set((turret.getAngle().in(Degrees) - previousYamsDegrees) / (Timer.getTimestamp() - previousTimestamp));
+
+    previousYamsDegrees = turret.getAngle().in(Degrees);
+    previousTimestamp = Timer.getTimestamp();
+    // turretSimulation.setTurretDegrees(degrees);
+  }
+
+  public Command getDegreeSetter(double degrees) {
+    // Returns the command that sets current degrees to turret
+
+    return turret.setAngle(Degrees.of(degrees))
+        .until(() -> turret.getAngle().in(Degrees) < degrees + 10 && turret.getAngle().in(Degrees) > degrees - 10);
+  }
+
+  public Command getDegreeSetter(DoubleSupplier degreesSupplier) {
+    // Returns the command that sets current degrees to turret
+    Double degrees = degreesSupplier.getAsDouble();
+    return turret.setAngle(Degrees.of(degrees))
+        .until(() -> turret.getAngle().in(Degrees) < degrees + 10 && turret.getAngle().in(Degrees) > degrees - 10);
   }
 
   public static s_Turret getInstance() {
@@ -163,14 +204,16 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   public void runSYSID() {
     turret.sysId(Volts.of(12), Volts.of(0.5).per(Second), Seconds.of(12));
   }
-  
+
   @Override
   public void periodic() {
     turret.updateTelemetry();
     yamsRotation.set(turret.getAngle().in(Degree));
     turretSimulation.setTurretDegrees(turret.getAngle().in(Degree));
-    yamsAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(), robotPose.get().getTranslation().getY(), 1,
-            new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(turret.getAngle().in(Degree)).plus(robotPose.get().getRotation()).getRadians())));
+    yamsAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(), robotPose.get().getTranslation().getY(),
+        1,
+        new Rotation3d(0.0, 0.0,
+            Rotation2d.fromDegrees(turret.getAngle().in(Degree)).plus(robotPose.get().getRotation()).getRadians())));
     // This method will be called once per scheduler run
   }
 

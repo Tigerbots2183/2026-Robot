@@ -45,6 +45,8 @@ public class QuestNavSubsystem extends SubsystemBase {
             .transformBy(Constants.QuestNavConstants.ROBOT_TO_QUEST);
     StructPublisher<Pose3d> posePublisher = NetworkTableInstance.getDefault()
             .getStructTopic("/QuestPose", Pose3d.struct).publish();
+    StructPublisher<Pose3d> nonTranslatedPublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("/QuestPoseNoTrans", Pose3d.struct).publish();
 
     Boolean haveQuest = false;
 
@@ -66,7 +68,7 @@ public class QuestNavSubsystem extends SubsystemBase {
     }
 
     public void setPose(Pose3d position) {
-        questNav.setPose(position);
+        questNav.setPose(position.transformBy(Constants.QuestNavConstants.ROBOT_TO_QUEST));
     }
 
     public void setInitialPose() {
@@ -119,6 +121,8 @@ public class QuestNavSubsystem extends SubsystemBase {
                 // Get timestamp for when the data was sent
                 double timestamp = questFrame.dataTimestamp();
                 // Transform by the mount pose to get your robot pose
+                nonTranslatedPublisher.set(questPose);
+
                 Pose3d robotPose = questPose.transformBy(Constants.QuestNavConstants.ROBOT_TO_QUEST.inverse());
                 posePublisher.set(robotPose);
 

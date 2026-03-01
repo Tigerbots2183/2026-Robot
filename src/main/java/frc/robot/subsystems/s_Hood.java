@@ -54,9 +54,9 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(true)
       // Setup Telemetry\
-      .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
+      // .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
       // Power Optimization
-      .withStatorCurrentLimit(Amps.of(30))
+      .withStatorCurrentLimit(Amps.of(40))
       .withClosedLoopRampRate(Seconds.of(0.0))
 
       .withOpenLoopRampRate(Seconds.of(0.0));
@@ -69,7 +69,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
       .withHardLimit(Degrees.of(0), Degrees.of(50)) // Hard limit bc wiring prevents infinite spinning
       .withSoftLimits(Degrees.of(0), Degrees.of(50))
-      .withTelemetry("Hood", TelemetryVerbosity.HIGH) // Telemetry
+      // .withTelemetry("Hood", TelemetryVerbosity.LOW) // Telemetry
       .withMOI(KilogramSquareMeters.of(0.04475326));
 
   private Pivot hood = new Pivot(m_config);
@@ -91,8 +91,17 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     CommandScheduler.getInstance().schedule(setAngleCommand);
   }
 
+  
+
   public void setDegrees(double actualDegrees) {
     angle = actualDegrees;
+    // CommandScheduler.getInstance().schedule(
+    //     hood.setAngle(Degrees.of(actualDegrees)));
+  }
+
+  
+  public void setDegrees(DoubleSupplier actualDegrees) {
+    angle = actualDegrees.getAsDouble();
     // CommandScheduler.getInstance().schedule(
     //     hood.setAngle(Degrees.of(actualDegrees)));
   }
@@ -111,9 +120,10 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
-    hood.updateTelemetry();
-    turretSimulation.setHoodDegrees(hood.getAngle().in(Degrees));
-    hoodDeg.set(hood.getAngle().in(Degrees));
+    // hood.updateTelemetry();
+    Double getAngle = hood.getAngle().in(Degree);
+    turretSimulation.setHoodDegrees(getAngle);
+    hoodDeg.set(getAngle);
     // This method will be called once per scheduler run
   }
 

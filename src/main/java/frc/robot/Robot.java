@@ -34,12 +34,13 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         m_robotContainer = new RobotContainer();
+        addPeriodic(()->m_robotContainer.H_Spindex.update(), 0.01);
+
     }
 
 
     @Override
     public void robotPeriodic() {
-        
 
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
@@ -98,6 +99,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        
         mJukebox.mOrchestra.stop();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);

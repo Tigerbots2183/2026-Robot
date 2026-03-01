@@ -18,12 +18,13 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Turret;
 import frc.robot.subsystems.Touchboard.JukeboxUtil;
+import frc.robot.subsystems.Touchboard.NumberComponent;
 import edu.wpi.first.wpilibj2.command.*;
 
 public class Turret extends SubsystemBase implements StateSubsystem {
   /** Creates a new TurretTracker. */
 
-  private TurretStates desiredState, currentState = TurretStates.TRACKING;
+  private TurretStates desiredState, currentState = TurretStates.MANUAL;
 
   private s_Turret turret = s_Turret.getInstance();
   private static Turret m_Instance;
@@ -56,6 +57,11 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
     goalPose.set(goalPosition);
     turret.setDegreeCommand();
+
+    NumberComponent manual = new NumberComponent("tbTurretDeg");
+
+    manual.setCommand(()-> turret.getDegreeSetter(()-> manual.getValue() ));
+
     stateShower.set("TRACKING");
   }
 
@@ -147,6 +153,8 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         }
         
         break;
+      case MANUAL:
+  
       default:
         break;
     }
