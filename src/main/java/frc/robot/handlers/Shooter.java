@@ -21,22 +21,21 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Shooter;
-import frc.robot.subsystems.Touchboard.NumberComponent;
+import frc.robot.subsystems.Touchboard.Touchboard;
 
 public class Shooter extends SubsystemBase implements StateSubsystem {
   /** Creates a new Shooter. */
-  NumberComponent manualRpm;
-  NumberComponent manualIndex;
+
 
   public Shooter() {
     stateShower.set("SHOOTING");
-    manualRpm = new NumberComponent("tbRpm");
-    manualIndex = new NumberComponent("tbIndex");
+    // manualRpm = new NumberComponent("tbRpm");
+    // manualIndex = new NumberComponent("tbIndex");
 
   }
 
   private static Shooter m_Instance;
-  private ShooterStates desiredState, currentState = ShooterStates.IDLE;
+  private ShooterStates desiredState, currentState = ShooterStates.MANUAL;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
@@ -62,6 +61,10 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     REVERSE,
   }
 
+  Pose2d currentGoalPosition;
+  Pose2d translatedTurretPose;
+  Double dist;
+
   public void handleStateTransition() {
     switch (desiredState) {
       case IDLE:
@@ -74,21 +77,22 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         stateShower.set("MANUAL");
+        Shooter.setRPM(Touchboard.getDoubleValue("tbRpm"));
+        Shooter.setIndexVolts(Touchboard.getDoubleValue("tbIndex"));
         break;
       case SHOOTING:
         stateShower.set("SHOOTING");
         Shooter.setIndexVolts(9.6);
         Shooter.setShooterCommand();
 
-        Pose2d currentGoalPosition = goalPosition.get();
-        Pose2d robotPose = robotPoseSupplier.get();
-        Pose2d translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+        currentGoalPosition = goalPosition.get();
+        translatedTurretPose =  robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        double dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
         if (dist < 13 + 1.83333333333) {
-          Shooter.setRPM(2000);
+          Shooter.setRPM(2025);
 
         }
 
@@ -96,21 +100,21 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
       case REVVING:
         stateShower.set("REVVING");
-        Shooter.setIndexSpeed(0);
+        Shooter.setIndexSpeed(9.6);
         Shooter.setShooterCommand();
 
-        Pose2d currentGoalPositionRev = goalPosition.get();
-        Pose2d robotPoseRev = robotPoseSupplier.get();
-        Pose2d translatedTurretPoseRev = robotPoseRev.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+        currentGoalPosition = goalPosition.get();
+        translatedTurretPose =  robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        double distRev = Meter.of(Math.sqrt(Math.pow((translatedTurretPoseRev.getX() - currentGoalPositionRev.getX()), 2)
-            + Math.pow((translatedTurretPoseRev.getY() - currentGoalPositionRev.getY()), 2))).in(Feet);
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        if (distRev < 13 + 1.83333333333) {
-          Shooter.setRPM(2000);
+        Shooter.setRPM(Touchboard.getDoubleValue("tbRpm"));
 
-        }
+        // if (dist < 13 + 1.83333333333) {
+        //   Shooter.setRPM(2025);
 
+        // }
         break;
 
       case REVERSE:

@@ -24,8 +24,8 @@ public class Intake extends SubsystemBase implements StateSubsystem {
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
-  private final StringPublisher stateShower = stateTable.getStringTopic("IntakeState").publish(); 
-  private final DoublePublisher DoubleShower = stateTable.getDoubleTopic("AngleAdder").publish(); 
+  private final StringPublisher stateShower = stateTable.getStringTopic("IntakeState").publish();
+  private final DoublePublisher DoubleShower = stateTable.getDoubleTopic("AngleAdder").publish();
   private double angleAdder = 0;
 
   public enum IntakeStates implements State {
@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     HUMAN,
   }
 
-  public void handleStateTransition(){
+  public void handleStateTransition() {
 
     switch (desiredState) {
       case IDLE:
@@ -77,16 +77,16 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         intake.setDegrees(-100);
         intake.setSpeed(-.5);
 
-        angleAdder =  -100;
+        angleAdder = -100;
         break;
       case REVERSE:
         intake.setSpeed(-1);
-
+        break;
       case HUMAN:
         stateShower.set("RAISING");
         intake.setDegrees(0);
         intake.setSpeed(-.75);
-
+      break;
       default:
         stateShower.set("UNKNOWN");
         break;
@@ -94,8 +94,8 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     currentState = desiredState;
   }
 
-  public void update(){
-    
+  public void update() {
+
     switch (currentState) {
       case IDLE:
         break;
@@ -105,8 +105,8 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case RAISING:
         intake.setDegrees(angleAdder);
-        if(angleAdder < -20){
-        angleAdder += 0.8;
+        if (angleAdder < -20) {
+          angleAdder += 2;
 
         }
         DoubleShower.set(angleAdder);
@@ -118,7 +118,6 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     }
   }
 
-  
   public void setDesiredState(State state) {
     if (this.desiredState != state) {
       desiredState = (IntakeStates) state;
@@ -126,8 +125,8 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     }
   }
 
-  public static Intake getInstance(){
-    if(m_Instance == null){
+  public static Intake getInstance() {
+    if (m_Instance == null) {
       m_Instance = new Intake();
     }
     return m_Instance;

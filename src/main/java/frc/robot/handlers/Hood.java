@@ -7,7 +7,6 @@ package frc.robot.handlers;
 
 import java.util.function.Supplier;
 
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -22,7 +21,7 @@ import frc.robot.subsystems.s_Hood;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meter;
 
-import frc.robot.subsystems.Touchboard.NumberComponent;
+import frc.robot.subsystems.Touchboard.Touchboard;
 
 public class Hood extends SubsystemBase implements StateSubsystem {
   /** Creates a new Hood. */
@@ -33,9 +32,11 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState");
-  private final NetworkTable turretTable = networkTable.getTable("TurretState");
+  // private final NetworkTable turretTable =
+  // networkTable.getTable("TurretState");
 
-  private DoublePublisher hoodManualAngle = turretTable.getDoubleTopic("ManualHoodAngle").publish();
+  // private DoublePublisher hoodManualAngle =
+  // turretTable.getDoubleTopic("ManualHoodAngle").publish();
   // private final NetworkTable hoodStateTable =
   // networkTable.getTable("HoodState");
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
@@ -43,18 +44,13 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
 
-  private final Supplier<Pose2d> goalPosition = ()-> Turret.getInstance().getGoal();
+  private final Supplier<Pose2d> goalPosition = () -> Turret.getInstance().getGoal();
 
   private final DoublePublisher goalDistance = driveStateTable.getDoubleTopic("GoalDistance").publish();
 
-  private NumberComponent tbAngle;
-
   public Hood() {
-    stateShower.set("IDLE");
-        hood.setDegreeCommand();
-    tbAngle = new NumberComponent("tbAngle");
-
-
+    hood.setDegreeCommand();
+    this.setDesiredState(desiredState);
   }
 
   public static Hood getInstance() {
@@ -63,6 +59,10 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     }
     return m_instance;
   }
+
+  Pose2d currentGoalPosition;
+  Pose2d translatedTurretPose;
+  double dist;
 
   public void update() {
 
@@ -75,23 +75,28 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         break;
       case TRACKING:
         // hood.setDegrees(45);
-        
-        Pose2d currentGoalPosition = goalPosition.get();
-        Pose2d robotPose = robotPoseSupplier.get();
-        Pose2d translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        double dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
+        currentGoalPosition = goalPosition.get();
+        translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
         goalDistance.set(dist);
 
-        if(dist < 12+1.83333333333){
-        hood.setDegrees(((Meter.of(dist).in(Feet)) * 1.43284)+8.03284);
+        if (dist < 13 + 1.83333333333) {
+          hood.setDegrees((dist * 1.43284) + 8.03284);
 
         }
         break;
       case MANUAL:
-        // hoodManualAngle.set(()-> tbAngle.getValue());
-        hood.setDegrees(()-> tbAngle.getValue());
+        currentGoalPosition = goalPosition.get();
+        translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
+        goalDistance.set(dist);
+        
+        hood.setDegrees(() -> Touchboard.getDoubleValue("tbAngle"));
 
         break;
       default:
@@ -129,13 +134,13 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     currentState = desiredState;
   }
 
-  public void increaseDeg(){
-    currentManualDeg+= 2.5;
+  public void increaseDeg() {
+    currentManualDeg += 2.5;
   }
 
-  public void decreaseDeg(){
-    currentManualDeg-= 2.5;
-    
+  public void decreaseDeg() {
+    currentManualDeg -= 2.5;
+
   }
 
   public void setDesiredState(State state) {

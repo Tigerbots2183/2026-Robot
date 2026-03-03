@@ -19,14 +19,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
 import frc.robot.handlers.Turret;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Touchboard.JukeboxUtil;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
     
 
     private final RobotContainer m_robotContainer;
-    private static JukeboxUtil mJukebox = JukeboxUtil.getInstance();
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
             .withTimestampReplay()
@@ -53,7 +51,6 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
 
-        mJukebox.mOrchestra.loadMusic(songs[ThreadLocalRandom.current().nextInt(songs.length)]);
         // mJukebox.mOrchestra.loadMusic("pyramids.chrp");
         // //songs[ThreadLocalRandom.current().nextInt(songs.length)] );
 
@@ -63,13 +60,6 @@ public class Robot extends TimedRobot {
   
     @Override
     public void disabledPeriodic() {
-        if (!mJukebox.mOrchestra.isPlaying()) {
-            mJukebox.mOrchestra.loadMusic(songs[ThreadLocalRandom.current().nextInt(songs.length)]);
-
-            // mJukebox.mOrchestra.loadMusic("pyramids.chrp");
-            // //songs[ThreadLocalRandom.current().nextInt(songs.length)] );
-            // mJukebox.mOrchestra.play();
-        }
     }
 
     @Override
@@ -78,7 +68,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        mJukebox.mOrchestra.stop();
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -100,7 +89,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         
-        mJukebox.mOrchestra.stop();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }

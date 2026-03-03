@@ -17,8 +17,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Turret;
-import frc.robot.subsystems.Touchboard.JukeboxUtil;
-import frc.robot.subsystems.Touchboard.NumberComponent;
+import frc.robot.subsystems.Touchboard.Touchboard;
 import edu.wpi.first.wpilibj2.command.*;
 
 public class Turret extends SubsystemBase implements StateSubsystem {
@@ -36,33 +35,30 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
 
-
-  // private final StructPublisher<Pose2d> turretPose = driveStateTable.getStructTopic("turretPose", Pose2d.struct).publish();
+  // private final StructPublisher<Pose2d> turretPose =
+  // driveStateTable.getStructTopic("turretPose", Pose2d.struct).publish();
   private final StructPublisher<Pose2d> goalPose = driveStateTable.getStructTopic("goalPose", Pose2d.struct).publish();
   private final DoublePublisher storedRotation = driveStateTable.getDoubleTopic("storedRotation").publish();
 
   private final StringPublisher stateShower = stateTable.getStringTopic("TurretState").publish();
- 
+
   private boolean unwindCommandBound = false;
 
-  private Pose2d goalPosition = new Pose2d(4.620419,4.034631, new Rotation2d());
-
-
+  private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
 
   private double previousRotation = 0.0;
   private double currentRotation = 0.0;
 
   public Turret() {
 
-
     goalPose.set(goalPosition);
     turret.setDegreeCommand();
 
-    NumberComponent manual = new NumberComponent("tbTurretDeg");
+    Touchboard.bindNumberComponent("tbTurretDeg",
+        () -> Commands.runOnce(() -> turret.setDegrees(Touchboard.getDoubleValue("tbTurretDeg"))));
 
-    manual.setCommand(()-> turret.getDegreeSetter(()-> manual.getValue() ));
+    this.setDesiredState(desiredState);
 
-    stateShower.set("TRACKING");
   }
 
   public static Turret getInstance() {
@@ -72,22 +68,28 @@ public class Turret extends SubsystemBase implements StateSubsystem {
     return m_Instance;
   }
 
-  public void setGoal(Supplier<Pose2d> goalPosition){
-     this.goalPosition = goalPosition.get();
+  public void setGoal(Supplier<Pose2d> goalPosition) {
+    this.goalPosition = goalPosition.get();
     goalPose.set(goalPosition.get());
   }
 
-  public Pose2d getGoal(){
+  public Pose2d getGoal() {
     return this.goalPosition;
   }
 
+  Pose2d robotPose;
+  Pose2d translatedTurretPose;
+  Rotation2d toGoal;
+  Rotation2d robotRealtiveRotation;
+  double currentRotationChange;
+  Command turretResetter;
+
   public void update() {
-    if(turret.inaccurate.get() && currentState == TurretStates.TRACKING){
+    if (turret.inaccurate.get() && currentState == TurretStates.TRACKING) {
       setDesiredState(TurretStates.INACCURATE);
-    }else if(!turret.inaccurate.get()&& currentState == TurretStates.INACCURATE){
+    } else if (!turret.inaccurate.get() && currentState == TurretStates.INACCURATE) {
       setDesiredState(TurretStates.TRACKING);
     }
-    
     switch (currentState) {
       case IDLE:
         break;
@@ -95,23 +97,21 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         break;
       case INACCURATE:
       case TRACKING:
-        Pose2d robotPose = robotPoseSupplier.get();
+        robotPose = robotPoseSupplier.get();
 
-        Pose2d translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+        translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-
-        Rotation2d toGoal = Rotation2d.fromRadians(Math.atan2(goalPosition.getY() - translatedTurretPose.getY(),
+        toGoal = Rotation2d.fromRadians(Math.atan2(goalPosition.getY() - translatedTurretPose.getY(),
             goalPosition.getX() - translatedTurretPose.getX()));
 
-        Rotation2d robotRealtiveRotation = Rotation2d
-            .fromRadians(toGoal.getRadians()- robotPose.getRotation().getRadians());
-            
-        double currentRotationChange = (robotRealtiveRotation.getDegrees() - previousRotation);
-        
+        robotRealtiveRotation = Rotation2d
+            .fromRadians(toGoal.getRadians() - robotPose.getRotation().getRadians());
 
-        if(currentRotationChange > 180){
+        currentRotationChange = (robotRealtiveRotation.getDegrees() - previousRotation);
+
+        if (currentRotationChange > 180) {
           currentRotationChange = currentRotationChange - 360;
-        } else if (currentRotationChange < -180){
+        } else if (currentRotationChange < -180) {
           currentRotationChange = currentRotationChange + 360;
         }
 
@@ -119,31 +119,30 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
         // if(currentRotation > 360){
 
-        //   currentRotation = (currentRotation % 360);
+        // currentRotation = (currentRotation % 360);
 
-        //   this.setDesiredState(TurretStates.UNWINDING);
+        // this.setDesiredState(TurretStates.UNWINDING);
 
-        //   return;
+        // return;
         // } else if (currentRotation < 0){
-        //   currentRotation = (currentRotation % 360);
+        // currentRotation = (currentRotation % 360);
 
-        //   this.setDesiredState(TurretStates.UNWINDING);
+        // this.setDesiredState(TurretStates.UNWINDING);
 
-        //   return;
+        // return;
         // }
 
         turret.setDegrees(currentRotation);
-
 
         storedRotation.set(currentRotation);
 
         previousRotation = robotRealtiveRotation.getDegrees();
         break;
       case UNWINDING:
-        if(!unwindCommandBound){
+        if (!unwindCommandBound) {
           unwindCommandBound = true;
-          
-          Command turretResetter = turret.getDegreeSetter(currentRotation).andThen(new InstantCommand(()->{
+
+          turretResetter = turret.getDegreeSetter(currentRotation).andThen(new InstantCommand(() -> {
             unwindCommandBound = false;
             setDesiredState(TurretStates.TRACKING);
             currentRotation = currentRotation % 360;
@@ -151,10 +150,10 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
           CommandScheduler.getInstance().schedule(turretResetter);
         }
-        
+
         break;
       case MANUAL:
-  
+
       default:
         break;
     }
@@ -170,13 +169,13 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   public void handleStateTransition() {
 
-    if(currentState == TurretStates.TRACKING && desiredState == TurretStates.INACCURATE){
+    if (currentState == TurretStates.TRACKING && desiredState == TurretStates.INACCURATE) {
       stateShower.set("INACCURATEstateSkip");
 
       currentState = desiredState;
 
       return;
-    }else if (currentState == TurretStates.INACCURATE && desiredState == TurretStates.TRACKING){
+    } else if (currentState == TurretStates.INACCURATE && desiredState == TurretStates.TRACKING) {
       stateShower.set("TRACKINGstateSkip");
 
       currentState = desiredState;
@@ -215,8 +214,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         break;
       case SYSID:
         stateShower.set("SYSID");
-        
-        JukeboxUtil.getInstance().mOrchestra.stop();
+
 
         turret.runSYSID();
         break;

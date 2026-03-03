@@ -63,7 +63,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
 
   TalonFX turretMotor = new TalonFX(3);
 
-  double[] ratio = { 144 / 15, 5, 1.1};
+  double[] ratio = { 144 / 15, 5, 1.12};
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
@@ -74,7 +74,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .withGearing(new MechanismGearing(new GearBox(ratio)))
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
-      .withFeedforward(new SimpleMotorFeedforward(1.35, 0.0, 0.0))
+      .withFeedforward(new SimpleMotorFeedforward(1.1, 0.0, 0.0))
 
       // 0.0,5.5`
       // Setup Telemetry
@@ -117,9 +117,9 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   public void setDegreeCommand() {
     CommandScheduler.getInstance().schedule(angleCommand);
   }
-
+  double degrees;
   public void setDegrees(DoubleSupplier degreesSupplier) {
-    Double degrees = degreesSupplier.getAsDouble();
+   degrees = degreesSupplier.getAsDouble();
     if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 20) {
       inaccurate = () -> false;
     } else {

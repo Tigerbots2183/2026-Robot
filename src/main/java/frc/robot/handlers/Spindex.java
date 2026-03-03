@@ -53,6 +53,7 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
       case REVERSE: 
         stateShower.set("REVERSE");
         Spindex.setDiffVoltage(-11);
+        break;
       default:
         stateShower.set("UNKNOWN");
         break;
@@ -60,7 +61,8 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
     currentState = desiredState;
 
   }
-
+  double rounded;
+  
   public void update(){
     switch (currentState) {
       case IDLE:
@@ -70,7 +72,7 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
       case MANUAL:
         break;
       case ALTERNATE:
-        double rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
+        rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
         if((rounded % 1) == 0 ){
           Spindex.setVoltage(-1.5);
         }else{

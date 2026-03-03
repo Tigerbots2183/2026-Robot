@@ -1,0 +1,260 @@
+{
+  "Clients": {
+    "open": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "2183"
+  },
+  "Server": {
+    "Publishers": {
+      "open": true
+    },
+    "Subscribers": {
+      "open": true
+    },
+    "open": true
+  },
+  "transitory": {
+    "CameraPublisher": {
+      "Passthrough": {
+        "open": true
+      },
+      "limelight-rsl": {
+        "open": true
+      },
+      "open": true
+    },
+    "DriveState": {
+      "CommandTrain": {
+        "open": true
+      },
+      "TurretTurntable": {
+        "open": true
+      },
+      "open": true
+    },
+    "FMSInfo": {
+      "open": true
+    },
+    "LiveWindow": {
+      ".status": {
+        "open": true
+      },
+      "open": true
+    },
+    "Mechanisms": {
+      "Turret": {
+        "TurretMotor": {
+          "closedloop": {
+            "open": true,
+            "setpoint": {
+              "open": true
+            }
+          },
+          "mechanism": {
+            "open": true
+          },
+          "open": true,
+          "rotor": {
+            "open": true
+          }
+        },
+        "open": true
+      },
+      "open": true
+    },
+    "PathPlanner": {
+      "HotReload": {
+        "open": true
+      },
+      "open": true
+    },
+    "Pose": {
+      "double[]##v_/Pose/robotPose": {
+        "open": true
+      },
+      "open": true
+    },
+    "Pose3d##v_/QuestPoseNoTrans": {
+      "Rotation3d##v_rotation": {
+        "open": true
+      },
+      "Translation3d##v_translation": {
+        "open": true
+      },
+      "open": true
+    },
+    "QuestNav": {
+      "QuestNavCommand##v_/QuestNav/request": {
+        "QuestNavPoseResetPayload##v_pose_reset_payload": {
+          "Pose3d##v_target_pose": {
+            "Rotation3d##v_rotation": {
+              "Quaternion##v_q": {
+                "open": true
+              },
+              "open": true
+            },
+            "Translation3d##v_translation": {
+              "open": true
+            },
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
+      "QuestNavCommandResponse##v_/QuestNav/response": {
+        "open": true
+      },
+      "QuestNavDeviceData##v_/QuestNav/deviceData": {
+        "open": true
+      },
+      "QuestNavFrameData##v_/QuestNav/frameData": {
+        "Pose3d##v_pose3d": {
+          "Translation3d##v_translation": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
+      "open": true
+    },
+    "RobotStates": {
+      "open": true
+    },
+    "Shuffleboard": {
+      "open": true
+    },
+    "SmartDashboard": {
+      "Module 0": {
+        "double[]##v_/SmartDashboard/Module 0/dims": {
+          "open": true
+        },
+        "open": true
+      },
+      "Module 1": {
+        "double[]##v_/SmartDashboard/Module 1/dims": {
+          "open": true
+        },
+        "open": true
+      },
+      "Module 2": {
+        "double[]##v_/SmartDashboard/Module 2/dims": {
+          "open": true
+        },
+        "open": true
+      },
+      "Module 3": {
+        "double[]##v_/SmartDashboard/Module 3/dims": {
+          "open": true
+        },
+        "open": true
+      },
+      "PathPlanner": {
+        "open": true
+      },
+      "open": true
+    },
+    "Tuning": {
+      "Turret": {
+        "TurretMotor": {
+          "closedloop": {
+            "motionprofile": {
+              "open": true
+            },
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
+      "open": true
+    },
+    "TurretState": {
+      "Pose3d##v_/TurretState/yamsAngleShowerPose": {
+        "Rotation3d##v_rotation": {
+          "Quaternion##v_q": {
+            "open": true
+          },
+          "open": true
+        },
+        "Translation3d##v_translation": {
+          "open": true
+        },
+        "open": true
+      },
+      "open": true
+    },
+    "Vision": {
+      "Pose2d##v_/Vision/lastSeededPose": {
+        "Translation2d##v_translation": {
+          "open": true
+        },
+        "open": true
+      },
+      "open": true
+    },
+    "limelight-rsl": {
+      "double[]##v_/limelight-rsl/botpose": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/botpose_orb": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/botpose_orb_wpiblue": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/botpose_orb_wpired": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/botpose_targetspace": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/botpose_wpiblue": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/camerapose_robotspace": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/camerapose_targetspace": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/capture_rewind": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/crosshairs": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/hw": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/imu": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/rawfiducials": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/stddevs": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/t2d": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/targetpose_cameraspace": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/targetpose_robotspace": {
+        "open": true
+      },
+      "double[]##v_/limelight-rsl/tc": {
+        "open": true
+      },
+      "open": true
+    },
+    "touchboard": {
+      "open": true
+    }
+  }
+}

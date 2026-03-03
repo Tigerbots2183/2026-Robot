@@ -95,16 +95,22 @@ public class QuestNavSubsystem extends SubsystemBase {
         return 0;
     }
 
+    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
+            0.02, // Trust down to 2cm in X direction
+            0.02, // Trust down to 2cm in Y direction
+            0.035 // Trust down to 2 degrees rotational
+    );
+
+    PoseFrame[] questFrames;
+
+    Pose3d currentQuestPose; 
+    double timestamp;
+    Pose3d robotPose;
+
     @Override
     public void periodic() {
 
         questNav.commandPeriodic();
-
-        Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
-                0.02, // Trust down to 2cm in X direction
-                0.02, // Trust down to 2cm in Y direction
-                0.035 // Trust down to 2 degrees rotational
-        );
 
         if (questNav.getBatteryPercent().isPresent()) {
             SmartDashboard.putNumber("QuestPercent", questNav.getBatteryPercent().getAsInt());
@@ -112,18 +118,18 @@ public class QuestNavSubsystem extends SubsystemBase {
 
         if (questNav.isTracking()) {
             // Get the latest pose data frames from the Quest
-            PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+             questFrames = questNav.getAllUnreadPoseFrames();
 
             // Loop over the pose data frames and send them to the pose estimator
             for (PoseFrame questFrame : questFrames) {
                 // Get the pose of the Quest
-                Pose3d questPose = questFrame.questPose3d();
+                currentQuestPose = questFrame.questPose3d();
                 // Get timestamp for when the data was sent
-                double timestamp = questFrame.dataTimestamp();
+                timestamp = questFrame.dataTimestamp();
                 // Transform by the mount pose to get your robot pose
-                nonTranslatedPublisher.set(questPose);
+                nonTranslatedPublisher.set(currentQuestPose);
 
-                Pose3d robotPose = questPose.transformBy(Constants.QuestNavConstants.ROBOT_TO_QUEST.inverse());
+                robotPose = currentQuestPose.transformBy(Constants.QuestNavConstants.ROBOT_TO_QUEST.inverse());
                 posePublisher.set(robotPose);
 
                 // You can put some sort of filtering here if you would like!
@@ -134,7 +140,8 @@ public class QuestNavSubsystem extends SubsystemBase {
             System.out.println("No QUEST");
         }
     }
-  public static QuestNavSubsystem m_Instance;
+
+    public static QuestNavSubsystem m_Instance;
 
     public static QuestNavSubsystem getInstance() {
         if (m_Instance == null) {

@@ -118,10 +118,11 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     return m_Instance;
   }
 
-  @Override
+
+  double getAngle;
   public void periodic() {
     // hood.updateTelemetry();
-    Double getAngle = hood.getAngle().in(Degree);
+    getAngle = hood.getAngle().in(Degree);
     turretSimulation.setHoodDegrees(getAngle);
     hoodDeg.set(getAngle);
     // This method will be called once per scheduler run

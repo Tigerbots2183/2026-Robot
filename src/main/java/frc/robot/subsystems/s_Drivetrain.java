@@ -182,10 +182,10 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     TrenchY.set(getTrenchY().in(Meters));
     RobotY.set(robotPose.get().getY());
   }
-
+  Pose2d robotPosition;
   private Distance getTrenchY() {
-    Pose2d robotPose = this.robotPose.get();
-    if (robotPose.getMeasureY().gte(FieldConstants.FIELD_WIDTH.div(2))) {
+    robotPosition = this.robotPose.get();
+    if (robotPosition.getMeasureY().gte(FieldConstants.FIELD_WIDTH.div(2))) {
       return FieldConstants.FIELD_WIDTH.minus(FieldConstants.TRENCH_CENTER);
     }
     return FieldConstants.TRENCH_CENTER;

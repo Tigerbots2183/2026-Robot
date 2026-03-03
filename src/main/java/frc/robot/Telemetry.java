@@ -57,10 +57,6 @@ public class Telemetry {
     private final DoublePublisher driveTimestamp = driveStateTable.getDoubleTopic("Timestamp").publish();
     private final DoublePublisher driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency").publish();
 
-    private final DoublePublisher mod1Offset = driveStateTable.getDoubleTopic("mod1").publish();
-    private final DoublePublisher mod2Offset = driveStateTable.getDoubleTopic("mod2").publish();
-    private final DoublePublisher mod3Offset = driveStateTable.getDoubleTopic("mod3").publish();
-    private final DoublePublisher mod4Offset = driveStateTable.getDoubleTopic("mod4").publish();
 
 
     /* Robot pose for field positioning */
@@ -118,12 +114,6 @@ public class Telemetry {
         SignalLogger.writeStructArray("DriveState/ModuleTargets", SwerveModuleState.struct, state.ModuleTargets);
         SignalLogger.writeStructArray("DriveState/ModulePositions", SwerveModulePosition.struct, state.ModulePositions);
         SignalLogger.writeDouble("DriveState/OdometryPeriod", state.OdometryPeriod, "seconds");
-
-        mod1Offset.set(drivetrain.getModule(0).getEncoder().getAbsolutePosition().getValueAsDouble());
-        mod2Offset.set(drivetrain.getModule(1).getEncoder().getAbsolutePosition().getValueAsDouble());
-        mod3Offset.set(drivetrain.getModule(2).getEncoder().getAbsolutePosition().getValueAsDouble());
-        mod4Offset.set(drivetrain.getModule(3).getEncoder().getAbsolutePosition().getValueAsDouble());
-
 
 
         /* Telemeterize the pose to a Field2d */

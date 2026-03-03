@@ -6,6 +6,8 @@ package frc.robot;
 
 import javax.xml.namespace.QName;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotState;
@@ -31,7 +33,7 @@ import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.s_Hood;
 import frc.robot.subsystems.s_Intake;
 import frc.robot.subsystems.s_Turret;
-import frc.robot.subsystems.Touchboard.JukeboxUtil;
+import frc.robot.subsystems.Touchboard.Touchboard;
 
 public class RobotContainer {
 
@@ -40,8 +42,9 @@ public class RobotContainer {
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
     // private QuestNavSubsystem Q_Nav = QuestNavSubsystem.getInstance();
+            
     private Vision H_Vision = Vision.getInstance();
-    private Turret H_Turret = Turret.getInstance();
+    // private Turret H_Turret = Turret.getInstance();
     private Hood H_Hood = Hood.getInstance();
 
     private final CommandXboxController joystick = new CommandXboxController(0);
@@ -56,6 +59,7 @@ public class RobotContainer {
             }
         }));
 
+
         // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(()->
         // Q_Nav.setInitialPose()));
     }
@@ -68,7 +72,7 @@ public class RobotContainer {
         joystick.y().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
         joystick.y().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
 
-        joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
+        joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL)));
         joystick.y().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
 
         joystick.y().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
@@ -96,7 +100,8 @@ public class RobotContainer {
         joystick.pov(180).onTrue(Commands.runOnce(() -> H_Hood.decreaseDeg()));
         joystick.pov(0).onTrue(Commands.runOnce(() -> H_Hood.increaseDeg()));
 
-        joystick.b().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        joystick.b().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+
 
         joystick.a().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
         joystick.a().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
@@ -108,9 +113,9 @@ public class RobotContainer {
 
 
 
-        joystick.rightStick().onTrue(Commands.runOnce(() -> s_Turret.getInstance().setDegrees(0)));
+        // joystick.rightStick().onTrue(Commands.runOnce(() -> s_Turret.getInstance().setDegrees(0)));
         joystick.rightStick().onTrue(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.IDLE)));
-        joystick.rightStick().onTrue(Commands.runOnce(() -> H_Turret.setDesiredState(Turret.TurretStates.IDLE)));
+        // joystick.rightStick().onTrue(Commands.runOnce(() -> H_Turret.setDesiredState(Turret.TurretStates.IDLE)));
 
         joystick.rightStick().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
         joystick.rightStick().onTrue(Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
@@ -118,26 +123,26 @@ public class RobotContainer {
 
         drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true);
 
-        JukeboxUtil jukebox = JukeboxUtil.getInstance();
-        jukebox.addTalon(drivetrain.getModule(0).getDriveMotor());
-        jukebox.addTalon(drivetrain.getModule(1).getDriveMotor());
-        jukebox.addTalon(drivetrain.getModule(2).getDriveMotor());
-        jukebox.addTalon(drivetrain.getModule(3).getDriveMotor());
+        // jukebox.addTalon(drivetrain.getModule(0).getDriveMotor());
+        // jukebox.addTalon(drivetrain.getModule(1).getDriveMotor());
+        // jukebox.addTalon(drivetrain.getModule(2).getDriveMotor());
+        // jukebox.addTalon(drivetrain.getModule(3).getDriveMotor());
 
-        jukebox.addTalon(drivetrain.getModule(0).getSteerMotor());
-        jukebox.addTalon(drivetrain.getModule(1).getSteerMotor());
-        jukebox.addTalon(drivetrain.getModule(2).getSteerMotor());
-        jukebox.addTalon(drivetrain.getModule(3).getSteerMotor());
+        // jukebox.addTalon(drivetrain.getModule(0).getSteerMotor());
+        // jukebox.addTalon(drivetrain.getModule(1).getSteerMotor());
+        // jukebox.addTalon(drivetrain.getModule(2).getSteerMotor());
+        // jukebox.addTalon(drivetrain.getModule(3).getSteerMotor());
 
-        jukebox.addTalon(s_Intake.getInstance().getLeftPivotTalonFX());
-        jukebox.addTalon(s_Intake.getInstance().getRightPivotTalonFx());
+        // jukebox.addTalon(s_Intake.getInstance().getLeftPivotTalonFX());
+        // jukebox.addTalon(s_Intake.getInstance().getRightPivotTalonFx());
 
         //
     }
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
-        return drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero));
+        // return drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero));
+        return new PathPlannerAuto(Touchboard.getStringValue("autoChanger"));
 
     }
 }

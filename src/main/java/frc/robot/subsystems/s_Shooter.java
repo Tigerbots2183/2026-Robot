@@ -71,7 +71,7 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
       // Motor properties to prevent over currenting.
       .withMotorInverted(false)
       .withIdleMode(MotorMode.COAST)
-      .withStatorCurrentLimit(Amps.of(40));
+      .withStatorCurrentLimit(Amps.of(70));
 
   // Create our SmartMotorController from our Talon.
   private SmartMotorController motorController = new TalonFXWrapper(leftTalonFlywheel, DCMotor.getKrakenX60Foc(2), smcConfig);
