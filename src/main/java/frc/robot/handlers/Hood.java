@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -32,6 +33,8 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState");
+
+  private DoubleSubscriber angle = networkTable.getDoubleTopic("tbAngle").subscribe(0);
   // private final NetworkTable turretTable =
   // networkTable.getTable("TurretState");
 
@@ -41,7 +44,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   // networkTable.getTable("HoodState");
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
 
-  private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
+  private final CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
 
   private final Supplier<Pose2d> goalPosition = () -> Turret.getInstance().getGoal();
@@ -89,14 +92,14 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         }
         break;
       case MANUAL:
-        currentGoalPosition = goalPosition.get();
+              currentGoalPosition = goalPosition.get();
         translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
         goalDistance.set(dist);
-        
-        hood.setDegrees(() -> Touchboard.getDoubleValue("tbAngle"));
+
+        hood.setDegrees(angle.get());
 
         break;
       default:

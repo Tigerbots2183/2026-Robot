@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.*;
 public class Turret extends SubsystemBase implements StateSubsystem {
   /** Creates a new TurretTracker. */
 
-  private TurretStates desiredState, currentState = TurretStates.MANUAL;
+  private TurretStates desiredState, currentState = TurretStates.TRACKING;
 
   private s_Turret turret = s_Turret.getInstance();
   private static Turret m_Instance;
@@ -54,8 +54,8 @@ public class Turret extends SubsystemBase implements StateSubsystem {
     goalPose.set(goalPosition);
     turret.setDegreeCommand();
 
-    Touchboard.bindNumberComponent("tbTurretDeg",
-        () -> Commands.runOnce(() -> turret.setDegrees(Touchboard.getDoubleValue("tbTurretDeg"))));
+    // Touchboard.bindNumberComponent("tbTurretDeg",
+    //     () -> Commands.runOnce(() -> turret.setDegrees(Touchboard.getDoubleValue("tbTurretDeg"))));
 
     this.setDesiredState(desiredState);
 
@@ -109,13 +109,20 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
         currentRotationChange = (robotRealtiveRotation.getDegrees() - previousRotation);
 
-        if (currentRotationChange > 180) {
+
+
+
+        if (currentRotationChange > 360) {
           currentRotationChange = currentRotationChange - 360;
-        } else if (currentRotationChange < -180) {
+        } else if (currentRotationChange < 0) {
           currentRotationChange = currentRotationChange + 360;
         }
-
         currentRotation += currentRotationChange;
+
+        currentRotation = (currentRotation % 360);
+
+
+        // currentRotation += currentRotationChange;
 
         // if(currentRotation > 360){
 

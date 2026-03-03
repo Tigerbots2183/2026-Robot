@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -49,6 +50,8 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   private final NetworkTable turretTable = networkTable.getTable("TurretState");
 
   private final DoublePublisher flywheelRpm = turretTable.getDoubleTopic("Flywheel Rpm").publish();
+
+  private DoubleSubscriber rpmTB = networkTable.getDoubleTopic("tbRpm").subscribe(0);
 
   private s_Shooter Shooter = s_Shooter.getInstance();
 
@@ -96,7 +99,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
         // }
 
-        Shooter.setRPM(Touchboard.getDoubleValue("tbRpm"));
+        Shooter.setRPM(rpmTB.get());
 
         break;
 
@@ -111,7 +114,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        Shooter.setRPM(Touchboard.getDoubleValue("tbRpm"));
+        Shooter.setRPM(rpmTB.get());
 
         // if (dist < 13 + 1.83333333333) {
         //   Shooter.setRPM(2025);

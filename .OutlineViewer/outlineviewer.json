@@ -1,4 +1,10 @@
 {
+  "/QuestNav@3": {
+    "open": true
+  },
+  "AdvantageScope@2": {
+    "open": true
+  },
   "Clients": {
     "open": true
   },
@@ -12,7 +18,9 @@
     },
     "Subscribers": {
       "open": true
-    },
+    }
+  },
+  "outlineviewer@6": {
     "open": true
   },
   "transitory": {
@@ -67,13 +75,15 @@
     "PathPlanner": {
       "HotReload": {
         "open": true
-      },
-      "open": true
+      }
     },
     "Pose": {
       "double[]##v_/Pose/robotPose": {
         "open": true
       },
+      "open": true
+    },
+    "Pose3d##v_/QuestPose": {
       "open": true
     },
     "Pose3d##v_/QuestPoseNoTrans": {
@@ -101,8 +111,7 @@
             "open": true
           },
           "open": true
-        },
-        "open": true
+        }
       },
       "QuestNavCommandResponse##v_/QuestNav/response": {
         "open": true
@@ -112,6 +121,9 @@
       },
       "QuestNavFrameData##v_/QuestNav/frameData": {
         "Pose3d##v_pose3d": {
+          "Rotation3d##v_rotation": {
+            "open": true
+          },
           "Translation3d##v_translation": {
             "open": true
           },

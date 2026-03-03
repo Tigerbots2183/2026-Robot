@@ -41,9 +41,8 @@ public class RobotContainer {
     public Spindex H_Spindex = Spindex.getInstance();
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
-    // private QuestNavSubsystem Q_Nav = QuestNavSubsystem.getInstance();
             
-    private Vision H_Vision = Vision.getInstance();
+    // private Vision H_Vision = Vision.getInstance();
     private Turret H_Turret = Turret.getInstance();
     private Hood H_Hood = Hood.getInstance();
 
