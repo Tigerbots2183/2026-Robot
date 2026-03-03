@@ -32,8 +32,13 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Seconds;
 import static yams.units.YUnits.PoundSquareInches;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 
 public class s_Intake extends SubsystemBase implements CheckableSubsystem {
@@ -95,6 +100,9 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
   private SparkFlex intakeRoller = new SparkFlex(32, MotorType.kBrushless);
 
+  private double currentDeg = 0.0;
+  private Command intakeSetter = intake.setAngle(() -> Degrees.of(currentDeg)).ignoringDisable(true);
+
   public static s_Intake getInstance(){
     if (m_Instance == null) {
       m_Instance = new s_Intake();
@@ -102,13 +110,18 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
     return m_Instance;
   }
 
-  public void setDegrees(double deg){
-    // intake.setAngle(Degrees.of(deg)).schedule();
-    CommandScheduler.getInstance().schedule(intake.setAngle(Degrees.of(deg)));
+
+  public void setDegreeCommand(){
+    CommandScheduler.getInstance().schedule(intakeSetter);
   }
 
-  public void overrideDeg(double deg){
+  public void setDegrees(double deg){
+    // intake.setAngle(Degrees.of(deg)).schedule();
+    currentDeg = deg;
   }
+
+  // public void overrideDeg(double deg){
+  // }
 
   public void setSpeed(double dutyCycle){
     intakeRoller.set(dutyCycle);

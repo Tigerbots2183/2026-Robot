@@ -13,11 +13,12 @@ import frc.robot.subsystems.s_Intake;
 
 public class Intake extends SubsystemBase implements StateSubsystem {
   /** Creates a new Intake. */
+  private s_Intake intake = s_Intake.getInstance();
+
   public Intake() {
     stateShower.set("IDLE");
+    intake.setDegreeCommand();
   }
-
-  private s_Intake intake = s_Intake.getInstance();
 
   private static Intake m_Instance;
   private IntakeStates desiredState, currentState = IntakeStates.IDLE;

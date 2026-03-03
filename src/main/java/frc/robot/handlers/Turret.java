@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -30,6 +31,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   private CommandSwerveDrivetrain s_swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_swerve.getState().Pose;
+  private Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> s_swerve.getState().Speeds;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
@@ -54,8 +56,6 @@ public class Turret extends SubsystemBase implements StateSubsystem {
     goalPose.set(goalPosition);
     turret.setDegreeCommand();
 
-    // Touchboard.bindNumberComponent("tbTurretDeg",
-    //     () -> Commands.runOnce(() -> turret.setDegrees(Touchboard.getDoubleValue("tbTurretDeg"))));
 
     this.setDesiredState(desiredState);
 
@@ -79,6 +79,9 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   Pose2d robotPose;
   Pose2d translatedTurretPose;
+  Pose2d translatedGoalPose;
+  ChassisSpeeds speeds;
+
   Rotation2d toGoal;
   Rotation2d robotRealtiveRotation;
   double currentRotationChange;
@@ -101,6 +104,9 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
         translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
+        speeds = chassisSpeedSupplier.get();
+
+        translatedGoalPose = goalPosition.transformBy(new Transform2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, new Rotation2d()));
         toGoal = Rotation2d.fromRadians(Math.atan2(goalPosition.getY() - translatedTurretPose.getY(),
             goalPosition.getX() - translatedTurretPose.getX()));
 

@@ -137,6 +137,7 @@ public class Touchboard {
     // AXIS + NUMBER COMPONENT value getter
     public static double getDoubleValue(String topic) {
         if (DoubleSubscriberMap.containsKey(topic)) {
+            System.out.println(DoubleSubscriberMap.size());
             return DoubleSubscriberMap.get(topic).get();
         } else {
             final DoubleSubscriber dataSubscriber = datatable.getDoubleTopic(topic).subscribe(0,

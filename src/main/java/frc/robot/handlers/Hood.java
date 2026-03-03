@@ -32,9 +32,10 @@ public class Hood extends SubsystemBase implements StateSubsystem {
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
+  private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState");
 
-  private DoubleSubscriber angle = networkTable.getDoubleTopic("tbAngle").subscribe(0);
+  private DoubleSubscriber angle = touchboardTable.getDoubleTopic("tbAngle").subscribe(0);
   // private final NetworkTable turretTable =
   // networkTable.getTable("TurretState");
 
@@ -44,7 +45,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   // networkTable.getTable("HoodState");
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
 
-  private final CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
+  private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
 
   private final Supplier<Pose2d> goalPosition = () -> Turret.getInstance().getGoal();

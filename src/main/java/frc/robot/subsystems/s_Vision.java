@@ -44,13 +44,13 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
   private final DoublePublisher timeSinceSeeded = visionTable.getDoubleTopic("timeSinceSeed").publish();
   private final StructPublisher<Pose2d> lastSeededPose = visionTable.getStructTopic("lastSeededPose", Pose2d.struct)
       .publish();
-
+  private final boolean isSim = RobotBase.isSimulation();
   private double sinceSeeded = 0;
 
   public boolean seededOnce = false;
 
   public void preseedFromMt1() {
-    if(RobotBase.isSimulation()){
+    if(isSim){
       Qnav.setInitialPose();
       seededOnce = true;
 

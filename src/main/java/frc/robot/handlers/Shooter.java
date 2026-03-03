@@ -36,7 +36,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   }
 
   private static Shooter m_Instance;
-  private ShooterStates desiredState, currentState = ShooterStates.MANUAL;
+  private ShooterStates desiredState, currentState = ShooterStates.SHOOTING;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
@@ -48,10 +48,11 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
 
   private final NetworkTable turretTable = networkTable.getTable("TurretState");
+  private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
 
   private final DoublePublisher flywheelRpm = turretTable.getDoubleTopic("Flywheel Rpm").publish();
 
-  private DoubleSubscriber rpmTB = networkTable.getDoubleTopic("tbRpm").subscribe(0);
+  private DoubleSubscriber rpmTB = touchboardTable.getDoubleTopic("tbRpm").subscribe(0);
 
   private s_Shooter Shooter = s_Shooter.getInstance();
 
@@ -80,8 +81,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         stateShower.set("MANUAL");
-        Shooter.setRPM(Touchboard.getDoubleValue("tbRpm"));
-        Shooter.setIndexVolts(Touchboard.getDoubleValue("tbIndex"));
+
         break;
       case SHOOTING:
         stateShower.set("SHOOTING");
