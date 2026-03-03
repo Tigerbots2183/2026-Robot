@@ -34,7 +34,7 @@ import frc.robot.Constants;
 
 public class QuestNavSubsystem extends SubsystemBase {
     /** Creates a new QuestNavSubsystem. */
-    CommandSwerveDrivetrain s_Drivetrain;
+    private final CommandSwerveDrivetrain s_Drivetrain;
 
     QuestNav questNav = new QuestNav();
 
@@ -102,8 +102,9 @@ public class QuestNavSubsystem extends SubsystemBase {
     );
 
     PoseFrame[] questFrames;
+    PoseFrame questFrame;
 
-    Pose3d currentQuestPose; 
+    Pose3d currentQuestPose;
     double timestamp;
     Pose3d robotPose;
 
@@ -118,10 +119,11 @@ public class QuestNavSubsystem extends SubsystemBase {
 
         if (questNav.isTracking()) {
             // Get the latest pose data frames from the Quest
-             questFrames = questNav.getAllUnreadPoseFrames();
+            questFrames = questNav.getAllUnreadPoseFrames();
 
-            // Loop over the pose data frames and send them to the pose estimator
-            for (PoseFrame questFrame : questFrames) {
+            if (questFrames.length > 0) {
+                // Loop over the pose data frames and send them to the pose estimator
+                questFrame = questFrames[questFrames.length - 1];
                 // Get the pose of the Quest
                 currentQuestPose = questFrame.questPose3d();
                 // Get timestamp for when the data was sent
@@ -136,7 +138,9 @@ public class QuestNavSubsystem extends SubsystemBase {
                 // Add the measurement to our estimator
                 s_Drivetrain.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
             }
-        } else {
+        } else
+
+        {
             System.out.println("No QUEST");
         }
     }

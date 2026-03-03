@@ -44,7 +44,7 @@ public class RobotContainer {
     // private QuestNavSubsystem Q_Nav = QuestNavSubsystem.getInstance();
             
     private Vision H_Vision = Vision.getInstance();
-    // private Turret H_Turret = Turret.getInstance();
+    private Turret H_Turret = Turret.getInstance();
     private Hood H_Hood = Hood.getInstance();
 
     private final CommandXboxController joystick = new CommandXboxController(0);
@@ -72,7 +72,7 @@ public class RobotContainer {
         joystick.y().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
         joystick.y().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
 
-        joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL)));
+        joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
         joystick.y().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
 
         joystick.y().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));

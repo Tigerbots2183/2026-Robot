@@ -117,7 +117,7 @@ public class Robot extends TimedRobot {
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
 
-        Turret.getInstance().setDesiredState(Turret.TurretStates.SYSID);
+        // Turret.getInstance().setDesiredState(Turret.TurretStates.SYSID);
     }
 
     @Override

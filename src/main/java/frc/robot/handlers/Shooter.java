@@ -91,10 +91,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        if (dist < 13 + 1.83333333333) {
-          Shooter.setRPM(2025);
+        // if (dist < 13 + 1.83333333333) {
+        //   Shooter.setRPM(2025);
 
-        }
+        // }
+
+        Shooter.setRPM(Touchboard.getDoubleValue("tbRpm"));
 
         break;
 
