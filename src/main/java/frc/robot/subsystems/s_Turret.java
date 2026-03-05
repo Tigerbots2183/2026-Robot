@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import yams.mechanisms.config.PivotConfig;
@@ -63,13 +64,13 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
 
   TalonFX turretMotor = new TalonFX(3);
 
-  double[] ratio = { 144 / 15, 5, 1.12};
+  double[] ratio = { 144 / 15, 5, 1.08};
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
       .withSimClosedLoopController(16.0, 0.0, .6, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
       // 20,0,0.6
-      .withClosedLoopController(10.0, 0.0, 0, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
+      .withClosedLoopController(99.0, 0.0, 0, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1000))
       // Configure Motor and Mechanism properties
       .withGearing(new MechanismGearing(new GearBox(ratio)))
       .withIdleMode(MotorMode.BRAKE)
@@ -148,6 +149,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setDegrees(double degrees) {
+
     if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 20) {
       inaccurate = () -> false;
     } else {
@@ -187,6 +189,9 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     Double degrees = degreesSupplier.getAsDouble();
     return turret.setAngle(Degrees.of(degrees))
         .until(() -> turret.getAngle().in(Degrees) < degrees + 10 && turret.getAngle().in(Degrees) > degrees - 10);
+  }
+  public Angle getAngle(){
+    return turret.getAngle();
   }
 
   public static s_Turret getInstance() {

@@ -87,7 +87,7 @@ public class Vision extends SubsystemBase implements StateSubsystem {
   public void update() {
     switch (currentState) {
       case READY:
-        vision.preseedFromMt1();
+        // vision.preseedFromMt1();
 
         break;
       case PRESEEDING:

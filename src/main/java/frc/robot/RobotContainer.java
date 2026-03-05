@@ -6,6 +6,7 @@ package frc.robot;
 
 import javax.xml.namespace.QName;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,6 +33,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.s_Hood;
 import frc.robot.subsystems.s_Intake;
+import frc.robot.subsystems.s_Shooter;
 import frc.robot.subsystems.s_Turret;
 import frc.robot.subsystems.Touchboard.Touchboard;
 
@@ -42,7 +44,7 @@ public class RobotContainer {
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
             
-    // private Vision H_Vision = Vision.getInstance();
+    private Vision H_Vision = Vision.getInstance();
     private Turret H_Turret = Turret.getInstance();
     private Hood H_Hood = Hood.getInstance();
 
@@ -99,7 +101,9 @@ public class RobotContainer {
         joystick.pov(180).onTrue(Commands.runOnce(() -> H_Hood.decreaseDeg()));
         joystick.pov(0).onTrue(Commands.runOnce(() -> H_Hood.increaseDeg()));
 
-        joystick.b().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+        // joystick.b().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+
+        joystick.b().onTrue(Commands.runOnce(()-> s_Shooter.getInstance().setIndexVolts(-9.6)));
 
 
         joystick.a().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
@@ -136,12 +140,25 @@ public class RobotContainer {
         // jukebox.addTalon(s_Intake.getInstance().getRightPivotTalonFx());
 
         //
+
+        NamedCommands.registerCommand("intake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
+        NamedCommands.registerCommand("sintake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        NamedCommands.registerCommand("revshoot", Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.TRENCH)));
+        NamedCommands.registerCommand("sethood", Commands.runOnce(()-> s_Hood.getInstance().setDegrees(30.5)));
+        NamedCommands.registerCommand("intakeup", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+        // NamedCommands.registerCommand("trackturret", Commands.runOnce(() -> H_Intake.setDesiredState(Turret.TurretStates.TRACKING)));
+        NamedCommands.registerCommand("shoot", Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
+        NamedCommands.registerCommand("spindex", Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
+        NamedCommands.registerCommand("stopshoot", Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        NamedCommands.registerCommand("Zero", Commands.runOnce(()-> drivetrain.seedFieldCentric()));
+        NamedCommands.registerCommand("zerohood", Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
+        NamedCommands.registerCommand("stopspindexer", Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
     }
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
         // return drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero));
-        return new PathPlannerAuto(Touchboard.getStringValue("autoChanger"));
+        return new PathPlannerAuto("corral side mid");
 
     }
 }

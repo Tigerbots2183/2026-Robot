@@ -27,7 +27,7 @@ import frc.robot.subsystems.Touchboard.Touchboard;
 public class Hood extends SubsystemBase implements StateSubsystem {
   /** Creates a new Hood. */
   private static Hood m_instance;
-  private HoodStates desiredState, currentState = HoodStates.MANUAL;
+  private HoodStates desiredState, currentState = HoodStates.TRACKING;
   private s_Hood hood = s_Hood.getInstance();
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
@@ -87,8 +87,9 @@ public class Hood extends SubsystemBase implements StateSubsystem {
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
         goalDistance.set(dist);
 
-        if (dist < 13 + 1.83333333333) {
-          hood.setDegrees((dist * 1.43284) + 8.03284);
+        if (dist < 11) {
+          // hood.setDegrees(0.0573934x^{3}-0.797824x^{2}+4.95428x;
+          hood.setDegrees((0.0573934 * Math.pow(dist,3)) - 0.797824 * Math.pow(dist, 2) +4.95428 * dist);
 
         }
         break;

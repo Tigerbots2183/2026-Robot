@@ -4,21 +4,38 @@
 
 package frc.robot.IO;
 
+import static edu.wpi.first.units.Units.FeetPerSecond;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Degree;
+
+
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.s_Hood;
+import frc.robot.subsystems.s_Shooter;
+import frc.robot.subsystems.s_Turret;
 
 public class TurretIO extends SubsystemBase {
   /** Creates a new turretIO. */
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState");
+  private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
+    private DoubleSubscriber height = touchboardTable.getDoubleTopic("tbAngle").subscribe(0);
+
 
   private final StructPublisher<Pose3d> centralPose = driveStateTable.getStructTopic("centerPose", Pose3d.struct)
       .publish();
@@ -35,6 +52,7 @@ public class TurretIO extends SubsystemBase {
 
   private static TurretIO m_Instance;
 
+
   public TurretIO() {
     zeroPose.set(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
 
@@ -44,6 +62,7 @@ public class TurretIO extends SubsystemBase {
         new Pose3d(0.17145000, 0, 0.2529081, new Rotation3d(0.0, 0.0, turretRotation.getRadians())),
         new Pose3d(0.17145000, 0, 0.2529081, new Rotation3d())
     });
+
   }
 
   public void setHoodDegrees(double hoodDegrees) {

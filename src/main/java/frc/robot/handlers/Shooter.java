@@ -63,6 +63,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     MANUAL,
     REVVING,
     REVERSE,
+    TRENCH,
   }
 
   Pose2d currentGoalPosition;
@@ -85,7 +86,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case SHOOTING:
         stateShower.set("SHOOTING");
-        Shooter.setIndexVolts(9.6);
+        Shooter.setIndexVolts(11);
         Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
@@ -105,7 +106,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
       case REVVING:
         stateShower.set("REVVING");
-        Shooter.setIndexSpeed(9.6);
+        Shooter.setIndexSpeed(11);
         Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
@@ -127,6 +128,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         Shooter.setShooterCommand();
         Shooter.setRPM(-500);
         break;
+      case TRENCH:
+      stateShower.set("TRENCH");
+      Shooter.setIndexVolts(11);
+      Shooter.setShooterCommand();
+      Shooter.setRPM(2000);
+      break;
 
       default:
         stateShower.set("UNKNOWN");

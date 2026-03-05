@@ -11,6 +11,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.IO.TurretIO;
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -36,9 +37,10 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   public s_Hood() {
     initialized = true;
+    turretSimulation = TurretIO.getInstance();
   }
 
-  private final TurretIO turretSimulation = TurretIO.getInstance();
+  private final TurretIO turretSimulation;
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final DoublePublisher hoodDeg = driveStateTable.getDoubleTopic("HoodDegrees").publish();
@@ -92,7 +94,6 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   }
 
 
-
   public void setDegrees(double actualDegrees) {
     angle = actualDegrees;
     // CommandScheduler.getInstance().schedule(
@@ -104,6 +105,9 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     angle = actualDegrees.getAsDouble();
     // CommandScheduler.getInstance().schedule(
     //     hood.setAngle(Degrees.of(actualDegrees)));
+  }
+  public Angle getDegrees(){
+    return hood.getAngle();
   }
 
   public void stop() {

@@ -65,7 +65,7 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   .withFeedforward(new ArmFeedforward(0, 0, 0))
   .withSimFeedforward(new ArmFeedforward(0, 0, 0))
   // Telemetry name and verbosity level
-  // .withTelemetry("Intake L R Motor", TelemetryVerbosity.LOW)
+  .withTelemetry("Intake L R Motor", TelemetryVerbosity.LOW)
   // Gearing from the motor rotor to final shaft.
   // In this example GearBox.fromReductionStages(3,4) is the same as GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your motor.
   .withGearing(new MechanismGearing(GearBox.fromReductionStages(5, 4)))
@@ -91,9 +91,9 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   .withStartingPosition(Degrees.of(0))
   // Length and mass of your arm for sim.
   .withLength(Inches.of(13.5))
-  .withMOI(MomentOfInertia.ofRelativeUnits(1265.329267,  PoundSquareInches));
+  .withMOI(MomentOfInertia.ofRelativeUnits(1265.329267,  PoundSquareInches))
   // Telemetry name and verbosity for the arm.
-  // .withTelemetry("Intake", TelemetryVerbosity.LOW)
+  .withTelemetry("Intake", TelemetryVerbosity.LOW);
 
   // Arm Mechanism
   private Arm intake = new Arm(armCfg);

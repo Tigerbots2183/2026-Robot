@@ -37,8 +37,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
 
-  // private final StructPublisher<Pose2d> turretPose =
-  // driveStateTable.getStructTopic("turretPose", Pose2d.struct).publish();
+  private final StructPublisher<Pose2d> turretPose =driveStateTable.getStructTopic("turretPose", Pose2d.struct).publish();
   private final StructPublisher<Pose2d> goalPose = driveStateTable.getStructTopic("goalPose", Pose2d.struct).publish();
   private final DoublePublisher storedRotation = driveStateTable.getDoubleTopic("storedRotation").publish();
 
@@ -102,7 +101,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
       case TRACKING:
         robotPose = robotPoseSupplier.get();
 
-        translatedTurretPose = robotPose.transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+        translatedTurretPose = robotPose.transformBy(new Transform2d(0.17145000, 0.0, new Rotation2d()));
 
         speeds = chassisSpeedSupplier.get();
 
@@ -110,6 +109,8 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         toGoal = Rotation2d.fromRadians(Math.atan2(goalPosition.getY() - translatedTurretPose.getY(),
             goalPosition.getX() - translatedTurretPose.getX()));
 
+        turretPose.set(translatedTurretPose);
+          
         robotRealtiveRotation = Rotation2d
             .fromRadians(toGoal.getRadians() - robotPose.getRotation().getRadians());
 

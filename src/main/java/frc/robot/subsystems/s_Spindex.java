@@ -52,7 +52,7 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   public void setFromBeamBreaks() {
 
     if (!beamBreakLeft.get() && !beamBreakRight.get()) {
-      rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
+      rounded = Math.round(Timer.getTimestamp() * 3) / 3.0;
       if ((rounded % 1) == 0) {
         SpindexFlexLeft.setVoltage(primaryVoltage);
         SpindexFlexRight.setVoltage(secondaryVoltage);
@@ -70,14 +70,16 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
       SpindexFlexRight.setVoltage(primaryVoltage);
 
     } else {
-      rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
-      if ((rounded % 1) == 0) {
-        SpindexFlexLeft.setVoltage(primaryVoltage);
-        SpindexFlexRight.setVoltage(secondaryVoltage);
-      } else {
-        SpindexFlexLeft.setVoltage(-secondaryVoltage);
-        SpindexFlexRight.setVoltage(-primaryVoltage);
-      }
+            SpindexFlexLeft.setVoltage(-primaryVoltage);
+      SpindexFlexRight.setVoltage(primaryVoltage);
+      // rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
+      // if ((rounded % 1) == 0) {
+      //   SpindexFlexLeft.setVoltage(primaryVoltage);
+      //   SpindexFlexRight.setVoltage(secondaryVoltage);
+      // } else {
+      //   SpindexFlexLeft.setVoltage(-secondaryVoltage);
+      //   SpindexFlexRight.setVoltage(-primaryVoltage);
+      // }
     }
   }
 

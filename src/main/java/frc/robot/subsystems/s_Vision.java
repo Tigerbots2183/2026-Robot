@@ -23,7 +23,7 @@ import frc.robot.handlers.Vision;
 public class s_Vision extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Example. */
   public static s_Vision m_Instance;
-  public static QuestNavSubsystem Qnav = QuestNavSubsystem.getInstance();
+  // public static QuestNavSubsystem Qnav = QuestNavSubsystem.getInstance();
 
   public s_Vision() {
     initialized = true;
@@ -51,7 +51,7 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
 
   public void preseedFromMt1() {
     if(isSim){
-      Qnav.setInitialPose();
+      // Qnav.setInitialPose();
       seededOnce = true;
 
     }
@@ -61,10 +61,9 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
     // System.out.println(rsl.tagCount);
     if (rsl.tagCount >= 2) {
       seededOnce = true;
-      sinceSeeded = Timer.getTimestamp();
       lastSeededPose.set(rsl.pose);
       seeded.set(true);
-      Qnav.setPose(new Pose3d(rsl.pose));
+      // Qnav.setPose(new Pose3d(rsl.pose));
     }
 
   } 
@@ -77,7 +76,7 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
     reseed = false;
 
     if(RobotBase.isSimulation()){
-      Qnav.setInitialPose();
+      // Qnav.setInitialPose();
       reseed = true;
     }
 
@@ -89,7 +88,7 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
       sinceSeeded = Timer.getTimestamp();
       lastSeededPose.set(rsl.pose);
       seeded.set(true);
-      Qnav.setPose(new Pose3d(rsl.pose));
+      // Qnav.setPose(new Pose3d(rsl.pose));
 
       return true;
     }
@@ -97,6 +96,7 @@ public class s_Vision extends SubsystemBase implements CheckableSubsystem {
     return false;
   }
 
+  
   public boolean checkSubsystem() {
     return getInitialized();
   }

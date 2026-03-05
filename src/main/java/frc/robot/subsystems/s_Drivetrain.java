@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -116,7 +117,7 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     controller.start().and(controller.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
     controller.start().and(controller.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-    controller.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true));
+    controller.start().onTrue(drivetrain.runOnce(()->drivetrain.seedFieldCentric()).ignoringDisable(true));
     controller.start().onTrue(Commands.runOnce(()->QuestNavSubsystem.getInstance().setPose(new Pose3d(new Pose2d(drivetrain.getState().Pose.getTranslation(), Rotation2d.fromDegrees(180))) )).ignoringDisable(true));
 
     drivetrain.registerTelemetry(logger::telemeterize);
@@ -136,7 +137,6 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
     trenchDrive.cancel();
     drivetrain.removeDefaultCommand();
-
     drivetrain.setDefaultCommand(defaultDrive);
   }
 
@@ -209,11 +209,11 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
   }
 
+  boolean doRejectUpdate;
+
   @Override
   public void periodic() {
-    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-rsl");
-    drivetrain.addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
-
+    
     // This method will be called once per scheduler run
   }
 }

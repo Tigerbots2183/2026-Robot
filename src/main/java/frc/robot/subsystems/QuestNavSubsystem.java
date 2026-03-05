@@ -13,6 +13,8 @@ import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,6 +33,7 @@ import frc.robot.generated.TunerConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 
 public class QuestNavSubsystem extends SubsystemBase {
     /** Creates a new QuestNavSubsystem. */
@@ -47,6 +50,10 @@ public class QuestNavSubsystem extends SubsystemBase {
             .getStructTopic("/QuestPose", Pose3d.struct).publish();
     StructPublisher<Pose3d> nonTranslatedPublisher = NetworkTableInstance.getDefault()
             .getStructTopic("/QuestPoseNoTrans", Pose3d.struct).publish();
+
+    private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
+    private final NetworkTable visionTable = networkTable.getTable("Vision");
+    BooleanPublisher hasQuest = visionTable.getBooleanTopic("Quest").publish();
 
     Boolean haveQuest = false;
 
@@ -108,6 +115,8 @@ public class QuestNavSubsystem extends SubsystemBase {
     double timestamp;
     Pose3d robotPose;
 
+    boolean doRejectUpdate;
+
     @Override
     public void periodic() {
 
@@ -118,6 +127,7 @@ public class QuestNavSubsystem extends SubsystemBase {
         }
 
         if (questNav.isTracking()) {
+            hasQuest.set(true);
             // Get the latest pose data frames from the Quest
             questFrames = questNav.getAllUnreadPoseFrames();
 
@@ -138,10 +148,35 @@ public class QuestNavSubsystem extends SubsystemBase {
                 // Add the measurement to our estimator
                 s_Drivetrain.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
             }
-        } else
+        } else {
+            hasQuest.set(false);
+            setFromMt1("limelight-rsl");
+            setFromMt1("limelight-quest");
+        }
+    }
 
-        {
-            System.out.println("No QUEST");
+    private void setFromMt1(String name) {
+        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+
+        doRejectUpdate = false;
+
+        if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
+            if (mt1.rawFiducials[0].ambiguity > .7) {
+                doRejectUpdate = true;
+            }
+            if (mt1.rawFiducials[0].distToCamera > 3) {
+                doRejectUpdate = true;
+            }
+        }
+        if (mt1.tagCount == 0) {
+            doRejectUpdate = true;
+        }
+
+        if (!doRejectUpdate) {
+            s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+            s_Drivetrain.addVisionMeasurement(
+                    mt1.pose,
+                    mt1.timestampSeconds);
         }
     }
 

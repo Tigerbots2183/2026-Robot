@@ -50,7 +50,7 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Shooter. */
   public static s_Shooter m_Instance;
 
-    private SparkFlex indexFlex = new SparkFlex(50, MotorType.kBrushless);
+  private TalonFX indexTalon = new TalonFX(50);
 
   private TalonFX leftTalonFlywheel = new TalonFX(7, "turret");
   private TalonFX rightTalonFlywheel = new TalonFX(6, "turret");
@@ -114,18 +114,17 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setIndexVolts(double volts) {
-    indexFlex.setVoltage(volts);
+    indexTalon.setVoltage(-volts);
+    
   }
   public void setIndexVolts(DoubleSupplier volts) {
-    indexFlex.setVoltage(volts.getAsDouble());
+    indexTalon.setVoltage(-volts.getAsDouble());
   }
   public void setIndexSpeed(double dutyCycle) {
-    indexFlex.set(dutyCycle);
+    indexTalon.set(-dutyCycle);
   }
-  
-  
   public void setIndexSpeed(DoubleSupplier dutyCycle) {
-    indexFlex.set(dutyCycle.getAsDouble());
+    indexTalon.set(-dutyCycle.getAsDouble());
   }
 
 
