@@ -52,6 +52,7 @@ public class TurretIO extends SubsystemBase {
 
   private static TurretIO m_Instance;
 
+  private Pose3d pretransform = new Pose3d(0.17145000, 0, 0.2529081, new Rotation3d());
 
   public TurretIO() {
     zeroPose.set(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
@@ -66,7 +67,6 @@ public class TurretIO extends SubsystemBase {
   }
 
   public void setHoodDegrees(double hoodDegrees) {
-    Pose3d pretransform = new Pose3d(0.17145000, 0, 0.2529081, new Rotation3d());
 
     this.hoodRotation = Rotation2d.fromDegrees(hoodDegrees);
 
@@ -86,7 +86,6 @@ public class TurretIO extends SubsystemBase {
   }
 
   public void setTurretDegrees(double turretDegrees) {
-    Pose3d pretransform = new Pose3d(0.17145000, 0, 0.2529081, new Rotation3d());
 
     this.turretRotation = Rotation2d.fromDegrees(turretDegrees);
 

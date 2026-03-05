@@ -67,17 +67,17 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
-        joystick.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
-
+        // joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
+        // joystick.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+// 
         joystick.y().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
         joystick.y().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
 
         joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
-        joystick.y().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+        // joystick.y().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
 
         joystick.y().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        joystick.y().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        // joystick.y().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
 
         joystick.x().onTrue(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
         joystick.x().onFalse(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
@@ -108,9 +108,9 @@ public class RobotContainer {
 
         joystick.a().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
         joystick.a().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        joystick.a().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+        // joystick.a().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
 
-        joystick.a().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.REVERSE)));
+        // joystick.a().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.REVERSE)));
         joystick.a().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE)));
         joystick.a().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE)));
 
@@ -120,7 +120,7 @@ public class RobotContainer {
         joystick.rightStick().onTrue(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.IDLE)));
         // joystick.rightStick().onTrue(Commands.runOnce(() -> H_Turret.setDesiredState(Turret.TurretStates.IDLE)));
 
-        joystick.rightStick().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+        // joystick.rightStick().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
         joystick.rightStick().onTrue(Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
         joystick.rightStick().onTrue(Commands.runOnce(() -> s_Intake.getInstance().setDegrees(0)));
 
@@ -141,11 +141,11 @@ public class RobotContainer {
 
         //
 
-        NamedCommands.registerCommand("intake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
-        NamedCommands.registerCommand("sintake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        // NamedCommands.registerCommand("intake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
+        // NamedCommands.registerCommand("sintake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
         NamedCommands.registerCommand("revshoot", Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.TRENCH)));
         NamedCommands.registerCommand("sethood", Commands.runOnce(()-> s_Hood.getInstance().setDegrees(30.5)));
-        NamedCommands.registerCommand("intakeup", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+        // NamedCommands.registerCommand("intakeup", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
         // NamedCommands.registerCommand("trackturret", Commands.runOnce(() -> H_Intake.setDesiredState(Turret.TurretStates.TRACKING)));
         NamedCommands.registerCommand("shoot", Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
         NamedCommands.registerCommand("spindex", Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));

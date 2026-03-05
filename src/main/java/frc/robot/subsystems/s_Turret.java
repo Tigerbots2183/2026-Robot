@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -15,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -61,6 +63,10 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .getStructTopic("actualAngleShowerPose", Pose3d.struct).publish();
 
   private Supplier<Pose2d> robotPose = () -> TunerConstants.getInstance().getState().Pose;
+
+  private Supplier<Pose3d> angleShowerPose = () -> new Pose3d(robotPose.get()).transformBy(new Transform3d(0,0,1,new Rotation3d()));
+
+  boolean isSim = false; //RobotBase.isSimulation();
 
   TalonFX turretMotor = new TalonFX(3);
 
@@ -136,9 +142,10 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       this.angle = degrees;
     }
 
-    actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(),
-        robotPose.get().getTranslation().getY(), 1,
-        new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
+    
+    // actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(),
+    //     robotPose.get().getTranslation().getY(), 1,
+    //     new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
 
     yamsVelocity
         .set((turret.getAngle().in(Degrees) - previousYamsDegrees) / (Timer.getTimestamp() - previousTimestamp));
@@ -165,9 +172,9 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       this.angle = degrees;
     }
 
-    actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(),
-        robotPose.get().getTranslation().getY(), 1,
-        new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
+    // actualAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(),
+    //     robotPose.get().getTranslation().getY(), 1,
+    //     new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
 
     yamsVelocity
         .set((turret.getAngle().in(Degrees) - previousYamsDegrees) / (Timer.getTimestamp() - previousTimestamp));
@@ -210,15 +217,21 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     turret.sysId(Volts.of(12), Volts.of(0.5).per(Second), Seconds.of(12));
   }
 
+
+
   @Override
   public void periodic() {
     turret.updateTelemetry();
     yamsRotation.set(turret.getAngle().in(Degree));
-    turretSimulation.setTurretDegrees(turret.getAngle().in(Degree));
-    yamsAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(), robotPose.get().getTranslation().getY(),
-        1,
-        new Rotation3d(0.0, 0.0,
-            Rotation2d.fromDegrees(turret.getAngle().in(Degree)).plus(robotPose.get().getRotation()).getRadians())));
+
+    if(isSim){
+      turretSimulation.setTurretDegrees(turret.getAngle().in(Degree));
+
+    }
+    // yamsAngleShowerPose.set(new Pose3d(robotPose.get().getTranslation().getX(), robotPose.get().getTranslation().getY(),
+    //     1,
+    //     new Rotation3d(0.0, 0.0,
+    //         Rotation2d.fromDegrees(turret.getAngle().in(Degree)).plus(robotPose.get().getRotation()).getRadians())));
     // This method will be called once per scheduler run
   }
 

@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.IO.TurretIO;
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -45,6 +46,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final DoublePublisher hoodDeg = driveStateTable.getDoubleTopic("HoodDegrees").publish();
 
+  boolean isSim = false;// RobotBase.isSimulation();
 
   TalonFXS hoodMotor = new TalonFXS(5, "turret");
 
@@ -127,7 +129,11 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   public void periodic() {
     // hood.updateTelemetry();
     getAngle = hood.getAngle().in(Degree);
-    turretSimulation.setHoodDegrees(getAngle);
+
+    if(isSim){
+
+      turretSimulation.setHoodDegrees(getAngle);
+    }
     hoodDeg.set(getAngle);
     // This method will be called once per scheduler run
   }
