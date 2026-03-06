@@ -55,6 +55,8 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   private final DoublePublisher yamsRotation = driveStateTable.getDoubleTopic("yamsRotation").publish();
   private final DoublePublisher yamsVelocity = driveStateTable.getDoubleTopic("yamsVelocity").publish();
   private final DoublePublisher degreesOff = driveStateTable.getDoubleTopic("degreesOff").publish();
+  private final DoublePublisher pubOffset = driveStateTable.getDoubleTopic("Offset").publish();
+
 
   private final StructPublisher<Pose3d> yamsAngleShowerPose = driveStateTable
       .getStructTopic("yamsAngleShowerPose", Pose3d.struct).publish();
@@ -64,7 +66,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
 
   private Supplier<Pose2d> robotPose = () -> TunerConstants.getInstance().getState().Pose;
 
-  private Supplier<Pose3d> angleShowerPose = () -> new Pose3d(robotPose.get()).transformBy(new Transform3d(0,0,1,new Rotation3d()));
+  // private Supplier<Pose3d> angleShowerPose = () -> new Pose3d(robotPose.get()).transformBy(new Transform3d(0,0,1,new Rotation3d()));
 
   boolean isSim = false; //RobotBase.isSimulation();
 
@@ -103,7 +105,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .withMOI(yams.units.YUnits.PoundSquareInches.of(362.787082)); // MOI Calculation
 
   private Pivot turret = new Pivot(m_config);
-
+  private DoubleSupplier offset = ()-> 0;
   private double angle = 0;
   private Command angleCommand = turret.setAngle(() -> Degrees.of(angle)).ignoringDisable(true);
 
@@ -127,6 +129,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   double degrees;
   public void setDegrees(DoubleSupplier degreesSupplier) {
    degrees = degreesSupplier.getAsDouble();
+   degrees += offset.getAsDouble();
     if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 20) {
       inaccurate = () -> false;
     } else {
@@ -156,8 +159,8 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setDegrees(double degrees) {
-
-    if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 20) {
+    degrees += offset.getAsDouble();
+    if (Math.abs(degrees - turret.getAngle().in(Degrees)) <= 10) {
       inaccurate = () -> false;
     } else {
       inaccurate = () -> true;
@@ -176,7 +179,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     //     robotPose.get().getTranslation().getY(), 1,
     //     new Rotation3d(0.0, 0.0, Rotation2d.fromDegrees(degrees).plus(robotPose.get().getRotation()).getRadians())));
 
-    yamsVelocity
+    yamsVelocity 
         .set((turret.getAngle().in(Degrees) - previousYamsDegrees) / (Timer.getTimestamp() - previousTimestamp));
 
     previousYamsDegrees = turret.getAngle().in(Degrees);
@@ -184,18 +187,23 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
     // turretSimulation.setTurretDegrees(degrees);
   }
 
+  public void setOffset(double offset){
+    pubOffset.set(offset);
+    this.offset = () -> offset;
+  }
+
   public Command getDegreeSetter(double degrees) {
     // Returns the command that sets current degrees to turret
-
-    return turret.setAngle(Degrees.of(degrees))
-        .until(() -> turret.getAngle().in(Degrees) < degrees + 10 && turret.getAngle().in(Degrees) > degrees - 10);
+    
+    return turret.setAngle(Degrees.of(degrees + offset.getAsDouble()))
+        .until(() -> turret.getAngle().in(Degrees) < degrees + offset.getAsDouble() + 5 && turret.getAngle().in(Degrees) > degrees + offset.getAsDouble() - 5);
   }
 
   public Command getDegreeSetter(DoubleSupplier degreesSupplier) {
     // Returns the command that sets current degrees to turret
     Double degrees = degreesSupplier.getAsDouble();
-    return turret.setAngle(Degrees.of(degrees))
-        .until(() -> turret.getAngle().in(Degrees) < degrees + 10 && turret.getAngle().in(Degrees) > degrees - 10);
+  return turret.setAngle(Degrees.of(degrees + offset.getAsDouble()))
+        .until(() -> turret.getAngle().in(Degrees) < degrees + offset.getAsDouble() + 5 && turret.getAngle().in(Degrees) > degrees + offset.getAsDouble() - 5);
   }
   public Angle getAngle(){
     return turret.getAngle();

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.xml.namespace.QName;
 
 import com.pathplanner.lib.auto.NamedCommands;
@@ -28,6 +30,7 @@ import frc.robot.handlers.Shooter;
 import frc.robot.handlers.Spindex;
 import frc.robot.handlers.Turret;
 import frc.robot.handlers.Vision;
+import frc.robot.handlers.Hood.HoodStates;
 import frc.robot.handlers.Vision.VisionStates;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.QuestNavSubsystem;
@@ -44,11 +47,14 @@ public class RobotContainer {
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
             
-    private Vision H_Vision = Vision.getInstance();
+    // private Vision H_Vision = Vision.getInstance();
+    private QuestNavSubsystem Qnav = QuestNavSubsystem.getInstance();
     private Turret H_Turret = Turret.getInstance();
     private Hood H_Hood = Hood.getInstance();
 
     private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController coPilot = new CommandXboxController(1);
+
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
 
@@ -67,62 +73,73 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        // joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
-        // joystick.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
-// 
-        joystick.y().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
-        joystick.y().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+        joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
+        joystick.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
 
-        joystick.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
-        // joystick.y().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
-
-        joystick.y().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        // joystick.y().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
-
-        joystick.x().onTrue(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
-        joystick.x().onFalse(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        coPilot.pov(90).onTrue(Commands.runOnce(()-> H_Turret.increaseDeg()));
+        coPilot.pov(270).onTrue(Commands.runOnce(()-> H_Turret.decreaseDeg()));
 
 
-        // joystick.pov(180).onTrue(AutoBuilder.pathfindToPose(new Pose2d(8,4, new
-        // Rotation2d()), CommandSwerveDrivetrain.pConstraints, 4.0));
-        // joystick.pov(0).onTrue(Commands.runOnce(() ->
-        // H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
-        // joystick.pov(0).onFalse(Commands.runOnce(() ->
-        // H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
-
-        // joystick.pov(90).onTrue(Commands.runOnce(() ->
-        // H_Intake.setDesiredState(Intake.IntakeStates.HUMAN)));
-        // joystick.pov(90).onFalse(Commands.runOnce(() ->
-        // H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
-
-        // joystick.pov(180).onTrue(Commands.runOnce(() ->
-        // H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
-
-        joystick.pov(180).onTrue(Commands.runOnce(() -> H_Hood.decreaseDeg()));
-        joystick.pov(0).onTrue(Commands.runOnce(() -> H_Hood.increaseDeg()));
-
-        // joystick.b().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
-
-        joystick.b().onTrue(Commands.runOnce(()-> s_Shooter.getInstance().setIndexVolts(-9.6)));
 
 
-        joystick.a().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
-        joystick.a().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        // joystick.a().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+        joystick.pov(180).onTrue(Commands.runOnce(() ->
+        H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
 
-        // joystick.a().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.REVERSE)));
-        joystick.a().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE)));
-        joystick.a().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE)));
+        coPilot.pov(180).onTrue(Commands.runOnce(() -> H_Hood.decreaseDeg()));
+        coPilot.pov(0).onTrue(Commands.runOnce(() -> H_Hood.increaseDeg()));
 
+        joystick.leftBumper().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+        joystick.leftBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        joystick.leftBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
 
+        joystick.leftBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.REVERSE)));
+        joystick.leftBumper().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE)));
+        joystick.leftBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE)));
+
+        joystick.rightTrigger(.5).onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
+        joystick.rightTrigger(.5).onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
+        joystick.rightTrigger(.5).onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+
+        joystick.rightTrigger(.5).onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        joystick.rightTrigger(.5).onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        joystick.rightTrigger(.5).onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+
+        joystick.leftTrigger(.5).onTrue(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
+        joystick.leftTrigger(.5).onFalse(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+
+        
+        coPilot.rightBumper().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
+        coPilot.rightBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
+        // coPilot.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+
+        coPilot.rightBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        // coPilot.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        coPilot.rightBumper().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+
+        coPilot.leftBumper().onTrue(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
+        coPilot.leftBumper().onFalse(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+
+        coPilot.y().onTrue(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL)));
+        coPilot.y().onTrue(Commands.runOnce(()-> H_Hood.setDesiredState(Hood.HoodStates.MANUAL)));
+        coPilot.y().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
+
+        coPilot.y().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+        coPilot.y().onFalse(Commands.runOnce(()-> H_Hood.setDesiredState(Hood.HoodStates.TRACKING)));
+        coPilot.y().onFalse(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        
+        coPilot.x().onTrue(Commands.runOnce(()-> H_Hood.setDesiredState(Hood.HoodStates.MANUAL)));
+        coPilot.x().onTrue(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL)));
+
+        coPilot.x().onFalse(Commands.runOnce(()-> H_Hood.setDesiredState(Hood.HoodStates.TRACKING)));
+        coPilot.x().onFalse(Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
 
         // joystick.rightStick().onTrue(Commands.runOnce(() -> s_Turret.getInstance().setDegrees(0)));
-        joystick.rightStick().onTrue(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.IDLE)));
+        // joystick.rightStick().onTrue(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.IDLE)));
         // joystick.rightStick().onTrue(Commands.runOnce(() -> H_Turret.setDesiredState(Turret.TurretStates.IDLE)));
 
         // joystick.rightStick().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
-        joystick.rightStick().onTrue(Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
-        joystick.rightStick().onTrue(Commands.runOnce(() -> s_Intake.getInstance().setDegrees(0)));
+        // joystick.rightStick().onTrue(Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
+        // joystick.rightStick().onTrue(Commands.runOnce(() -> s_Intake.getInstance().setDegrees(0)));
 
         drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true);
 
@@ -141,11 +158,11 @@ public class RobotContainer {
 
         //
 
-        // NamedCommands.registerCommand("intake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
-        // NamedCommands.registerCommand("sintake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        NamedCommands.registerCommand("intake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
+        NamedCommands.registerCommand("sintake", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
         NamedCommands.registerCommand("revshoot", Commands.runOnce(()-> H_Shooter.setDesiredState(Shooter.ShooterStates.TRENCH)));
         NamedCommands.registerCommand("sethood", Commands.runOnce(()-> s_Hood.getInstance().setDegrees(30.5)));
-        // NamedCommands.registerCommand("intakeup", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+        NamedCommands.registerCommand("intakeup", Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
         // NamedCommands.registerCommand("trackturret", Commands.runOnce(() -> H_Intake.setDesiredState(Turret.TurretStates.TRACKING)));
         NamedCommands.registerCommand("shoot", Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
         NamedCommands.registerCommand("spindex", Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));

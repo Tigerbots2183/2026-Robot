@@ -4,14 +4,18 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.IO.TurretIO;
 import yams.mechanisms.config.PivotConfig;
@@ -71,17 +75,16 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   PivotConfig m_config = new PivotConfig(motor)
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
-      .withHardLimit(Degrees.of(0), Degrees.of(50)) // Hard limit bc wiring prevents infinite spinning
-      .withSoftLimits(Degrees.of(0), Degrees.of(50))
+      .withHardLimit(Degrees.of(-7), Degrees.of(50)) // Hard limit bc wiring prevents infinite spinning
+      .withSoftLimits(Degrees.of(-7), Degrees.of(50))
       // .withTelemetry("Hood", TelemetryVerbosity.LOW) // Telemetry
       .withMOI(KilogramSquareMeters.of(0.04475326));
 
   private Pivot hood = new Pivot(m_config);
-
+  DoubleSupplier offset = ()->0;
   Double angle = 0.0;
-    private Command stopCommand = hood.set(0);
-  private Command setAngleCommand = hood.setAngle(()-> Degrees.of(angle)).ignoringDisable(true);
-
+  private Command stopCommand = hood.set(0);
+  private Command setAngleCommand = hood.setAngle(() -> Degrees.of(angle + offset.getAsDouble())).ignoringDisable(true);
 
   public boolean checkSubsystem() {
     return getInitialized();
@@ -91,30 +94,38 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     return initialized;
   }
 
-  public void setDegreeCommand(){
+  public void setDegreeCommand() {
     CommandScheduler.getInstance().schedule(setAngleCommand);
   }
 
+  public void cancelDegreeCommand() {
+    CommandScheduler.getInstance().cancel(setAngleCommand);
+  }
 
   public void setDegrees(double actualDegrees) {
     angle = actualDegrees;
     // CommandScheduler.getInstance().schedule(
-    //     hood.setAngle(Degrees.of(actualDegrees)));
+    // hood.setAngle(Degrees.of(actualDegrees)));
   }
 
-  
   public void setDegrees(DoubleSupplier actualDegrees) {
     angle = actualDegrees.getAsDouble();
     // CommandScheduler.getInstance().schedule(
-    //     hood.setAngle(Degrees.of(actualDegrees)));
+    // hood.setAngle(Degrees.of(actualDegrees)));
   }
-  public Angle getDegrees(){
+
+  public Angle getDegrees() {
     return hood.getAngle();
   }
 
+  public void setOffset(double offset){
+    this.offset = () -> offset;
+  }
+
+
   public void stop() {
     // CommandScheduler.getInstance().schedule(
-    //     stopCommand);
+    // stopCommand);
   }
 
   public static s_Hood getInstance() {
@@ -124,13 +135,13 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     return m_Instance;
   }
 
-
   double getAngle;
+
   public void periodic() {
     // hood.updateTelemetry();
     getAngle = hood.getAngle().in(Degree);
 
-    if(isSim){
+    if (isSim) {
 
       turretSimulation.setHoodDegrees(getAngle);
     }

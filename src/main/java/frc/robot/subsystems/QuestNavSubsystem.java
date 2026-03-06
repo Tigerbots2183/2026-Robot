@@ -10,12 +10,14 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -26,11 +28,14 @@ import edu.wpi.first.math.VecBuilder;
 import gg.questnav.questnav.PoseFrame;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import gg.questnav.questnav.QuestNav;
 import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Touchboard.Touchboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
@@ -53,7 +58,11 @@ public class QuestNavSubsystem extends SubsystemBase {
 
     private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
     private final NetworkTable visionTable = networkTable.getTable("Vision");
+    private final NetworkTable tbTable = networkTable.getTable("touchboard");
+
     BooleanPublisher hasQuest = visionTable.getBooleanTopic("Quest").publish();
+    StringSubscriber initalPose = tbTable.getStringTopic("initalPose").subscribe("BlueLeft");
+
 
     Boolean haveQuest = false;
 
@@ -62,16 +71,10 @@ public class QuestNavSubsystem extends SubsystemBase {
     public QuestNavSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.s_Drivetrain = swerveSubsystem;
 
-        if (DriverStation.getAlliance().isPresent()) {
-            if (DriverStation.getAlliance().get() == Alliance.Red) {
-                questNav.setPose(robotPoseRed);
-            } else {
-                questNav.setPose(robotPoseBlue);
-            }
+        Touchboard.bindActionButton("set", ()-> Commands.runOnce(()-> setPoseFromString(initalPose.get())).ignoringDisable(true));
 
-        } else {
-            questNav.setPose(robotPoseBlue);
-        }
+
+        setPoseFromString(initalPose.get());
     }
 
     public void setPose(Pose3d position) {
@@ -88,6 +91,28 @@ public class QuestNavSubsystem extends SubsystemBase {
             }
         } else {
             questNav.setPose(robotPoseBlue);
+        }
+    }
+
+    Pose2d BlueLeft = new Pose2d(4.401, 7.625, new Rotation2d());
+    Pose2d BlueRight = new Pose2d(4.401, 0.479 , new Rotation2d());
+    Pose2d RedLeft = FlippingUtil.flipFieldPose(BlueLeft);
+    Pose2d RedRight = FlippingUtil.flipFieldPose(BlueRight);
+
+    
+
+    public void setPoseFromString(String where){
+        if(where == "BlueLeft"){
+            questNav.setPose(new Pose3d(BlueLeft));
+        } else if (where == "BlueRight"){
+            questNav.setPose(new Pose3d(BlueRight));
+        
+        }else if (where == "RedLeft"){
+            questNav.setPose(new Pose3d(RedLeft));
+        
+        }else if (where == "RedRight"){
+            questNav.setPose(new Pose3d(RedRight));
+        
         }
     }
 

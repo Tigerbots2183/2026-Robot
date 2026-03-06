@@ -59,8 +59,8 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
       .withControlMode(ControlMode.CLOSED_LOOP)
       .withFollowers(Pair.of(rightTalonFlywheel, true))
       // Feedback Constants (PID Constants)
-      .withClosedLoopController(.8, 0, 0)
-      .withSimClosedLoopController(.8, 0, 0)
+      .withClosedLoopController(.1, 0, 0)
+      .withSimClosedLoopController(.1, 0, 0)
       // Feedforward Constants
       
       .withFeedforward(new SimpleMotorFeedforward(0, 0.1304, 0))

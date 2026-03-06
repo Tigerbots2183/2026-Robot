@@ -22,7 +22,8 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
-  private final StringPublisher stateShower = stateTable.getStringTopic("SpindexState").publish(); //TODO: Change with name
+  private final StringPublisher stateShower = stateTable.getStringTopic("SpindexState").publish(); // TODO: Change with
+                                                                                                   // name
 
   private s_Spindex Spindex = s_Spindex.getInstance();
 
@@ -35,7 +36,7 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
     REVERSE,
   }
 
-  public void handleStateTransition(){
+  public void handleStateTransition() {
     switch (desiredState) {
       case IDLE:
         Spindex.setVoltage(0);
@@ -50,9 +51,14 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
       case ALTERNATE:
         stateShower.set("ALTERNATE");
         break;
-      case REVERSE: 
+      case REVERSE:
         stateShower.set("REVERSE");
         Spindex.setDiffVoltage(-11);
+        break;
+
+      case FEEDING:
+        stateShower.set("FEEDING");
+
         break;
       default:
         stateShower.set("UNKNOWN");
@@ -61,9 +67,10 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
     currentState = desiredState;
 
   }
+
   double rounded;
-  
-  public void update(){
+
+  public void update() {
     switch (currentState) {
       case IDLE:
         break;
@@ -73,23 +80,22 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
         break;
       case ALTERNATE:
         rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
-        if((rounded % 1) == 0 ){
+        if ((rounded % 1) == 0) {
           Spindex.setVoltage(-1.5);
-        }else{
+        } else {
 
-          
-        Spindex.setVoltage(1.5);
+          Spindex.setVoltage(1.5);
 
         }
         break;
       case FEEDING:
         Spindex.setFromBeamBreaks();
+        break;
       default:
         break;
     }
   }
 
-  
   public void setDesiredState(State state) {
     if (this.desiredState != state) {
       desiredState = (SpindexStates) state;
@@ -97,8 +103,8 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
     }
   }
 
-  public static Spindex getInstance(){
-    if(m_Instance == null){
+  public static Spindex getInstance() {
+    if (m_Instance == null) {
       m_Instance = new Spindex();
     }
     return m_Instance;

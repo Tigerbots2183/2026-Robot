@@ -15,10 +15,15 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Hood;
+
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meter;
 
@@ -63,7 +68,6 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     }
     return m_instance;
   }
-
   Pose2d currentGoalPosition;
   Pose2d translatedTurretPose;
   double dist;
@@ -94,7 +98,8 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         }
         break;
       case MANUAL:
-              currentGoalPosition = goalPosition.get();
+      
+        currentGoalPosition = goalPosition.get();
         translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
@@ -123,6 +128,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         stateShower.set("BROKEN");
         break;
       case TRACKING:
+
         stateShower.set("TRACKING");
         hood.setDegreeCommand();
         break;
@@ -131,6 +137,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
 
         stateShower.set("MANUAL");
         break;
+      
       default:
         stateShower.set("UNKNOWN");
         break;
@@ -140,12 +147,13 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   }
 
   public void increaseDeg() {
-    currentManualDeg += 2.5;
+    currentManualDeg += 2;
+    hood.setOffset(currentManualDeg);
   }
 
   public void decreaseDeg() {
-    currentManualDeg -= 2.5;
-
+    currentManualDeg -= 2;
+    hood.setOffset(currentManualDeg);
   }
 
   public void setDesiredState(State state) {
@@ -160,6 +168,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     BROKEN,
     TRACKING,
     // INACCURATE,
+    HOMING,
     MANUAL,
   }
 

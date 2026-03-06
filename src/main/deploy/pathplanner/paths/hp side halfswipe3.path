@@ -1,0 +1,79 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.7535587188612105,
+        "y": 3.3625504151838665
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.486392484667018,
+        "y": 3.3613940105376816
+      },
+      "isLocked": false,
+      "linkedName": "hp side ccend2"
+    },
+    {
+      "anchor": {
+        "x": 5.924495848161329,
+        "y": 3.147366548042704
+      },
+      "prevControl": {
+        "x": 5.924495848161329,
+        "y": 4.204504887132173
+      },
+      "nextControl": {
+        "x": 5.924495848161329,
+        "y": 2.660876678468211
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.052396204033215,
+        "y": 0.4898457888493476
+      },
+      "prevControl": {
+        "x": 7.108007117437722,
+        "y": 0.24238434163701073
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "hp trench shot"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.9104704097116763,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 1.6995447647951651,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 1.0,
+    "rotation": -58.32453126189097
+  },
+  "useDefaultConstraints": true
+}

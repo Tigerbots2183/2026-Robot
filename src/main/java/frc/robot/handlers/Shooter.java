@@ -27,7 +27,6 @@ import frc.robot.subsystems.Touchboard.Touchboard;
 public class Shooter extends SubsystemBase implements StateSubsystem {
   /** Creates a new Shooter. */
 
-
   public Shooter() {
     stateShower.set("SHOOTING");
     // manualRpm = new NumberComponent("tbRpm");
@@ -36,7 +35,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   }
 
   private static Shooter m_Instance;
-  private ShooterStates desiredState, currentState = ShooterStates.SHOOTING;
+  private ShooterStates desiredState, currentState = ShooterStates.IDLE;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
@@ -51,6 +50,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
 
   private final DoublePublisher flywheelRpm = turretTable.getDoubleTopic("Flywheel Rpm").publish();
+  private final DoublePublisher timePublish = turretTable.getDoubleTopic("Time out").publish();
 
   private DoubleSubscriber rpmTB = touchboardTable.getDoubleTopic("tbRpm").subscribe(0);
 
@@ -70,18 +70,31 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   Pose2d translatedTurretPose;
   Double dist;
 
+
+  double revRpm;
   public void handleStateTransition() {
     switch (desiredState) {
       case IDLE:
         stateShower.set("IDLE");
         Shooter.setIndexVolts(0);
         Shooter.setStopCommand();
+
         break;
       case BROKEN:
         stateShower.set("BROKEN");
         break;
       case MANUAL:
         stateShower.set("MANUAL");
+        Shooter.setIndexVolts(11);
+        Shooter.setShooterCommand();
+
+        currentGoalPosition = goalPosition.get();
+        translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
+
+        Shooter.setRPM(rpmTB.get());
 
         break;
       case SHOOTING:
@@ -90,37 +103,42 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
-        translatedTurretPose =  robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+        translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        // if (dist < 13 + 1.83333333333) {
-        //   Shooter.setRPM(2025);
+        if (dist < 13 + 1.83333333333) {
+          Shooter.setRPM(2025);
 
-        // }
+        }else{
+         Shooter.setRPM(2000);
 
-        Shooter.setRPM(rpmTB.get());
+        }
 
         break;
 
       case REVVING:
         stateShower.set("REVVING");
-        Shooter.setIndexSpeed(11);
+        // Shooter.setIndexSpeed(11);
+        timeout = 0.0;
         Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
-        translatedTurretPose =  robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+        translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        Shooter.setRPM(rpmTB.get());
+        if (dist < 13 + 1.83333333333) {
+          Shooter.setRPM(2025);
 
-        // if (dist < 13 + 1.83333333333) {
-        //   Shooter.setRPM(2025);
+        }else{
+         Shooter.setRPM(2000);
 
-        // }
+        }
+
+        
         break;
 
       case REVERSE:
@@ -129,17 +147,21 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         Shooter.setRPM(-500);
         break;
       case TRENCH:
-      stateShower.set("TRENCH");
-      Shooter.setIndexVolts(11);
-      Shooter.setShooterCommand();
-      Shooter.setRPM(2000);
-      break;
+        stateShower.set("TRENCH");
+        Shooter.setIndexVolts(11);
+        Shooter.setShooterCommand();
+        Shooter.setRPM(2000);
+        break;
 
       default:
         stateShower.set("UNKNOWN");
         break;
     }
+
+    currentState = desiredState;
   }
+
+  double timeout = 0.0;
 
   public void update() {
     flywheelRpm.set(Shooter.getVelocity());
@@ -149,6 +171,14 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
       case BROKEN:
         break;
       case MANUAL:
+        break;
+      case REVVING:
+        timeout += 0.3;
+       timePublish.set(timeout);
+        if(timeout > 5){
+        Shooter.setIndexSpeed(11);
+
+        }
         break;
       default:
         break;

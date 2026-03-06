@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "corral halfswipe1"
+                  "pathName": "hp side halfside1"
                 }
               },
               {
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "corral halfswipe2"
+            "pathName": "hp side halfswipe2"
           }
         },
         {
@@ -44,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "corral halfswipe3"
+            "pathName": "hp side halfswipe3"
           }
         },
         {

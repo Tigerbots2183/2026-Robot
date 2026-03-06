@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         m_robotContainer = new RobotContainer();
-        // addPeriodic(()->m_robotContainer.H_Spindex.update(), 0.01);
+        addPeriodic(()->m_robotContainer.H_Spindex.update(), 0.01);
 
     }
 
