@@ -9,55 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "hp side halfswipe1.5"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.2
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "hp side halfswipe2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "sintake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "hp side halfswipe3"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "track turret"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "revshoot"
@@ -81,19 +32,13 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "spindex"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 6.0
+            "waitTime": 4.0
           }
         },
         {
@@ -128,7 +73,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "hp side halfside1"
+                  "pathName": "hp side halfswipe1.5"
                 }
               },
               {
@@ -179,6 +124,12 @@
                 "data": {
                   "name": "sethood"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeup"
+                }
               }
             ]
           }
@@ -187,12 +138,6 @@
           "type": "wait",
           "data": {
             "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
           }
         },
         {

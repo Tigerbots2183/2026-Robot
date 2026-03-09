@@ -17,13 +17,15 @@ import com.pathplanner.lib.util.FlippingUtil;
 
 public final class Constants {
     public static class driveConstants {
-        public static double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
+        public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
                                                                                            // top
         // speed
         public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
                                                                                           // second
                                                                                           // max angular velocity
     }
+
+    
   public static class QuestNavConstants{
     public static final Pose2d initalPose2d = new Pose2d(3.25,4, Rotation2d.fromDegrees(-90));  //Blue Ref
 

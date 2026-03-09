@@ -6,6 +6,8 @@ package frc.robot.handlers;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -15,11 +17,15 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Turret;
 import frc.robot.subsystems.Touchboard.Touchboard;
 import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 public class Turret extends SubsystemBase implements StateSubsystem {
   /** Creates a new TurretTracker. */
@@ -53,11 +59,19 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   public Turret() {
 
-    goalPose.set(goalPosition);
     turret.setDegreeCommand();
+    goalPose.set(goalPosition);
 
     this.setDesiredState(desiredState);
 
+    RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
+      if (DriverStation.getAlliance().isPresent()) {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+          goalPosition = FlippingUtil.flipFieldPose(goalPosition);
+          goalPose.set(goalPosition);
+        }
+      }
+    }));
   }
 
   public static Turret getInstance() {
@@ -85,6 +99,8 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   Rotation2d robotRealtiveRotation;
   double currentRotationChange;
   Command turretResetter;
+
+  private final CommandXboxController coPilot = new CommandXboxController(1);
 
   public void update() {
     if (turret.inaccurate.get() && currentState == TurretStates.TRACKING) {
@@ -124,7 +140,13 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         }
         currentRotation += currentRotationChange;
 
-        currentRotation = (currentRotation % 360);
+        if (currentRotation > 360) {
+          currentRotation = (currentRotation % 360);
+
+        } else if (currentRotation <= 0) {
+          currentRotation = (currentRotation % 360);
+
+        }
 
         // currentRotation += currentRotationChange;
 
@@ -162,6 +184,9 @@ public class Turret extends SubsystemBase implements StateSubsystem {
           CommandScheduler.getInstance().schedule(turretResetter);
         }
 
+        break;
+      case ZEROING:
+        turret.setSpeed(coPilot.getRightX());
         break;
       case MANUAL:
 
@@ -207,10 +232,13 @@ public class Turret extends SubsystemBase implements StateSubsystem {
       return;
     }
 
+    if(currentState == TurretStates.ZEROING){
+      turret.setCurrentPoseAsZero();
+    }
+
     switch (desiredState) {
       case IDLE:
         stateShower.set("IDLE");
-        turret.stop();
         break;
       case BROKEN:
         stateShower.set("BROKEN");
@@ -219,14 +247,12 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         break;
       case TRACKING:
         stateShower.set("TRACKING");
-        turret.stop();
         unwindCommandBound = false;
         turret.setDegreeCommand();
         goalPose.set(goalPosition);
         break;
       case INACCURATE:
         stateShower.set("INACCURATE");
-        turret.stop();
         unwindCommandBound = false;
         turret.setDegreeCommand();
         goalPose.set(goalPosition);
@@ -240,6 +266,11 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         stateShower.set("SYSID");
 
         turret.runSYSID();
+        break;
+      case ZEROING:
+        stateShower.set("ZEROING");
+        turret.setZeroCommand();
+
         break;
       default:
         stateShower.set("UNKNOWN");
@@ -262,6 +293,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
     INACCURATE,
     MANUAL,
     UNWINDING,
+    ZEROING,
     SYSID,
   }
 }

@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "corral stealswipe1"
+                  "pathName": "corral sidehalfswipe1.5"
                 }
               },
               {
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "corral stealswipe2"
+            "pathName": "corral halfswipe2"
           }
         },
         {
@@ -44,13 +44,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "corral stealswipe3"
+            "pathName": "corral halfswipe3"
           }
         },
         {
           "type": "parallel",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "track turret"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -61,12 +67,6 @@
                 "type": "named",
                 "data": {
                   "name": "sethood"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeup"
                 }
               }
             ]
@@ -87,7 +87,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 4.0
+            "waitTime": 5.0
           }
         },
         {
@@ -122,7 +122,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "corral sidehalfswipe1.5"
+                  "pathName": "corral halfswipe1"
                 }
               },
               {
@@ -172,12 +172,6 @@
                 "type": "named",
                 "data": {
                   "name": "sethood"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeup"
                 }
               }
             ]
@@ -229,7 +223,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

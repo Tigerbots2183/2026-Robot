@@ -63,6 +63,7 @@ public class QuestNavSubsystem extends SubsystemBase {
     BooleanPublisher hasQuest = visionTable.getBooleanTopic("Quest").publish();
     StringSubscriber initalPose = tbTable.getStringTopic("initalPose").subscribe("BlueLeft");
 
+    StructPublisher<Pose2d> questInitPosPublisher = visionTable.getStructTopic("questInitPose", Pose2d.struct).publish();
 
     Boolean haveQuest = false;
 
@@ -71,10 +72,9 @@ public class QuestNavSubsystem extends SubsystemBase {
     public QuestNavSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.s_Drivetrain = swerveSubsystem;
 
-        Touchboard.bindActionButton("set", ()-> Commands.runOnce(()-> setPoseFromString(initalPose.get())).ignoringDisable(true));
+        Touchboard.bindOptGroup("initalPose", ()-> Commands.runOnce(()-> setPoseFromString(()->initalPose.get())).ignoringDisable(true));
 
 
-        setPoseFromString(initalPose.get());
     }
 
     public void setPose(Pose3d position) {
@@ -94,24 +94,32 @@ public class QuestNavSubsystem extends SubsystemBase {
         }
     }
 
-    Pose2d BlueLeft = new Pose2d(4.401, 7.625, new Rotation2d());
-    Pose2d BlueRight = new Pose2d(4.401, 0.479 , new Rotation2d());
+    Pose2d BlueLeft = new Pose2d(4.401, 7.215, new Rotation2d());
+    Pose2d BlueRight = new Pose2d(4.401, 0.833 , new Rotation2d());
     Pose2d RedLeft = FlippingUtil.flipFieldPose(BlueLeft);
     Pose2d RedRight = FlippingUtil.flipFieldPose(BlueRight);
 
     
 
-    public void setPoseFromString(String where){
-        if(where == "BlueLeft"){
-            questNav.setPose(new Pose3d(BlueLeft));
-        } else if (where == "BlueRight"){
-            questNav.setPose(new Pose3d(BlueRight));
+    public void setPoseFromString(Supplier<String> whereSupplier){
+        System.out.println(whereSupplier.get());
+        String where = whereSupplier.get();
+        if(where.equals("BlueLeft")){
+            setPose(new Pose3d(BlueLeft));
+            questInitPosPublisher.set(BlueLeft);
+        } else if (where.equals("BlueRight")){
+            setPose(new Pose3d(BlueRight));
+            questInitPosPublisher.set(BlueRight);
         
-        }else if (where == "RedLeft"){
-            questNav.setPose(new Pose3d(RedLeft));
+        }else if (where.equals("RedLeft")){
+            setPose(new Pose3d(RedLeft));
+            questInitPosPublisher.set(RedLeft);
+
         
-        }else if (where == "RedRight"){
-            questNav.setPose(new Pose3d(RedRight));
+        }else if (where.equals("RedRight")){
+            setPose(new Pose3d(RedRight));
+            questInitPosPublisher.set(RedRight);
+
         
         }
     }

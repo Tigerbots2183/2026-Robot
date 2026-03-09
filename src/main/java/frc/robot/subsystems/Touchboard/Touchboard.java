@@ -165,9 +165,9 @@ public class Touchboard {
 
         return new Trigger(() -> dataSubscriber.readQueueValues().length > 0).onTrue(Commands.runOnce(
                 () -> CommandScheduler.getInstance()
-                        .schedule(command.get().until(() -> dataSubscriber.readQueueValues().length > 0))
+                        .schedule(command.get().until(() -> dataSubscriber.readQueueValues().length > 0).ignoringDisable(true))
 
-        ));
+        ).ignoringDisable(true));
     }
 
     // Opt Group Methods
@@ -184,9 +184,9 @@ public class Touchboard {
 
         return new Trigger(() -> dataSubscriber.readQueueValues().length > 0).onTrue(Commands.runOnce(
                 () -> CommandScheduler.getInstance()
-                        .schedule(command.get().until(() -> dataSubscriber.readQueueValues().length > 0))
+                        .schedule(command.get().until(() -> dataSubscriber.readQueueValues().length > 0).ignoringDisable(true))
 
-        ));
+        ).ignoringDisable(true));
     }
 
     // OPT GROUP + DROPDOWN COMPONENT value getter

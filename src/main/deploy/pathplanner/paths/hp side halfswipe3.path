@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.7535587188612105,
-        "y": 3.3625504151838665
+        "x": 7.904187425860025,
+        "y": 2.3335663338088444
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.486392484667018,
-        "y": 3.3613940105376816
+        "x": 6.536219686162624,
+        "y": 0.6903566333808837
       },
       "isLocked": false,
       "linkedName": "hp side ccend2"
-    },
-    {
-      "anchor": {
-        "x": 5.924495848161329,
-        "y": 3.147366548042704
-      },
-      "prevControl": {
-        "x": 5.924495848161329,
-        "y": 4.204504887132173
-      },
-      "nextControl": {
-        "x": 5.924495848161329,
-        "y": 2.660876678468211
-      },
-      "isLocked": false,
-      "linkedName": null
     },
     {
       "anchor": {
@@ -36,24 +20,15 @@
         "y": 0.4898457888493476
       },
       "prevControl": {
-        "x": 7.108007117437722,
-        "y": 0.24238434163701073
+        "x": 7.0667047075606275,
+        "y": 0.9879457917261072
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "hp trench shot"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.9104704097116763,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 1.6995447647951651,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -72,7 +47,7 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 1.0,
+    "velocity": 0.0,
     "rotation": -58.32453126189097
   },
   "useDefaultConstraints": true

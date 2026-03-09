@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.3644128113879015,
-        "y": 0.47908659549228905
+        "x": 4.052396204033215,
+        "y": 0.4898457888493476
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.32209162052879,
-        "y": 0.3303134921265237
+        "x": 5.475249643366619,
+        "y": 0.4962767475035662
       },
       "isLocked": false,
-      "linkedName": "hp trench"
+      "linkedName": "hp trench shot"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.67445930134065
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

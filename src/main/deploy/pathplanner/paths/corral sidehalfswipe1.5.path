@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.041637010676157,
-        "y": 7.580154211150653
+        "x": 4.402,
+        "y": 7.215
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.041637010676157,
-        "y": 7.580154211150653
+        "x": 5.902225392296718,
+        "y": 7.41845934379458
       },
       "isLocked": false,
-      "linkedName": "corral trench shot"
+      "linkedName": "start corral"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 7.332692763938315
       },
       "prevControl": {
-        "x": 6.785836298932384,
-        "y": 7.332692763938315
+        "x": 6.1480599144079875,
+        "y": 7.509029957203994
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 2.5,
-    "rotation": 69.77514056883186
+    "velocity": 0.0,
+    "rotation": 69.775
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

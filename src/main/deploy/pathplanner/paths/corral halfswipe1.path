@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.401,
-        "y": 7.625477888730385
+        "x": 4.039058487874465,
+        "y": 7.224379457917262
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.590619912580403,
-        "y": 7.483321470937129
+        "x": 5.251364075417216,
+        "y": 7.440813605348642
       },
       "isLocked": false,
-      "linkedName": "corral trench"
+      "linkedName": "corral trench shot"
     },
     {
       "anchor": {

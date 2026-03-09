@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.Meter;
 
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.databind.ser.BeanSerializer;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -64,16 +66,23 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     REVVING,
     REVERSE,
     TRENCH,
+    WOAH,
   }
 
   Pose2d currentGoalPosition;
   Pose2d translatedTurretPose;
   Double dist;
 
+  double timeout = 0.0;
 
   double revRpm;
   public void handleStateTransition() {
     switch (desiredState) {
+      case WOAH: 
+        Shooter.setRPM(3000);
+        Shooter.setIndexVolts(11);
+        break;
+
       case IDLE:
         stateShower.set("IDLE");
         Shooter.setIndexVolts(0);
@@ -108,11 +117,14 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        if (dist < 13 + 1.83333333333) {
-          Shooter.setRPM(2025);
+        if (dist < 8.5) {
+          Shooter.setRPM(2000);
+
+        } else if (dist < 11.5){
+          Shooter.setRPM(2075);
 
         }else{
-         Shooter.setRPM(2000);
+         Shooter.setRPM(2200);
 
         }
 
@@ -130,14 +142,16 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        if (dist < 13 + 1.83333333333) {
-          Shooter.setRPM(2025);
+        if (dist < 8.5) {
+          Shooter.setRPM(2000);
+
+        } else if (dist < 11.5){
+          Shooter.setRPM(2075);
 
         }else{
-         Shooter.setRPM(2000);
+         Shooter.setRPM(2200);
 
         }
-
         
         break;
 
@@ -161,7 +175,6 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     currentState = desiredState;
   }
 
-  double timeout = 0.0;
 
   public void update() {
     flywheelRpm.set(Shooter.getVelocity());

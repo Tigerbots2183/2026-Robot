@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "hp side halfside1"
+                  "pathName": "corral stealswipe1"
                 }
               },
               {
@@ -32,25 +32,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "hp side halfswipe2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "sintake"
+            "pathName": "corral stealswipe2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "hp side halfswipe3"
+            "pathName": "corral stealswipe3"
           }
         },
         {
           "type": "parallel",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "track left"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -61,12 +61,6 @@
                 "type": "named",
                 "data": {
                   "name": "sethood"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeup"
                 }
               }
             ]
@@ -85,34 +79,34 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 7.0
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "stopshoot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "zerohood"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "stopspindexer"
+                  "pathName": "feed moving 1"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "track right"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "feed moving 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "feed moving 3"
           }
         }
       ]

@@ -71,10 +71,12 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   private final CommandXboxController controller = new CommandXboxController(0);
   public Trigger leftPressTrigger = controller.leftStick();
 
-  private DoubleSupplier setX;
-  private DoubleSupplier setY;
-  private DoubleSupplier calcY;
-  private DoubleSupplier setRot;
+  
+
+  private DoubleSupplier setX = ()->0;
+  private DoubleSupplier setY = ()->0;
+  private DoubleSupplier calcY = ()->0;
+  private DoubleSupplier setRot =  ()->0;
   private Rotation2d closestRot;
 
   private Supplier<Pose2d> robotPose = () -> drivetrain.getState().Pose;
@@ -104,7 +106,8 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     if(RobotBase.isReal()){
       rotStick = () -> controller.getRightX();
     }else{
-      rotStick = () -> controller.getRawAxis(2);
+      rotStick = () -> controller.getRightX();
+      // rotStick = () -> controller.getRawAxis(2);
     }
 
     final var idle = new SwerveRequest.Idle();

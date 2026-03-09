@@ -50,7 +50,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final DoublePublisher hoodDeg = driveStateTable.getDoubleTopic("HoodDegrees").publish();
 
-  boolean isSim = false;// RobotBase.isSimulation();
+  boolean isSim = RobotBase.isSimulation();
 
   TalonFXS hoodMotor = new TalonFXS(5, "turret");
 
@@ -75,8 +75,8 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   PivotConfig m_config = new PivotConfig(motor)
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
-      .withHardLimit(Degrees.of(-7), Degrees.of(50)) // Hard limit bc wiring prevents infinite spinning
-      .withSoftLimits(Degrees.of(-7), Degrees.of(50))
+      .withHardLimit(Degrees.of(-7), Degrees.of(40)) // Hard limit bc wiring prevents infinite spinning
+      .withSoftLimits(Degrees.of(-7), Degrees.of(40))
       // .withTelemetry("Hood", TelemetryVerbosity.LOW) // Telemetry
       .withMOI(KilogramSquareMeters.of(0.04475326));
 

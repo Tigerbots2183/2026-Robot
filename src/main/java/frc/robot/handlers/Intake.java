@@ -107,7 +107,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
       case RAISING:
         intake.setDegrees(angleAdder);
         if (angleAdder < -20) {
-          angleAdder += 6;
+          angleAdder += 1;
 
         }
         DoubleShower.set(angleAdder);
