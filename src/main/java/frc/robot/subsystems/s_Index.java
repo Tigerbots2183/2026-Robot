@@ -43,65 +43,59 @@ import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RPM;
 
-
-
-
-public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
+public class s_Index extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Shooter. */
-  public static s_Shooter m_Instance;
+  public static s_Index m_Instance;
 
-  private TalonFX leftTalonFlywheel = new TalonFX(7, "turret");
-  private TalonFX rightTalonFlywheel = new TalonFX(6, "turret");
+  private TalonFX indexTalon = new TalonFX(50);
 
-  private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
+  private double rpmIndex = 0;
+
+  private SmartMotorControllerConfig indexSMCConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withFollowers(Pair.of(rightTalonFlywheel, true))
       // Feedback Constants (PID Constants)
-      .withClosedLoopController(.1, 0, 0)
+      .withClosedLoopController(.2, 0, 0)
       .withSimClosedLoopController(.1, 0, 0)
       // Feedforward Constants
-      
-      .withFeedforward(new SimpleMotorFeedforward(0, 0.1504, 0))
-      .withSimFeedforward(new SimpleMotorFeedforward(0, 0.1504, 0))
+      .withGearing(new MechanismGearing(1,1))
+
+      .withFeedforward(new SimpleMotorFeedforward(0, 0.134, 0))
+      .withSimFeedforward(new SimpleMotorFeedforward(0, 0.134, 0))
       // Telemetry name and verbosity level
       // .withTelemetry("ShooterMotor", TelemetryVerbosity.LOW)
-      .withGearing(new MechanismGearing(GearBox.fromTeeth(38, 40)))
       // Motor properties to prevent over currenting.
-      .withMotorInverted(false)
+      .withMotorInverted(true)
       .withIdleMode(MotorMode.COAST)
-      .withTelemetry(TelemetryVerbosity.HIGH)
+      .withTelemetry("IndexMotor", TelemetryVerbosity.HIGH)
       .withSupplyCurrentLimit(Amps.of(70));
 
   // Create our SmartMotorController from our Talon.
-  private SmartMotorController motorController = new TalonFXWrapper(leftTalonFlywheel, DCMotor.getKrakenX60Foc(2), smcConfig);
+  private SmartMotorController indexController = new TalonFXWrapper(indexTalon, DCMotor.getKrakenX60(1),
+      indexSMCConfig);
 
-  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(motorController)
+  private final FlyWheelConfig indexConfig = new FlyWheelConfig(indexController)
       // Diameter of the flywheel.
-      .withDiameter(Inches.of(4))
+      .withDiameter(Inches.of(2))
       // Mass of the flywheel.
-      .withMass(Pounds.of(4.3983595))
+      .withMass(Pounds.of(0.8))
       // Maximum speed of the shooter.
       .withUpperSoftLimit(RPM.of(5000))
-      // Telemetry name and verbosity for the arm.
-      .withTelemetry("Flywheel", TelemetryVerbosity.HIGH);
+      .withTelemetry("Index", TelemetryVerbosity.HIGH);
 
-  // Shooter Mechanism
-  private FlyWheel shooter = new FlyWheel(shooterConfig);
+  // Telemetry name and verbosity for the arm.
+  // .withTelemetry("Flywheel", TelemetryVerbosity.LOW);
 
-  private double rpm = 0;
-  private Command setShooter = shooter.run(()-> RPM.of(rpm)).ignoringDisable(true);
-  private Command stopShooter = shooter.setVoltage(Volts.of(0)).ignoringDisable(true);
+  private FlyWheel index = new FlyWheel(indexConfig);
 
+  private Command setIndex = index.run(() -> RPM.of(rpmIndex)).ignoringDisable(true);
 
-  public s_Shooter() {
+  public s_Index() {
     initialized = true;
   }
 
-
-
-  public static s_Shooter getInstance() {
+  public static s_Index getInstance() {
     if (m_Instance == null) {
-      m_Instance = new s_Shooter();
+      m_Instance = new s_Index();
     }
     return m_Instance;
   }
@@ -112,33 +106,38 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
     return getInitialized();
   }
 
-
-  public void setShooterCommand(){
-    CommandScheduler.getInstance().schedule(setShooter);
-
+  public void setIndexRpm(DoubleSupplier rpm) {
+    this.rpmIndex = rpm.getAsDouble();
   }
 
-  public void setStopCommand(){
-    CommandScheduler.getInstance().schedule(stopShooter);
-
+  public void setIndexRpm(double rpm) {
+    this.rpmIndex = rpm;
   }
 
-  public void setShooterVolts(double volts){
-    shooter.setVoltage(Volts.of(volts));
-  }
+  // public void setIndexVolts(double volts) {
+  // indexTalon.setVoltage(-volts);
 
-  public void setRPM(double rpm) {
-    this.rpm = rpm;
-  }
+  // }
+  // public void setIndexVolts(DoubleSupplier volts) {
+  // indexTalon.setVoltage(-volts.getAsDouble());
+  // }
+  // public void setIndexSpeed(double dutyCycle) {
+  // indexTalon.set(-dutyCycle);
+  // }
+  // public void setIndexSpeed(DoubleSupplier dutyCycle) {
+  // indexTalon.set(-dutyCycle.getAsDouble());
+  // }
+  public void setIndexCommand() {
+    CommandScheduler.getInstance().schedule(setIndex);
 
-    public void setRPM(DoubleSupplier rpm) {
-    this.rpm = rpm.getAsDouble();
   }
-
 
   public double getVelocity(){
-    return shooter.getSpeed().in(RPM);
+    return index.getSpeed().in(RPM);
   }
+
+  
+
 
   public boolean getInitialized() {
     return initialized;
@@ -150,14 +149,15 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
-    shooter.updateTelemetry();
+    // shooter.updateTelemetry();
+    index.updateTelemetry();
+
     // This method will be called once per scheduler run
   }
 
-  
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
-    shooter.simIterate();
+    index.simIterate();
   }
 }

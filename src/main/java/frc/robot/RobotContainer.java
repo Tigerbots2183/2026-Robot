@@ -68,9 +68,9 @@ public class RobotContainer {
     StringSubscriber initalPose = tbTable.getStringTopic("initalPose").subscribe("BlueLeft");
     StringSubscriber auto = tbTable.getStringTopic("auton").subscribe("");
 
-
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
     public Command currentAuto;
+
     public RobotContainer() {
         configureBindings();
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
@@ -78,7 +78,7 @@ public class RobotContainer {
                 drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true);
             }
         }));
-        currentAuto = new PathPlannerAuto("2 swipe corral side mid");
+        currentAuto = new PathPlannerAuto("2 swipe corral side mid and corral");
         // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(()->
         // Q_Nav.setInitialPose()));
     }
@@ -88,141 +88,161 @@ public class RobotContainer {
         joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
         joystick.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
 
-        coPilot.pov(90).onTrue(Commands.runOnce(() -> H_Turret.increaseDeg()));
-        coPilot.pov(270).onTrue(Commands.runOnce(() -> H_Turret.decreaseDeg()));
+        coPilot.pov(90).onTrue(Commands.runOnce(() -> H_Turret.decreaseDeg()));
+        coPilot.pov(270).onTrue(Commands.runOnce(() -> H_Turret.increaseDeg()));
 
         coPilot.start().onTrue(Commands.runOnce(() -> Qnav.setPoseFromString(() -> initalPose.get())));
 
-        joystick.pov(180).onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
+        joystick.pov(0).onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
 
         coPilot.pov(180).onTrue(Commands.runOnce(() -> H_Hood.decreaseDeg()));
         coPilot.pov(0).onTrue(Commands.runOnce(() -> H_Hood.increaseDeg()));
 
-        joystick.leftBumper().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
-        joystick.leftBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        joystick.leftBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
+        joystick.leftBumper().onFalse(Commands.runOnce(() -> {
+            H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
+            Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT));
+        }));
 
-        joystick.leftBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.REVERSE)));
-        joystick.leftBumper().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE)));
-        joystick.leftBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE)));
+        joystick.leftBumper().onTrue(Commands.runOnce(() -> {
+            H_Intake.setDesiredState(Intake.IntakeStates.REVERSE);
+            H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE);
+        }));
 
-        joystick.rightTrigger(.5)
-                .onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
-        joystick.rightTrigger(.5)
-                .onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
-        joystick.rightTrigger(.5).onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
+        joystick.rightTrigger(.5).onTrue(Commands.runOnce(() -> {
+            H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING);
+            H_Intake.setDesiredState(Intake.IntakeStates.RAISING);
+        }));
 
-        joystick.rightTrigger(.5)
-                .onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        joystick.rightTrigger(.5).onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
-        joystick.rightTrigger(.5)
-                .onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+        joystick.rightTrigger(.5).onFalse(Commands.runOnce(() -> {
+            H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
+            H_Intake.setDesiredState(Intake.IntakeStates.OUT);
+            H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
+        }));
 
         joystick.leftTrigger(.5)
                 .onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
         joystick.leftTrigger(.5).onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
 
-        coPilot.rightBumper().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
-        coPilot.rightBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING)));
-        coPilot.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
+        coPilot.rightBumper().onTrue(Commands.runOnce(() -> {
+            H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING);
+            H_Intake.setDesiredState(Intake.IntakeStates.INTAKING);
+        }));
 
         // coPilot.rightBumper().onTrue(Commands.runOnce(() ->
         // H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
 
-        coPilot.rightBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-        coPilot.rightBumper().onFalse(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
-        coPilot.rightBumper().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+        coPilot.rightBumper().onFalse(Commands.runOnce(() -> {
+            H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
+            H_Intake.setDesiredState(Intake.IntakeStates.OUT);
+            H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
+        }));
 
         coPilot.leftBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
         coPilot.leftBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
 
-        coPilot.y().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL)));
-        coPilot.y().onTrue(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.MANUAL)));
-        coPilot.y().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING)));
-
-        coPilot.y().onFalse(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
-        coPilot.y().onFalse(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.TRACKING)));
-        coPilot.y().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-
-        coPilot.x().onTrue(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.MANUAL)));
-        coPilot.x().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL)));
-
-        coPilot.x().onFalse(Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.TRACKING)));
-        coPilot.x().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
-
-        coPilot.b().toggleOnTrue(Commands.run(()-> H_Turret.setDesiredState(Turret.TurretStates.IDLE)).finallyDo(()-> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
-       
-        coPilot.rightStick().toggleOnTrue(Commands.run(()-> H_Turret.setDesiredState(Turret.TurretStates.ZEROING)).finallyDo(()-> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
-        // coPilot.b().toggleOnFalse(Commands.runOnce(()-> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
-
-        coPilot.leftStick().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.REVERSE)));
-        coPilot.leftStick().onTrue(Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE)));
-        coPilot.leftStick().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE)));
-
-
-        coPilot.rightTrigger(0.8).onTrue(Commands.runOnce(() -> {
-            Pose2d aimPose ;
-            if (DriverStation.getAlliance().isPresent()) {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                    aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
-
-                } else {
-                    aimPose = new Pose2d(16, 6, new Rotation2d());
-
-                }
-            } else{
-                 aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
-
-            }
-
-            H_Turret.setGoal(()->aimPose);
+        coPilot.y().onTrue(Commands.runOnce(() -> {
+            H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL);
+            H_Hood.setDesiredState(Hood.HoodStates.MANUAL);
+            H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING);
+            H_Intake.setDesiredState(Intake.IntakeStates.RAISING);
         }));
 
-        coPilot.leftTrigger(0.8).onTrue(Commands.runOnce(() -> {
-            Pose2d aimPose;
-            if (DriverStation.getAlliance().isPresent()) {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                    aimPose = new Pose2d(0.5, 6, new Rotation2d());
-
-                } else {
-                    aimPose = new Pose2d(16, 1.9, new Rotation2d());
-
-                }
-            } else{
-                 aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
-
-            }
-
-            H_Turret.setGoal(()->aimPose);
-
+        coPilot.y().onFalse(Commands.runOnce(() -> {
+            H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
+            H_Hood.setDesiredState(Hood.HoodStates.TRACKING);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
+            H_Intake.setDesiredState(Intake.IntakeStates.RAISING);
         }));
 
-        coPilot.a().onTrue( Commands.runOnce(()->{
+        coPilot.x().onTrue(Commands.runOnce(() -> {
+            H_Hood.setDesiredState(Hood.HoodStates.MANUAL);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL);
+        }));
+
+        coPilot.x().onFalse(Commands.runOnce(() -> {
+            H_Hood.setDesiredState(Hood.HoodStates.TRACKING);
+            H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
+        }));
+
+        coPilot.b().toggleOnTrue(Commands.run(() -> H_Turret.setDesiredState(Turret.TurretStates.IDLE))
+                .finallyDo(() -> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
+
+        coPilot.rightStick().toggleOnTrue(Commands.run(() -> H_Turret.setDesiredState(Turret.TurretStates.ZEROING))
+                .finallyDo(() -> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
+        // coPilot.b().toggleOnFalse(Commands.runOnce(()->
+        // H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
+
+        // coPilot.leftStick().onTrue(Commands.runOnce(() -> {
+        // H_Intake.setDesiredState(Intake.IntakeStates.REVERSE);
+        // H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE);
+        // H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE);
+        // }));
+
+        // coPilot.rightTrigger(0.8).onTrue(Commands.runOnce(() -> {
+        // Pose2d aimPose ;
+        // if (DriverStation.getAlliance().isPresent()) {
+        // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+        // aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
+
+        // } else {
+        // aimPose = new Pose2d(16, 6, new Rotation2d());
+
+        // }
+        // } else{
+        // aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
+
+        // }
+
+        // H_Turret.setGoal(()->aimPose);
+        // }));
+
+        // coPilot.leftTrigger(0.8).onTrue(Commands.runOnce(() -> {
+        // Pose2d aimPose;
+        // if (DriverStation.getAlliance().isPresent()) {
+        // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+        // aimPose = new Pose2d(0.5, 6, new Rotation2d());
+
+        // } else {
+        // aimPose = new Pose2d(16, 1.9, new Rotation2d());
+
+        // }
+        // } else{
+        // aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
+
+        // }
+
+        // H_Turret.setGoal(()->aimPose);
+
+        // }));
+
+        coPilot.a().onTrue(Commands.runOnce(() -> {
             Pose2d goalPose = new Pose2d(4.620419, 4.034631, new Rotation2d());
 
             if (DriverStation.getAlliance().isPresent()) {
                 if (DriverStation.getAlliance().get() == Alliance.Red) {
-                    H_Turret.setGoal(()->FlippingUtil.flipFieldPose(goalPose));
+                    H_Turret.setGoal(() -> FlippingUtil.flipFieldPose(goalPose));
                     return;
                 }
             }
 
-            H_Turret.setGoal(()->goalPose);
+            H_Turret.setGoal(() -> goalPose);
 
         }));
-        // joystick.rightStick().onTrue(Commands.runOnce(() ->
-        // s_Turret.getInstance().setDegrees(0)));
-        // joystick.rightStick().onTrue(Commands.runOnce(() ->
-        // H_Hood.setDesiredState(Hood.HoodStates.IDLE)));
-        // joystick.rightStick().onTrue(Commands.runOnce(() ->
-        // H_Turret.setDesiredState(Turret.TurretStates.IDLE)));
+        joystick.rightStick().onTrue(Commands.runOnce(() -> {
+            s_Turret.getInstance().setDegrees(0);
+            H_Hood.setDesiredState(Hood.HoodStates.IDLE);
+            H_Turret.setDesiredState(Turret.TurretStates.IDLE);
+        }));
 
-        // joystick.rightStick().onTrue(Commands.runOnce(() ->
-        // H_Intake.setDesiredState(Intake.IntakeStates.IDLE)));
-        // joystick.rightStick().onTrue(Commands.runOnce(() ->
-        // s_Hood.getInstance().setDegrees(0)));
-        // joystick.rightStick().onTrue(Commands.runOnce(() ->
-        // s_Intake.getInstance().setDegrees(0)));
+        joystick.rightStick().onTrue(Commands.runOnce(() -> {
+            H_Intake.setDesiredState(Intake.IntakeStates.IDLE);
+            s_Hood.getInstance().setDegrees(0);
+            s_Intake.getInstance().setDegrees(0);
+        }));
 
         drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true);
 
@@ -247,8 +267,8 @@ public class RobotContainer {
                 Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT)));
         NamedCommands.registerCommand("revshoot",
                 Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
-        NamedCommands.registerCommand("sethood", 
-            Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.TRACKING)));
+        NamedCommands.registerCommand("sethood",
+                Commands.runOnce(() -> H_Hood.setDesiredState(Hood.HoodStates.TRACKING)));
         NamedCommands.registerCommand("intakeup",
                 Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.RAISING)));
         // NamedCommands.registerCommand("trackturret", Commands.runOnce(() ->
@@ -263,17 +283,17 @@ public class RobotContainer {
         NamedCommands.registerCommand("zerohood", Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
         NamedCommands.registerCommand("stopspindexer",
                 Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
-        NamedCommands.registerCommand("track turret", Commands.runOnce(()->{
+        NamedCommands.registerCommand("track turret", Commands.runOnce(() -> {
             Pose2d goalPose = new Pose2d(4.620419, 4.034631, new Rotation2d());
-        
+
             if (DriverStation.getAlliance().isPresent()) {
                 if (DriverStation.getAlliance().get() == Alliance.Red) {
-                    H_Turret.setGoal(()->FlippingUtil.flipFieldPose(goalPose));
+                    H_Turret.setGoal(() -> FlippingUtil.flipFieldPose(goalPose));
                     return;
                 }
             }
 
-            H_Turret.setGoal(()->goalPose);
+            H_Turret.setGoal(() -> goalPose);
 
         }));
 
@@ -287,17 +307,17 @@ public class RobotContainer {
                     aimPose = new Pose2d(16, 1.9, new Rotation2d());
 
                 }
-            } else{
-                 aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
+            } else {
+                aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
 
             }
 
-            H_Turret.setGoal(()->aimPose);
+            H_Turret.setGoal(() -> aimPose);
 
         })));
 
         NamedCommands.registerCommand("track right", (Commands.runOnce(() -> {
-            Pose2d aimPose ;
+            Pose2d aimPose;
             if (DriverStation.getAlliance().isPresent()) {
                 if (DriverStation.getAlliance().get() == Alliance.Blue) {
                     aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
@@ -306,12 +326,12 @@ public class RobotContainer {
                     aimPose = new Pose2d(16, 6, new Rotation2d());
 
                 }
-            } else{
-                 aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
+            } else {
+                aimPose = new Pose2d(0.5, 1.6, new Rotation2d());
 
             }
 
-            H_Turret.setGoal(()->aimPose);
+            H_Turret.setGoal(() -> aimPose);
         })));
 
     }

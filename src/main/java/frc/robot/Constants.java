@@ -31,12 +31,18 @@ public final class Constants {
 
     public static final Pose3d initalPose3dBlue = new Pose3d(initalPose2d);
     public static final Pose3d initalPose3dRed = new Pose3d(FlippingUtil.flipFieldPose(initalPose2d)); 
-    public static final Transform3d ROBOT_TO_QUEST = new Transform3d( 0.238,-0.297, 0.266, new Rotation3d(0,0,-Math.PI/2));
+//     public static final Transform3d ROBOT_TO_QUEST = new Transform3d( 0.238,-0.297, 0.266, new Rotation3d(0,0,-Math.PI/2)); ww2.0
+    public static final Transform3d ROBOT_TO_QUEST = new Transform3d( 0.200,-0.297252, 0.301, new Rotation3d(0,0,-Math.PI/2));
+
 
 
   }
 
     public static class FieldConstants {
+        public static final Pose2d HUB_BLUE_POSE = new Pose2d(4.620419, 4.034631, new Rotation2d());
+        public static final Pose2d HUB_RED_POSE = FlippingUtil.flipFieldPose(HUB_BLUE_POSE);
+
+
         public static final Distance FIELD_LENGTH = Inches.of(650.12);
         public static final Distance FIELD_WIDTH = Inches.of(316.64);
 

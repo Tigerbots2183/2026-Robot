@@ -106,8 +106,8 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
     if(RobotBase.isReal()){
       rotStick = () -> controller.getRightX();
     }else{
-      rotStick = () -> controller.getRightX();
-      // rotStick = () -> controller.getRawAxis(2);
+      // rotStick = () -> controller.getRightX();
+      rotStick = () -> controller.getRawAxis(2);
     }
 
     final var idle = new SwerveRequest.Idle();

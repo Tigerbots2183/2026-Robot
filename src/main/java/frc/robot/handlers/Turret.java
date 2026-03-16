@@ -4,14 +4,23 @@
 
 package frc.robot.handlers;
 
+import static edu.wpi.first.units.Units.Meter;
+
+import java.lang.reflect.Field;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
+import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Kinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -19,10 +28,12 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Turret;
 import frc.robot.subsystems.Touchboard.Touchboard;
+import yams.mechanisms.swerve.SwerveDrive;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -37,7 +48,8 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   private CommandSwerveDrivetrain s_swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_swerve.getState().Pose;
-  private Supplier<ChassisSpeeds> chassisSpeedSupplier = () -> s_swerve.getState().Speeds;
+
+  private Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
@@ -46,6 +58,9 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   private final StructPublisher<Pose2d> turretPose = driveStateTable.getStructTopic("turretPose", Pose2d.struct)
       .publish();
   private final StructPublisher<Pose2d> goalPose = driveStateTable.getStructTopic("goalPose", Pose2d.struct).publish();
+  private final StructPublisher<Pose2d> virtualGoalPose = driveStateTable
+      .getStructTopic("virtualGoalPose", Pose2d.struct).publish();
+
   private final DoublePublisher storedRotation = driveStateTable.getDoubleTopic("storedRotation").publish();
 
   private final StringPublisher stateShower = stateTable.getStringTopic("TurretState").publish();
@@ -54,11 +69,19 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
 
+  public static final Pose2d HUB_BLUE_POSE = new Pose2d(4.620419, 4.034631, new Rotation2d());
+  public static final Pose2d HUB_RED_POSE = FlippingUtil.flipFieldPose(HUB_BLUE_POSE);
+
+  public static final Pose2d FEED_BLUE_LEFT = new Pose2d(0.5, 6, new Rotation2d());
+  public static final Pose2d FEED_BLUE_RIGHT = new Pose2d(0.5, 1.6, new Rotation2d());
+  public static final Pose2d FEED_RED_LEFT = FlippingUtil.flipFieldPose(FEED_BLUE_RIGHT);
+  public static final Pose2d FEED_RED_RIGHT = FlippingUtil.flipFieldPose(FEED_BLUE_LEFT);
+
   private double previousRotation = 0.0;
   private double currentRotation = 0.0;
+  String alliance = "";
 
   public Turret() {
-
     turret.setDegreeCommand();
     goalPose.set(goalPosition);
 
@@ -68,9 +91,14 @@ public class Turret extends SubsystemBase implements StateSubsystem {
       if (DriverStation.getAlliance().isPresent()) {
         if (DriverStation.getAlliance().get() == Alliance.Red) {
           goalPosition = FlippingUtil.flipFieldPose(goalPosition);
+          alliance = "red";
+
           goalPose.set(goalPosition);
+        } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
+          alliance = "blue";
         }
       }
+
     }));
   }
 
@@ -88,6 +116,90 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   public Pose2d getGoal() {
     return this.goalPosition;
+  }
+
+  final double blueDistMeters = FieldConstants.ALLIANCE_ZONE.in(Meter) + 1.2192;
+  final double redDistMeters = FieldConstants.FIELD_LENGTH.minus(FieldConstants.ALLIANCE_ZONE).in(Meter) - 1.2192;
+
+  public boolean inAllianceZone(Pose2d turretPose) {
+
+    switch (alliance) {
+      case "":
+        if (DriverStation.getAlliance().isPresent()) {
+          if (DriverStation.getAlliance().get() == Alliance.Blue) {
+            alliance = "blue";
+          } else if (DriverStation.getAlliance().get() == Alliance.Red) {
+            alliance = "red";
+          }
+          return true;
+        }
+        break;
+      case "blue":
+        if (turretPose.getX() < blueDistMeters) {
+          return true;
+        }
+        return false;
+      case "red":
+        if (turretPose.getX() > redDistMeters) {
+          return true;
+        }
+        return false;
+    }
+    return true;
+  }
+
+  private void setHubAsGoal(String alliance) {
+    switch (alliance) {
+      case "":
+        this.setGoal(() -> HUB_BLUE_POSE);
+        break;
+      case "blue":
+        this.setGoal(() -> HUB_BLUE_POSE);
+        break;
+      case "red":
+        this.setGoal(() -> HUB_RED_POSE);
+        break;
+      default:
+        break;
+    }
+  }
+
+  double halfField = FieldConstants.FIELD_WIDTH.div(2).in(Meter);
+  Pose2d feedGoal = FEED_BLUE_LEFT;
+
+  private void setFeedAsGoal(Pose2d turretPose, String alliance) {
+
+    if (alliance == "red") {
+      if (turretPose.getY() > halfField) {
+        feedGoal = FEED_RED_LEFT;
+      } else {
+        feedGoal = FEED_RED_RIGHT;
+      }
+
+    } else {
+      if (turretPose.getY() > halfField) {
+        feedGoal = FEED_BLUE_LEFT;
+      } else {
+        feedGoal = FEED_BLUE_RIGHT;
+      }
+    }
+
+    this.setGoal(() -> feedGoal);
+  }
+
+  double dist = 0;
+
+  public double findSpeedModifier(double speed) {
+    switch (alliance) {
+      case "":
+        return -1.0 * speed;
+      case "blue":
+        return -1.0 * speed;
+      case "red":
+        return 1.0 * speed;
+    }
+    return 1.0 * speed;
+
   }
 
   Pose2d robotPose;
@@ -122,9 +234,19 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         speeds = chassisSpeedSupplier.get();
 
         translatedGoalPose = goalPosition
-            .transformBy(new Transform2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, new Rotation2d()));
-        toGoal = Rotation2d.fromRadians(Math.atan2(goalPosition.getY() - translatedTurretPose.getY(),
-            goalPosition.getX() - translatedTurretPose.getX()));
+            .transformBy(new Transform2d(findSpeedModifier(speeds.vxMetersPerSecond),
+                findSpeedModifier(speeds.vyMetersPerSecond), new Rotation2d()));
+
+        if (inAllianceZone(translatedTurretPose)) {
+          setHubAsGoal(alliance);
+        } else {
+          setFeedAsGoal(translatedTurretPose, alliance);
+        }
+
+        virtualGoalPose.set(translatedGoalPose);
+
+        toGoal = Rotation2d.fromRadians(Math.atan2(translatedGoalPose.getY() - translatedTurretPose.getY(),
+            translatedGoalPose.getX() - translatedTurretPose.getX()));
 
         turretPose.set(translatedTurretPose);
 
@@ -133,9 +255,9 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
         currentRotationChange = (robotRealtiveRotation.getDegrees() - previousRotation);
 
-        if (currentRotationChange > 360) {
+        if (currentRotationChange > 180) {
           currentRotationChange = currentRotationChange - 360;
-        } else if (currentRotationChange < 0) {
+        } else if (currentRotationChange < -180) {
           currentRotationChange = currentRotationChange + 360;
         }
         currentRotation += currentRotationChange;
@@ -143,27 +265,10 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         if (currentRotation > 360) {
           currentRotation = (currentRotation % 360);
 
-        } else if (currentRotation <= 0) {
+        } else if (currentRotation <= -360) {
           currentRotation = (currentRotation % 360);
 
         }
-
-        // currentRotation += currentRotationChange;
-
-        // if(currentRotation > 360){
-
-        // currentRotation = (currentRotation % 360);
-
-        // this.setDesiredState(TurretStates.UNWINDING);
-
-        // return;
-        // } else if (currentRotation < 0){
-        // currentRotation = (currentRotation % 360);
-
-        // this.setDesiredState(TurretStates.UNWINDING);
-
-        // return;
-        // }
 
         turret.setDegrees(currentRotation);
 
@@ -232,7 +337,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
       return;
     }
 
-    if(currentState == TurretStates.ZEROING){
+    if (currentState == TurretStates.ZEROING) {
       turret.setCurrentPoseAsZero();
     }
 

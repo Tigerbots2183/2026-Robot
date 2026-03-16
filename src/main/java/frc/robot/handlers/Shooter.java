@@ -23,6 +23,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.s_Index;
 import frc.robot.subsystems.s_Shooter;
 import frc.robot.subsystems.Touchboard.Touchboard;
 
@@ -52,11 +53,13 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
 
   private final DoublePublisher flywheelRpm = turretTable.getDoubleTopic("Flywheel Rpm").publish();
+  private final DoublePublisher indexRpm = turretTable.getDoubleTopic("Index Rpm").publish();
   private final DoublePublisher timePublish = turretTable.getDoubleTopic("Time out").publish();
 
   private DoubleSubscriber rpmTB = touchboardTable.getDoubleTopic("tbRpm").subscribe(0);
 
   private s_Shooter Shooter = s_Shooter.getInstance();
+  private s_Index Index = s_Index.getInstance();
 
   public enum ShooterStates implements State {
     IDLE,
@@ -76,16 +79,20 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   double timeout = 0.0;
 
   double revRpm;
+
   public void handleStateTransition() {
+    Index.setIndexCommand();
+
     switch (desiredState) {
-      case WOAH: 
-        Shooter.setRPM(3000);
-        Shooter.setIndexVolts(11);
+      case WOAH:
+        Index.setIndexRpm(3501);
+
         break;
 
       case IDLE:
         stateShower.set("IDLE");
-        Shooter.setIndexVolts(0);
+        Index.setIndexRpm(0);
+
         Shooter.setStopCommand();
 
         break;
@@ -94,7 +101,8 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         stateShower.set("MANUAL");
-        Shooter.setIndexVolts(11);
+        Index.setIndexRpm(3501);
+
         Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
@@ -108,7 +116,6 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case SHOOTING:
         stateShower.set("SHOOTING");
-        Shooter.setIndexVolts(11);
         Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
@@ -117,16 +124,15 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        if (dist < 8.5) {
+        if (dist < 11) {
+          Shooter.setRPM(1900);
+
+        } else if (dist < 13.25) {
           Shooter.setRPM(2000);
-
-        } else if (dist < 11.5){
-          Shooter.setRPM(2075);
-
-        }else{
-         Shooter.setRPM(2200);
-
+        } else if (dist < 25) {
+          Shooter.setRPM(2200);
         }
+        Index.setIndexRpm(3501);
 
         break;
 
@@ -142,27 +148,27 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
 
-        if (dist < 8.5) {
+        if (dist < 11) {
+          Shooter.setRPM(1900);
+
+        } else if (dist < 13.25) {
           Shooter.setRPM(2000);
-
-        } else if (dist < 11.5){
-          Shooter.setRPM(2075);
-
-        }else{
-         Shooter.setRPM(2200);
-
+        } else if (dist < 25) {
+          Shooter.setRPM(2200);
         }
-        
+        Index.setIndexRpm(3501);
+
         break;
 
       case REVERSE:
-        Shooter.setIndexSpeed(-1);
+        Index.setIndexRpm(-3000);
         Shooter.setShooterCommand();
         Shooter.setRPM(-500);
         break;
       case TRENCH:
         stateShower.set("TRENCH");
-        Shooter.setIndexVolts(11);
+        Index.setIndexRpm(3501);
+
         Shooter.setShooterCommand();
         Shooter.setRPM(2000);
         break;
@@ -175,9 +181,10 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     currentState = desiredState;
   }
 
-
   public void update() {
     flywheelRpm.set(Shooter.getVelocity());
+    indexRpm.set(Index.getVelocity());
+
     switch (currentState) {
       case IDLE:
         break;
@@ -187,10 +194,9 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case REVVING:
         timeout += 0.3;
-       timePublish.set(timeout);
-        if(timeout > 5){
-        Shooter.setIndexSpeed(11);
-
+        timePublish.set(timeout);
+        if (timeout > 5) {
+          Index.setIndexRpm(3501);
         }
         break;
       default:

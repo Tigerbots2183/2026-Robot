@@ -64,7 +64,7 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
       // Setup Telemetry\
       // .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
       // Power Optimization
-      .withStatorCurrentLimit(Amps.of(40))
+      .withSupplyCurrentLimit(Amps.of(40))
       .withClosedLoopRampRate(Seconds.of(0.0))
 
       .withOpenLoopRampRate(Seconds.of(0.0));

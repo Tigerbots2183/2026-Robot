@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.ctre.phoenix6.HootAutoReplay;
+import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -115,9 +116,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        SignalLogger.start();
         CommandScheduler.getInstance().cancelAll();
 
-        // Turret.getInstance().setDesiredState(Turret.TurretStates.SYSID);
+        Turret.getInstance().setDesiredState(Turret.TurretStates.SYSID);
     }
 
     @Override

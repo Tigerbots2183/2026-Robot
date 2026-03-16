@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.902225392296718,
-        "y": 7.41845934379458
+        "x": 5.966918687589158,
+        "y": 7.4702139800285305
       },
       "isLocked": false,
       "linkedName": "start corral"
@@ -20,8 +20,8 @@
         "y": 7.332692763938315
       },
       "prevControl": {
-        "x": 6.1480599144079875,
-        "y": 7.509029957203994
+        "x": 6.083366619115549,
+        "y": 7.340827389443652
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,9 +33,9 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
+    "maxVelocity": 5.4,
+    "maxAcceleration": 9.8,
+    "maxAngularVelocity": 2000.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -0.45096349994281076
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

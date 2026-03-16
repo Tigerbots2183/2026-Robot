@@ -57,7 +57,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case OUT:
         stateShower.set("OUT");
-        intake.setDegrees(-115);
+        intake.setDegrees(-119);
 
         intake.setSpeed(0);
         break;
@@ -65,7 +65,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         stateShower.set("INTAKING");
 
         // intake.setDegrees(-118);
-        intake.setDegrees(-115);
+        intake.setDegrees(-119);
         intake.setSpeed(-1);
         // intake.setDegrees(-12.5);
 
@@ -75,10 +75,10 @@ public class Intake extends SubsystemBase implements StateSubsystem {
       case RAISING:
         stateShower.set("RAISING");
 
-        intake.setDegrees(-110);
+        intake.setDegrees(-119);
         intake.setSpeed(-.5);
 
-        angleAdder = -110;
+        angleAdder = -165;
         break;
       case REVERSE:
         intake.setSpeed(-1);
@@ -87,7 +87,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         stateShower.set("RAISING");
         intake.setDegrees(0);
         intake.setSpeed(-.75);
-      break;
+        break;
       default:
         stateShower.set("UNKNOWN");
         break;
@@ -105,10 +105,11 @@ public class Intake extends SubsystemBase implements StateSubsystem {
       case MANUAL:
         break;
       case RAISING:
-        intake.setDegrees(angleAdder);
-        if (angleAdder < -20) {
-          angleAdder += 1;
-
+        if (angleAdder < -119) {
+          angleAdder += 2.5;
+        }else if (angleAdder < -20) {
+          angleAdder += 2.5;
+          intake.setDegrees(angleAdder);
         }
         DoubleShower.set(angleAdder);
 

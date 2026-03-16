@@ -91,13 +91,18 @@ public class Hood extends SubsystemBase implements StateSubsystem {
             + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
         goalDistance.set(dist);
 
-        if (dist < 11.5) {
+        if (dist < 11) {
           // hood.setDegrees(0.0573934x^{3}-0.797824x^{2}+4.95428x;
-          hood.setDegrees(3.82637 * dist - 9.82351);
+          // y=4.58716x-18.02752
+          hood.setDegrees(4.58716 * dist - 18.02752);
 
-        } else{
+        } else if (dist < 13.25){
+          // y=18.88889x-198.4
+          hood.setDegrees(18.88889 * dist -198.4);
+        } else if (dist < 25) {
+          // y=4.47761x-36.24627
+          hood.setDegrees(4.47761 * dist -36.24627);
 
-          hood.setDegrees(1.90476 * dist + 0.66666667);
         }
         break;
       case MANUAL:

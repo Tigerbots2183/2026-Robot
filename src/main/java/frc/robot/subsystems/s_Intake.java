@@ -72,7 +72,7 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   // Motor properties to prevent over currenting.
   .withMotorInverted(false)
   .withIdleMode(MotorMode.BRAKE)
-  .withStatorCurrentLimit(Amps.of(70))
+  .withSupplyCurrentLimit(Amps.of(70))
   .withClosedLoopRampRate(Seconds.of(0.05))
   .withOpenLoopRampRate(Seconds.of(0.05));
 
@@ -150,6 +150,7 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
     lPivotTalonFX.stopMotor();
     rPivotTalonFX.stopMotor();
   }
+
 
   @Override
   public void periodic() {

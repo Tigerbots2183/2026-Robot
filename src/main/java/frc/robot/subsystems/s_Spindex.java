@@ -46,20 +46,23 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
 
   }
 
-  final double primaryVoltage = 3;
+  final double primaryVoltage = 6;
   final double secondaryVoltage = 1.5;
   double rounded;
+
   public void setFromBeamBreaks() {
 
     if (!beamBreakLeft.get() && !beamBreakRight.get()) {
-      rounded = Math.round(Timer.getTimestamp() * 3) / 3.0;
-      if ((rounded % 1) == 0) {
-        SpindexFlexLeft.setVoltage(primaryVoltage);
-        SpindexFlexRight.setVoltage(secondaryVoltage);
-      } else {
-        SpindexFlexLeft.setVoltage(-secondaryVoltage);
-        SpindexFlexRight.setVoltage(-primaryVoltage);
-      }
+      SpindexFlexLeft.setVoltage(primaryVoltage);
+      SpindexFlexRight.setVoltage(secondaryVoltage);
+      // rounded = Math.round(Timer.getTimestamp() * 3) / 3.0;
+      // if ((rounded % 1) == 0) {
+      // SpindexFlexLeft.setVoltage(primaryVoltage);
+      // SpindexFlexRight.setVoltage(secondaryVoltage);
+      // } else {
+      // SpindexFlexLeft.setVoltage(-secondaryVoltage);
+      // SpindexFlexRight.setVoltage(-primaryVoltage);
+      // }
     } else if (!beamBreakLeft.get() && beamBreakRight.get()) {
       SpindexFlexLeft.setVoltage(-primaryVoltage);
       SpindexFlexRight.setVoltage(-secondaryVoltage);
@@ -70,15 +73,15 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
       SpindexFlexRight.setVoltage(primaryVoltage);
 
     } else {
-            SpindexFlexLeft.setVoltage(-primaryVoltage);
+      SpindexFlexLeft.setVoltage(-primaryVoltage);
       SpindexFlexRight.setVoltage(primaryVoltage);
       // rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
       // if ((rounded % 1) == 0) {
-      //   SpindexFlexLeft.setVoltage(primaryVoltage);
-      //   SpindexFlexRight.setVoltage(secondaryVoltage);
+      // SpindexFlexLeft.setVoltage(primaryVoltage);
+      // SpindexFlexRight.setVoltage(secondaryVoltage);
       // } else {
-      //   SpindexFlexLeft.setVoltage(-secondaryVoltage);
-      //   SpindexFlexRight.setVoltage(-primaryVoltage);
+      // SpindexFlexLeft.setVoltage(-secondaryVoltage);
+      // SpindexFlexRight.setVoltage(-primaryVoltage);
       // }
     }
   }
