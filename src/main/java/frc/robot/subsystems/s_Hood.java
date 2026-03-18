@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -56,13 +57,13 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withClosedLoopController(40, 0, 0, DegreesPerSecond.of(135), DegreesPerSecondPerSecond.of(90))
+      .withClosedLoopController(175, 0, 0, DegreesPerSecond.of(135), DegreesPerSecondPerSecond.of(360))
       // Configure Motor and Mechanism propertes
       .withGearing(new MechanismGearing(30 / 16, 40 / 20, 34 / 16, 210 / 40, 2.5))
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(true)
       // Setup Telemetry\
-      // .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
+      .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
       // Power Optimization
       .withSupplyCurrentLimit(Amps.of(40))
       .withClosedLoopRampRate(Seconds.of(0.0))
@@ -77,11 +78,11 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
       .withHardLimit(Degrees.of(-7), Degrees.of(40)) // Hard limit bc wiring prevents infinite spinning
       .withSoftLimits(Degrees.of(-7), Degrees.of(40))
-      // .withTelemetry("Hood", TelemetryVerbosity.LOW) // Telemetry
+      .withTelemetry("Hood", TelemetryVerbosity.HIGH) // Telemetry
       .withMOI(KilogramSquareMeters.of(0.04475326));
 
   private Pivot hood = new Pivot(m_config);
-  DoubleSupplier offset = ()->0;
+  DoubleSupplier offset = () -> 0;
   Double angle = 0.0;
   private Command stopCommand = hood.set(0);
   private Command setAngleCommand = hood.setAngle(() -> Degrees.of(angle + offset.getAsDouble())).ignoringDisable(true);
@@ -118,10 +119,25 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     return hood.getAngle();
   }
 
-  public void setOffset(double offset){
+  public void setOffset(double offset) {
     this.offset = () -> offset;
   }
 
+  public Command getStallHome() {
+    CommandScheduler.getInstance().cancel(setAngleCommand);
+    return Commands.run(() -> {
+      motor.stopClosedLoopController();
+      motor.setMechanismLowerLimit(Degrees.of(-100));
+      motor.setVoltage(Volts.of(-4));
+    })
+        .until(() -> motor.getStatorCurrent().gte(Amps.of(15)))
+        .andThen(Commands.runOnce(
+            () -> {
+              motor.setVoltage(Volts.of(0));
+              motor.startClosedLoopController();
+              motor.setMechanismLowerLimit(Degrees.of(-7));
+            }));
+  }
 
   public void stop() {
     // CommandScheduler.getInstance().schedule(

@@ -7,18 +7,25 @@ package frc.robot.handlers;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Hood;
@@ -40,6 +47,8 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState");
 
+  private final StructPublisher<Pose2d> trGoalPose = driveStateTable.getStructTopic("goalPoseHood", Pose2d.struct).publish();
+
   private DoubleSubscriber angle = touchboardTable.getDoubleTopic("tbAngle").subscribe(0);
   // private final NetworkTable turretTable =
   // networkTable.getTable("TurretState");
@@ -51,15 +60,46 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
 
   private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
+
   private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
+
+  private Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_Swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 
   private final Supplier<Pose2d> goalPosition = () -> Turret.getInstance().getGoal();
 
   private final DoublePublisher goalDistance = driveStateTable.getDoubleTopic("GoalDistance").publish();
 
+  private String alliance = "";
+
+  public double findSpeedModifier(double speed) {
+    switch (alliance) {
+      case "":
+        return -1.08 * speed;
+      case "blue":
+        return -1.08 * speed;
+      case "red":
+        return 1.08 * speed;
+    }
+    return 1.08 * speed;
+
+  }
+
   public Hood() {
     hood.setDegreeCommand();
     this.setDesiredState(desiredState);
+
+    
+    RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
+      if (DriverStation.getAlliance().isPresent()) {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+          alliance = "red";
+
+        } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
+          alliance = "blue";
+        }
+      }
+
+    }));
   }
 
   public static Hood getInstance() {
@@ -69,8 +109,13 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     return m_instance;
   }
   Pose2d currentGoalPosition;
+  Pose2d translatedGoalPose;
+
+  double currentDegree;
+  
   Pose2d translatedTurretPose;
   double dist;
+  ChassisSpeeds speeds;
 
   public void update() {
 
@@ -83,27 +128,44 @@ public class Hood extends SubsystemBase implements StateSubsystem {
         break;
       case TRACKING:
         // hood.setDegrees(45);
+        speeds = chassisSpeedSupplier.get();
 
         currentGoalPosition = goalPosition.get();
+
+
+        translatedGoalPose = currentGoalPosition.transformBy(new Transform2d(findSpeedModifier(speeds.vxMetersPerSecond),
+                findSpeedModifier(speeds.vyMetersPerSecond), new Rotation2d()));
+
+        trGoalPose.set(translatedGoalPose);
+
         translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
-            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
         goalDistance.set(dist);
 
-        if (dist < 11) {
+
+
+        if (dist < 9.5) {
           // hood.setDegrees(0.0573934x^{3}-0.797824x^{2}+4.95428x;
-          // y=4.58716x-18.02752
-          hood.setDegrees(4.58716 * dist - 18.02752);
-
-        } else if (dist < 13.25){
-          // y=18.88889x-198.4
-          hood.setDegrees(18.88889 * dist -198.4);
-        } else if (dist < 25) {
-          // y=4.47761x-36.24627
-          hood.setDegrees(4.47761 * dist -36.24627);
-
+          // y= 4.40995x-7.32742
+          currentDegree = 4.40995 * dist -7.32742;
+        } else if (dist < 11.75){
+          // y=13.69863x-113.0137
+          currentDegree = 13.69863 * dist -113.0137;
+        } else if (dist < 14.25) {
+          // y=7.40741x-62.44444
+          currentDegree = 7.40741*dist-62.444449;
+        } else if (dist < 16){
+          currentDegree = 3.31126 * dist -21.31788;
+        } else if (dist < 17.5){
+          currentDegree = 6.20155 * dist -79.02713;
+        } else if (dist < 20){
+          currentDegree = 7.43802 * dist -117.22727;
         }
+        
+        hood.setDegrees(currentDegree);
+
         break;
       case MANUAL:
       
@@ -149,7 +211,9 @@ public class Hood extends SubsystemBase implements StateSubsystem {
 
         stateShower.set("MANUAL");
         break;
-      
+      case HOMING:
+        CommandScheduler.getInstance().schedule(hood.getStallHome().andThen(Commands.runOnce(()->setDesiredState(HoodStates.TRACKING))));
+        
       default:
         stateShower.set("UNKNOWN");
         break;

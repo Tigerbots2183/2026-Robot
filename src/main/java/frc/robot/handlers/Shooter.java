@@ -15,12 +15,17 @@ import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Index;
@@ -29,11 +34,35 @@ import frc.robot.subsystems.Touchboard.Touchboard;
 
 public class Shooter extends SubsystemBase implements StateSubsystem {
   /** Creates a new Shooter. */
+  String alliance = "";
 
   public Shooter() {
     stateShower.set("SHOOTING");
     // manualRpm = new NumberComponent("tbRpm");
     // manualIndex = new NumberComponent("tbIndex");
+    RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
+      if (DriverStation.getAlliance().isPresent()) {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+          alliance = "red";
+
+        } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
+          alliance = "blue";
+        }
+      }
+
+    }));
+  }
+
+  public double findSpeedModifier(double speed) {
+    switch (alliance) {
+      case "":
+        return -1.08 * speed;
+      case "blue":
+        return -1.08 * speed;
+      case "red":
+        return 1.08 * speed;
+    }
+    return 1.08 * speed;
 
   }
 
@@ -48,6 +77,9 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
   private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
+
+  private Supplier<ChassisSpeeds> chassisSpeedSupplier = () -> ChassisSpeeds
+      .fromRobotRelativeSpeeds(s_Swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 
   private final NetworkTable turretTable = networkTable.getTable("TurretState");
   private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
@@ -75,6 +107,8 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   Pose2d currentGoalPosition;
   Pose2d translatedTurretPose;
   Double dist;
+  ChassisSpeeds speeds;
+  Pose2d translatedGoalPose;
 
   double timeout = 0.0;
 
@@ -118,20 +152,33 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         stateShower.set("SHOOTING");
         Shooter.setShooterCommand();
 
+        speeds = chassisSpeedSupplier.get();
+
         currentGoalPosition = goalPosition.get();
+
+        translatedGoalPose = currentGoalPosition
+            .transformBy(new Transform2d(findSpeedModifier(speeds.vxMetersPerSecond),
+                findSpeedModifier(speeds.vyMetersPerSecond), new Rotation2d()));
+
         translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
-            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 11) {
-          Shooter.setRPM(1900);
-
-        } else if (dist < 13.25) {
+        if (dist < 9.5) {
+          Shooter.setRPM(1650);
+        } else if (dist < 11.75) {
           Shooter.setRPM(2000);
-        } else if (dist < 25) {
+        } else if (dist < 14.25) {
+          Shooter.setRPM(2050);
+        } else if (dist < 16) {
           Shooter.setRPM(2200);
+        } else if (dist < 17.5) {
+          Shooter.setRPM(2300);
+        } else if (dist < 20) {
+          Shooter.setRPM(2400);
         }
+
         Index.setIndexRpm(3501);
 
         break;
@@ -142,19 +189,31 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         timeout = 0.0;
         Shooter.setShooterCommand();
 
+        speeds = chassisSpeedSupplier.get();
+
         currentGoalPosition = goalPosition.get();
+
+        translatedGoalPose = currentGoalPosition
+            .transformBy(new Transform2d(findSpeedModifier(speeds.vxMetersPerSecond),
+                findSpeedModifier(speeds.vyMetersPerSecond), new Rotation2d()));
+
         translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
 
-        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - currentGoalPosition.getX()), 2)
-            + Math.pow((translatedTurretPose.getY() - currentGoalPosition.getY()), 2))).in(Feet);
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 11) {
-          Shooter.setRPM(1900);
-
-        } else if (dist < 13.25) {
+        if (dist < 9.5) {
+          Shooter.setRPM(1650);
+        } else if (dist < 11.75) {
           Shooter.setRPM(2000);
-        } else if (dist < 25) {
+        } else if (dist < 14.25) {
+          Shooter.setRPM(2050);
+        } else if (dist < 16) {
           Shooter.setRPM(2200);
+        } else if (dist < 17.5) {
+          Shooter.setRPM(2300);
+        } else if (dist < 20) {
+          Shooter.setRPM(2400);
         }
         Index.setIndexRpm(3501);
 

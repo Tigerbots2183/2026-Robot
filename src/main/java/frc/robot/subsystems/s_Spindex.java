@@ -47,7 +47,7 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   }
 
   final double primaryVoltage = 6;
-  final double secondaryVoltage = 1.5;
+  final double secondaryVoltage = 3;
   double rounded;
 
   public void setFromBeamBreaks() {

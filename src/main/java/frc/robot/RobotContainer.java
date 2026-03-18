@@ -54,6 +54,8 @@ public class RobotContainer {
     private Drivetrain H_Drivetrain = Drivetrain.getInstance();
     private Shooter H_Shooter = Shooter.getInstance();
 
+    private s_Intake sIntake = s_Intake.getInstance();
+
     // private Vision H_Vision = Vision.getInstance();
     private QuestNavSubsystem Qnav = QuestNavSubsystem.getInstance();
     private Turret H_Turret = Turret.getInstance();
@@ -78,11 +80,11 @@ public class RobotContainer {
                 drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true);
             }
         }));
-        currentAuto = new PathPlannerAuto("2 swipe corral side mid and corral");
+        currentAuto = new PathPlannerAuto("2 swipe corral side mid and feed");
         // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(()->
         // Q_Nav.setInitialPose()));
     }
-
+    double intakeDegree = 0;
     private void configureBindings() {
 
         joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
@@ -110,16 +112,18 @@ public class RobotContainer {
             H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE);
         }));
 
-        joystick.rightTrigger(.5).onTrue(Commands.runOnce(() -> {
+        joystick.rightTrigger(.25).onTrue(Commands.runOnce(() -> {
             H_Spindex.setDesiredState(Spindex.SpindexStates.FEEDING);
             H_Shooter.setDesiredState(Shooter.ShooterStates.SHOOTING);
-            H_Intake.setDesiredState(Intake.IntakeStates.RAISING);
+            // sIntake.setDegrees(joystick.getRightTriggerAxis())
+            H_Intake.setDesiredState(Intake.IntakeStates.CONTROLLED);
         }));
 
-        joystick.rightTrigger(.5).onFalse(Commands.runOnce(() -> {
+        joystick.rightTrigger(.25).onFalse(Commands.runOnce(() -> {
             H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
             H_Intake.setDesiredState(Intake.IntakeStates.OUT);
             H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
+
         }));
 
         joystick.leftTrigger(.5)
@@ -220,18 +224,9 @@ public class RobotContainer {
         // }));
 
         coPilot.a().onTrue(Commands.runOnce(() -> {
-            Pose2d goalPose = new Pose2d(4.620419, 4.034631, new Rotation2d());
-
-            if (DriverStation.getAlliance().isPresent()) {
-                if (DriverStation.getAlliance().get() == Alliance.Red) {
-                    H_Turret.setGoal(() -> FlippingUtil.flipFieldPose(goalPose));
-                    return;
-                }
-            }
-
-            H_Turret.setGoal(() -> goalPose);
-
+            H_Hood.setDesiredState(Hood.HoodStates.HOMING);
         }));
+
         joystick.rightStick().onTrue(Commands.runOnce(() -> {
             s_Turret.getInstance().setDegrees(0);
             H_Hood.setDesiredState(Hood.HoodStates.IDLE);

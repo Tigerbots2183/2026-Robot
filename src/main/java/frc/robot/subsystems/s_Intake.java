@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.Pair;
@@ -35,6 +37,8 @@ import static yams.units.YUnits.PoundSquareInches;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -47,9 +51,13 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
 
 
+  private SparkFlex intakeRoller = new SparkFlex(32, MotorType.kBrushless);
   
   public s_Intake() {
     initialized = true;
+    SparkBaseConfig config = new SparkFlexConfig().smartCurrentLimit(80);
+    intakeRoller.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
   }
   // Vendor motor controller object
   private TalonFX lPivotTalonFX = new TalonFX(30);
@@ -98,7 +106,7 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   // Arm Mechanism
   private Arm intake = new Arm(armCfg);
 
-  private SparkFlex intakeRoller = new SparkFlex(32, MotorType.kBrushless);
+
 
   private double currentDeg = 0.0;
   private Command intakeSetter = intake.setAngle(() -> Degrees.of(currentDeg)).ignoringDisable(true);

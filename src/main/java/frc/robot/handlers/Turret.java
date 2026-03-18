@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.Kinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -45,13 +46,17 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
   private s_Turret turret = s_Turret.getInstance();
   private static Turret m_Instance;
+  private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
+
+  private final NetworkTable touchboardTable = networkTable.getTable("touchboard");
+  private DoubleSubscriber angle = touchboardTable.getDoubleTopic("tbTurretAng").subscribe(0);
+
 
   private CommandSwerveDrivetrain s_swerve = TunerConstants.getInstance();
   private Supplier<Pose2d> robotPoseSupplier = () -> s_swerve.getState().Pose;
 
   private Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 
-  private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable driveStateTable = networkTable.getTable("DriveState/TurretTurntable");
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
 
@@ -192,13 +197,13 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   public double findSpeedModifier(double speed) {
     switch (alliance) {
       case "":
-        return -1.0 * speed;
+        return -1.08 * speed;
       case "blue":
-        return -1.0 * speed;
+        return -1.08 * speed;
       case "red":
-        return 1.0 * speed;
+        return 1.08 * speed;
     }
-    return 1.0 * speed;
+    return 1.08 * speed;
 
   }
 
@@ -294,7 +299,7 @@ public class Turret extends SubsystemBase implements StateSubsystem {
         turret.setSpeed(coPilot.getRightX());
         break;
       case MANUAL:
-
+        turret.setDegrees(angle.get(0));
       default:
         break;
     }

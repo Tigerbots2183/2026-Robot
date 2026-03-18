@@ -4,7 +4,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -73,29 +76,25 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
 
   TalonFX turretMotor = new TalonFX(3);
 
-  double[] ratio = { 144 / 15, 5, 1.08 };
+  double[] ratio = { 144 / 15, 5, 1.085};
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withSimClosedLoopController(0.0, 0.0, 0)
       // 99.0, 0.0, .6
-      .withClosedLoopController(0.0, 0.0, 0)
-      
+      .withClosedLoopController(30, 0.0, 3, DegreesPerSecond.of(720), DegreesPerSecondPerSecond.of(1440))
+      .withVendorConfig(new TalonFXConfiguration().withSlot0(new Slot0Configs().withStaticFeedforwardSign(
+          StaticFeedforwardSignValue.UseClosedLoopSign)))
       // Configure Motor and Mechanism properties
       .withGearing(new MechanismGearing(new GearBox(ratio)))
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
-      .withFeedforward(new ArmFeedforward(0.5, 0.0, 5.0,0))
-      .withSimFeedforward(new ArmFeedforward(0.5, 0.0, 5.0,0))
-      
-
+      .withFeedforward(new SimpleMotorFeedforward(0.2,9, 0.0))    
       // 0.0,5.5`
       // Setup Telemetry
       .withTelemetry("TurretMotor", TelemetryVerbosity.HIGH)
       // Power Optimization
       .withSupplyCurrentLimit(Amps.of(60));
       // .withClosedLoopRampRate(Seconds.of(0.0))
-
       // .withOpenLoopRampRate(Seconds.of(0.0));
   SmartMotorController motor = new TalonFXWrapper(turretMotor,
       DCMotor.getKrakenX60(1),
@@ -104,10 +103,10 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   PivotConfig m_config = new PivotConfig(motor)
       .withStartingPosition(Degrees.of(0)) // Starting position of the Pivot
       .withHardLimit(Degrees.of(-360), Degrees.of(360)) // Hard limit bc wiring prevents infinitpe spinning
-      // .withSoftLimits(Degrees.of(-360), Degrees.of(360))
+      .withSoftLimits(Degrees.of(-360), Degrees.of(360))
       .withTelemetry("Turret", TelemetryVerbosity.HIGH) // Telemetry
-      .withMOI(yams.units.YUnits.PoundSquareInches.of(0.000001)); // MOI Calculation
-
+      .withMOI(yams.units.YUnits.PoundSquareInches.of(362.787082)); // MOI Calculation
+//
   private Pivot turret = new Pivot(m_config);
   private DoubleSupplier offset = () -> 0;
   private double angle = 0;

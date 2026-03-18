@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.s_Intake;
 
 public class Intake extends SubsystemBase implements StateSubsystem {
@@ -19,6 +20,8 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     stateShower.set("IDLE");
     intake.setDegreeCommand();
   }
+
+  private final CommandXboxController joystick = new CommandXboxController(0);
 
   private static Intake m_Instance;
   private IntakeStates desiredState, currentState = IntakeStates.IDLE;
@@ -33,6 +36,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     IDLE,
     BROKEN,
     OUT,
+    CONTROLLED,
     REVERSE,
     INTAKING,
     RAISING,
@@ -43,6 +47,9 @@ public class Intake extends SubsystemBase implements StateSubsystem {
   public void handleStateTransition() {
 
     switch (desiredState) {
+      case CONTROLLED:
+        stateShower.set("CONTROLLED");
+
       case IDLE:
         stateShower.set("IDLE");
         intake.setDegrees(0);
@@ -76,12 +83,12 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         stateShower.set("RAISING");
 
         intake.setDegrees(-119);
-        intake.setSpeed(-.5);
+        intake.setSpeed(0);
 
-        angleAdder = -165;
+        angleAdder = -125;
         break;
       case REVERSE:
-        intake.setSpeed(-1);
+        intake.setSpeed(1);
         break;
       case HUMAN:
         stateShower.set("RAISING");
@@ -102,13 +109,17 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case BROKEN:
         break;
+      case CONTROLLED:
+        
+        intake.setDegrees((120 * joystick.getRightTriggerAxis()) - 120);
+        break;
       case MANUAL:
         break;
       case RAISING:
         if (angleAdder < -119) {
-          angleAdder += 2.5;
-        }else if (angleAdder < -20) {
-          angleAdder += 2.5;
+          angleAdder += 3.5;
+        } else if (angleAdder < -20) {
+          angleAdder += 3.5;
           intake.setDegrees(angleAdder);
         }
         DoubleShower.set(angleAdder);
