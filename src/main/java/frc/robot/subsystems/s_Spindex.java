@@ -5,8 +5,13 @@
 package frc.robot.subsystems;
 
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -17,15 +22,23 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Spindex. */
   public static s_Spindex m_Instance;
 
-  public s_Spindex() {
-    initialized = true;
-  }
 
   private SparkFlex SpindexFlexLeft = new SparkFlex(40, MotorType.kBrushless); // black wheel
   private DigitalInput beamBreakLeft = new DigitalInput(9);
 
   private SparkFlex SpindexFlexRight = new SparkFlex(41, MotorType.kBrushless); // blue wheel
   private DigitalInput beamBreakRight = new DigitalInput(8);
+
+  private SparkClosedLoopController m_ControllerLeft = SpindexFlexLeft.getClosedLoopController();
+  private SparkFlexConfig config = new SparkFlexConfig();
+  public s_Spindex() {
+    initialized = true;
+    config.closedLoop.p(1).i(0).d(0.2);
+
+    SpindexFlexLeft.configure(config, com.revrobotics.ResetMode.kNoResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
+    SpindexFlexRight.configure(config, com.revrobotics.ResetMode.kNoResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
+
+  }
 
   public static s_Spindex getInstance() {
     if (m_Instance == null) {

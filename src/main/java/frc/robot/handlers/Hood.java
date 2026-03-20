@@ -150,10 +150,10 @@ public class Hood extends SubsystemBase implements StateSubsystem {
           // hood.setDegrees(0.0573934x^{3}-0.797824x^{2}+4.95428x;
           // y= 4.40995x-7.32742
           currentDegree = 4.40995 * dist -7.32742;
-        } else if (dist < 11.75){
+        } else if (dist < 11.9){
           // y=13.69863x-113.0137
           currentDegree = 13.69863 * dist -113.0137;
-        } else if (dist < 14.25) {
+        } else if (dist < 14.00) {
           // y=7.40741x-62.44444
           currentDegree = 7.40741*dist-62.444449;
         } else if (dist < 16){

@@ -55,7 +55,7 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   
   public s_Intake() {
     initialized = true;
-    SparkBaseConfig config = new SparkFlexConfig().smartCurrentLimit(80);
+    SparkBaseConfig config = new SparkFlexConfig().openLoopRampRate(0.4).openLoopRampRate(0.4).smartCurrentLimit(80);
     intakeRoller.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
   }

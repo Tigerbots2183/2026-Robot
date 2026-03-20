@@ -111,8 +111,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   Pose2d translatedGoalPose;
 
   double timeout = 0.0;
-
+  boolean OverrideSpeed = false;
   double revRpm;
+
+  public void setOverride() {
+    OverrideSpeed = !OverrideSpeed;
+  }
 
   public void handleStateTransition() {
     Index.setIndexCommand();
@@ -152,6 +156,13 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         stateShower.set("SHOOTING");
         Shooter.setShooterCommand();
 
+        if (OverrideSpeed) {
+          Shooter.setRPM(1800);
+          Index.setIndexRpm(3501);
+
+          return;
+        }
+
         speeds = chassisSpeedSupplier.get();
 
         currentGoalPosition = goalPosition.get();
@@ -166,12 +177,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
         if (dist < 9.5) {
-          Shooter.setRPM(1650);
-        } else if (dist < 11.75) {
+          Shooter.setRPM(1800);
+        } else if (dist < 11.9) {
           Shooter.setRPM(2000);
-        } else if (dist < 14.25) {
+        } else if (dist < 14.00) {
           Shooter.setRPM(2050);
-        } else if (dist < 16) {
+        } else if (dist < 16.00) {
           Shooter.setRPM(2200);
         } else if (dist < 17.5) {
           Shooter.setRPM(2300);
@@ -186,8 +197,16 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
       case REVVING:
         stateShower.set("REVVING");
         // Shooter.setIndexSpeed(11);
+
         timeout = 0.0;
         Shooter.setShooterCommand();
+
+        if (OverrideSpeed) {
+          Shooter.setRPM(1800);
+          Index.setIndexRpm(3501);
+
+          return;
+        }
 
         speeds = chassisSpeedSupplier.get();
 
@@ -203,12 +222,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
         if (dist < 9.5) {
-          Shooter.setRPM(1650);
-        } else if (dist < 11.75) {
+          Shooter.setRPM(1800);
+        } else if (dist < 11.9) {
           Shooter.setRPM(2000);
-        } else if (dist < 14.25) {
+        } else if (dist < 14.00) {
           Shooter.setRPM(2050);
-        } else if (dist < 16) {
+        } else if (dist < 16.00) {
           Shooter.setRPM(2200);
         } else if (dist < 17.5) {
           Shooter.setRPM(2300);
@@ -251,6 +270,42 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         break;
+      case SHOOTING:
+
+        if (OverrideSpeed) {
+          Shooter.setRPM(1800);
+          Index.setIndexRpm(3501);
+
+          return;
+        }
+
+        speeds = chassisSpeedSupplier.get();
+
+        currentGoalPosition = goalPosition.get();
+
+        translatedGoalPose = currentGoalPosition
+            .transformBy(new Transform2d(findSpeedModifier(speeds.vxMetersPerSecond),
+                findSpeedModifier(speeds.vyMetersPerSecond), new Rotation2d()));
+
+        translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
+
+        dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
+            + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
+
+        if (dist < 9.5) {
+          Shooter.setRPM(1800);
+        } else if (dist < 11.9) {
+          Shooter.setRPM(2000);
+        } else if (dist < 14.00) {
+          Shooter.setRPM(2050);
+        } else if (dist < 16.00) {
+          Shooter.setRPM(2200);
+        } else if (dist < 17.5) {
+          Shooter.setRPM(2300);
+        } else if (dist < 20) {
+          Shooter.setRPM(2400);
+        }
+
       case REVVING:
         timeout += 0.3;
         timePublish.set(timeout);

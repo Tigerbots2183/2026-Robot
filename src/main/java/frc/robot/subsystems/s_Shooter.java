@@ -70,7 +70,7 @@ public class s_Shooter extends SubsystemBase implements CheckableSubsystem {
       .withMotorInverted(false)
       .withIdleMode(MotorMode.COAST)
       .withTelemetry(TelemetryVerbosity.HIGH)
-      .withSupplyCurrentLimit(Amps.of(70));
+      .withSupplyCurrentLimit(Amps.of(50));
 
   // Create our SmartMotorController from our Talon.
   private SmartMotorController motorController = new TalonFXWrapper(leftTalonFlywheel, DCMotor.getKrakenX60Foc(2), smcConfig);

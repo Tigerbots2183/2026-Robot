@@ -77,8 +77,8 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   public static final Pose2d HUB_BLUE_POSE = new Pose2d(4.620419, 4.034631, new Rotation2d());
   public static final Pose2d HUB_RED_POSE = FlippingUtil.flipFieldPose(HUB_BLUE_POSE);
 
-  public static final Pose2d FEED_BLUE_LEFT = new Pose2d(0.5, 6, new Rotation2d());
-  public static final Pose2d FEED_BLUE_RIGHT = new Pose2d(0.5, 1.6, new Rotation2d());
+  public static final Pose2d FEED_BLUE_LEFT = new Pose2d(3, 6, new Rotation2d());
+  public static final Pose2d FEED_BLUE_RIGHT = new Pose2d(3, 1.6, new Rotation2d());
   public static final Pose2d FEED_RED_LEFT = FlippingUtil.flipFieldPose(FEED_BLUE_RIGHT);
   public static final Pose2d FEED_RED_RIGHT = FlippingUtil.flipFieldPose(FEED_BLUE_LEFT);
 

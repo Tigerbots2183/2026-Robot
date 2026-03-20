@@ -58,7 +58,7 @@ public class s_Index extends SubsystemBase implements CheckableSubsystem {
       .withSimClosedLoopController(.1, 0, 0)
       // Feedforward Constants
       .withGearing(new MechanismGearing(1,1))
-
+      .withClosedLoopRampRate(Second.of(0.1))
       .withFeedforward(new SimpleMotorFeedforward(0, 0.134, 0))
       .withSimFeedforward(new SimpleMotorFeedforward(0, 0.134, 0))
       // Telemetry name and verbosity level

@@ -55,6 +55,9 @@ public class RobotContainer {
     private Shooter H_Shooter = Shooter.getInstance();
 
     private s_Intake sIntake = s_Intake.getInstance();
+    private s_Hood sHood = s_Hood.getInstance();
+    private s_Turret sTurret = s_Turret.getInstance();
+    private s_Shooter sShooter = s_Shooter.getInstance();
 
     // private Vision H_Vision = Vision.getInstance();
     private QuestNavSubsystem Qnav = QuestNavSubsystem.getInstance();
@@ -80,11 +83,13 @@ public class RobotContainer {
                 drivetrain.runOnce(drivetrain::seedFieldCentric).ignoringDisable(true);
             }
         }));
-        currentAuto = new PathPlannerAuto("2 swipe corral side mid and feed");
+        currentAuto = new PathPlannerAuto("2 swipe corral side mid and collect");
         // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(()->
         // Q_Nav.setInitialPose()));
     }
+
     double intakeDegree = 0;
+
     private void configureBindings() {
 
         joystick.rightBumper().onTrue(Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.INTAKING)));
@@ -103,7 +108,7 @@ public class RobotContainer {
         joystick.leftBumper().onFalse(Commands.runOnce(() -> {
             H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
             H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
-            Commands.runOnce(() -> H_Intake.setDesiredState(Intake.IntakeStates.OUT));
+            H_Intake.setDesiredState(Intake.IntakeStates.OUT);
         }));
 
         joystick.leftBumper().onTrue(Commands.runOnce(() -> {
@@ -172,8 +177,19 @@ public class RobotContainer {
             H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
         }));
 
-        coPilot.b().toggleOnTrue(Commands.run(() -> H_Turret.setDesiredState(Turret.TurretStates.IDLE))
-                .finallyDo(() -> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));
+        coPilot.b().toggleOnTrue(
+                Commands.run(() -> {
+                    H_Turret.setDesiredState(Turret.TurretStates.IDLE);
+                    H_Hood.setDesiredState(Hood.HoodStates.IDLE);
+                    H_Shooter.setOverride();
+                    sHood.setDegrees(30);
+                    sTurret.setDegrees(90);
+                })
+                        .finallyDo(() -> {
+                            H_Turret.setDesiredState(Turret.TurretStates.TRACKING);
+                            H_Hood.setDesiredState(Hood.HoodStates.TRACKING);
+                            H_Shooter.setOverride();
+                        }));
 
         coPilot.rightStick().toggleOnTrue(Commands.run(() -> H_Turret.setDesiredState(Turret.TurretStates.ZEROING))
                 .finallyDo(() -> H_Turret.setDesiredState(Turret.TurretStates.TRACKING)));

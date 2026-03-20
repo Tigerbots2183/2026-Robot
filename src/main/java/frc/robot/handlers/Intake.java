@@ -111,7 +111,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case CONTROLLED:
         
-        intake.setDegrees((120 * joystick.getRightTriggerAxis()) - 120);
+        intake.setDegrees((120 * (Math.pow(joystick.getRightTriggerAxis(), 2))) - 120);
         break;
       case MANUAL:
         break;
