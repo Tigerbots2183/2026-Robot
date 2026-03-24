@@ -316,12 +316,12 @@ public class Turret extends SubsystemBase implements StateSubsystem {
   double currentOffset = 0;
 
   public void increaseDeg() {
-    currentOffset += 0.75;
+    currentOffset += 1.75;
     turret.setOffset(currentOffset);
   }
 
   public void decreaseDeg() {
-    currentOffset -= 0.75;
+    currentOffset -= 1.75;
     turret.setOffset(currentOffset);
 
   }

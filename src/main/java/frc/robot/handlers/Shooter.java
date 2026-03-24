@@ -176,18 +176,14 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 9.5) {
-          Shooter.setRPM(1800);
-        } else if (dist < 11.9) {
+        if (dist < 8.45) {
+          Shooter.setRPM(1700);
+        } else if (dist < 11.35) {
+          Shooter.setRPM(1850);
+        } else if (dist < 14.25) {
           Shooter.setRPM(2000);
-        } else if (dist < 14.00) {
-          Shooter.setRPM(2050);
-        } else if (dist < 16.00) {
-          Shooter.setRPM(2200);
         } else if (dist < 17.5) {
-          Shooter.setRPM(2300);
-        } else if (dist < 20) {
-          Shooter.setRPM(2400);
+          Shooter.setRPM(2150);
         }
 
         Index.setIndexRpm(3501);
@@ -221,18 +217,14 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 9.5) {
-          Shooter.setRPM(1800);
-        } else if (dist < 11.9) {
+        if (dist < 8.45) {
+          Shooter.setRPM(1700);
+        } else if (dist < 11.35) {
+          Shooter.setRPM(1850);
+        } else if (dist < 14.25) {
           Shooter.setRPM(2000);
-        } else if (dist < 14.00) {
-          Shooter.setRPM(2050);
-        } else if (dist < 16.00) {
-          Shooter.setRPM(2200);
         } else if (dist < 17.5) {
-          Shooter.setRPM(2300);
-        } else if (dist < 20) {
-          Shooter.setRPM(2400);
+          Shooter.setRPM(2150);
         }
         Index.setIndexRpm(3501);
 
@@ -292,20 +284,16 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 9.5) {
-          Shooter.setRPM(1800);
-        } else if (dist < 11.9) {
+        if (dist < 8.45) {
+          Shooter.setRPM(1700);
+        } else if (dist < 11.35) {
+          Shooter.setRPM(1850);
+        } else if (dist < 14.25) {
           Shooter.setRPM(2000);
-        } else if (dist < 14.00) {
-          Shooter.setRPM(2050);
-        } else if (dist < 16.00) {
-          Shooter.setRPM(2200);
         } else if (dist < 17.5) {
-          Shooter.setRPM(2300);
-        } else if (dist < 20) {
-          Shooter.setRPM(2400);
+          Shooter.setRPM(2150);
         }
-
+        
       case REVVING:
         timeout += 0.3;
         timePublish.set(timeout);

@@ -2,6 +2,7 @@
   "download": {
     "deleteAfter": false,
     "localDir": "C:\\Users\\chase\\Downloads",
+    "remoteDir": "/home/lvuser/logs/OKOK_Q70",
     "serverTeam": "2183"
   }
 }

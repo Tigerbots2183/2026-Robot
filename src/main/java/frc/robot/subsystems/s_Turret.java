@@ -75,7 +75,6 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   boolean isSim = RobotBase.isSimulation();
 
   TalonFX turretMotor = new TalonFX(3);
-
   double[] ratio = { 144 / 15, 5, 1.085};
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
@@ -124,6 +123,8 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   @Override
   public boolean getInitialized() {
     return initialized;
+
+    
   }
 
   public void setDegreeCommand() {

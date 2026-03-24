@@ -150,8 +150,9 @@ public class RobotContainer {
             H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE);
         }));
 
-        coPilot.leftBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
-        coPilot.leftBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        // coPilot.leftBumper().onTrue(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING)));
+        // coPilot.leftBumper().onFalse(Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE)));
+        // coPilot.leftBumper().whileTrue(Commands.run(() -> Qnav.setFromMT2("limelight-rsl")));
 
         coPilot.y().onTrue(Commands.runOnce(() -> {
             H_Shooter.setDesiredState(Shooter.ShooterStates.MANUAL);

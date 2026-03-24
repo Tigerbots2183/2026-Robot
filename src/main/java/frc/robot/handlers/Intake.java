@@ -21,7 +21,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
     intake.setDegreeCommand();
   }
 
-  private final CommandXboxController joystick = new CommandXboxController(0);
+  private final CommandXboxController joystick = new CommandXboxController(1);
 
   private static Intake m_Instance;
   private IntakeStates desiredState, currentState = IntakeStates.IDLE;
@@ -85,7 +85,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         intake.setDegrees(-119);
         intake.setSpeed(0);
 
-        angleAdder = -125;
+        angleAdder = -175;
         break;
       case REVERSE:
         intake.setSpeed(1);
@@ -117,9 +117,9 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case RAISING:
         if (angleAdder < -119) {
-          angleAdder += 3.5;
+          angleAdder += 2.5;
         } else if (angleAdder < -20) {
-          angleAdder += 3.5;
+          angleAdder += 2.5;
           intake.setDegrees(angleAdder);
         }
         DoubleShower.set(angleAdder);

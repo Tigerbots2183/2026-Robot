@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.numbers.N1;
@@ -33,6 +34,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import gg.questnav.questnav.QuestNav;
 import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
+import frc.robot.handlers.Drivetrain;
 import frc.robot.subsystems.Touchboard.Touchboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -106,19 +108,24 @@ public class QuestNavSubsystem extends SubsystemBase {
         String where = whereSupplier.get();
         if(where.equals("BlueLeft")){
             setPose(new Pose3d(BlueLeft));
+            s_Drivetrain.addVisionMeasurement(BlueLeft, Timer.getFPGATimestamp());
             questInitPosPublisher.set(BlueLeft);
         } else if (where.equals("BlueRight")){
             setPose(new Pose3d(BlueRight));
             questInitPosPublisher.set(BlueRight);
+            s_Drivetrain.addVisionMeasurement(BlueRight, Timer.getFPGATimestamp());
+
         
         }else if (where.equals("RedLeft")){
             setPose(new Pose3d(RedLeft));
             questInitPosPublisher.set(RedLeft);
+            s_Drivetrain.addVisionMeasurement(RedLeft, Timer.getFPGATimestamp());
 
         
         }else if (where.equals("RedRight")){
             setPose(new Pose3d(RedRight));
             questInitPosPublisher.set(RedRight);
+            s_Drivetrain.addVisionMeasurement(RedRight, Timer.getFPGATimestamp());
 
         
         }
@@ -182,9 +189,9 @@ public class QuestNavSubsystem extends SubsystemBase {
                 s_Drivetrain.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
             }
         } else {
-            hasQuest.set(false);
-            setFromMt1("limelight-rsl");
-            setFromMt1("limelight-quest");
+            // hasQuest.set(false);
+            // setFromMT2("limelight-rsl");
+            // setFromMt1("limelight-quest");
         }
     }
 
@@ -210,6 +217,29 @@ public class QuestNavSubsystem extends SubsystemBase {
             s_Drivetrain.addVisionMeasurement(
                     mt1.pose,
                     mt1.timestampSeconds);
+        }
+    }
+
+    public void setFromMT2(String name){
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+        if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
+            if (mt2.rawFiducials[0].ambiguity > .7) {
+                doRejectUpdate = true;
+            }
+            if (mt2.rawFiducials[0].distToCamera > 3) {
+                doRejectUpdate = true;
+            }
+        }
+        if (mt2.tagCount == 0) {
+            doRejectUpdate = true;
+        }
+
+        if (!doRejectUpdate) {
+            setPose(new Pose3d(mt2.pose));
+            s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+            s_Drivetrain.addVisionMeasurement(
+                    mt2.pose,
+                    mt2.timestampSeconds);
         }
     }
 

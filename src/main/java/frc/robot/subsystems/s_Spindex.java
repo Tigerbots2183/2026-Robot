@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -22,7 +23,6 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Spindex. */
   public static s_Spindex m_Instance;
 
-
   private SparkFlex SpindexFlexLeft = new SparkFlex(40, MotorType.kBrushless); // black wheel
   private DigitalInput beamBreakLeft = new DigitalInput(9);
 
@@ -30,13 +30,21 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   private DigitalInput beamBreakRight = new DigitalInput(8);
 
   private SparkClosedLoopController m_ControllerLeft = SpindexFlexLeft.getClosedLoopController();
+  private SparkClosedLoopController m_ControllerRight = SpindexFlexRight.getClosedLoopController();
+
   private SparkFlexConfig config = new SparkFlexConfig();
+  private SparkFlexConfig config2 = new SparkFlexConfig();
+
+
   public s_Spindex() {
     initialized = true;
-    config.closedLoop.p(1).i(0).d(0.2);
+    config.closedLoop.p(0.003).i(0).d(0.1);
+    config2.closedLoop.p(0.003).i(0).d(0.1);
 
-    SpindexFlexLeft.configure(config, com.revrobotics.ResetMode.kNoResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
-    SpindexFlexRight.configure(config, com.revrobotics.ResetMode.kNoResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
+    SpindexFlexLeft.configure(config, com.revrobotics.ResetMode.kNoResetSafeParameters,
+        com.revrobotics.PersistMode.kNoPersistParameters);
+    SpindexFlexRight.configure(config2, com.revrobotics.ResetMode.kNoResetSafeParameters,
+        com.revrobotics.PersistMode.kNoPersistParameters);
 
   }
 
@@ -59,15 +67,21 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
 
   }
 
-  final double primaryVoltage = 6;
-  final double secondaryVoltage = 3;
+  // final double primaryVoltage = 6;
+  // final double secondaryVoltage = 3;
+
+  final double primarySetpoint = 3000;
+  final double secondarySetpoint = 1500;
   double rounded;
 
   public void setFromBeamBreaks() {
 
     if (!beamBreakLeft.get() && !beamBreakRight.get()) {
-      SpindexFlexLeft.setVoltage(primaryVoltage);
-      SpindexFlexRight.setVoltage(secondaryVoltage);
+      m_ControllerLeft.setSetpoint(primarySetpoint, ControlType.kVelocity);
+      m_ControllerRight.setSetpoint(secondarySetpoint, ControlType.kVelocity);
+
+      // SpindexFlexLeft.setVoltage(primaryVoltage);
+      // SpindexFlexRight.setVoltage(secondaryVoltage);
       // rounded = Math.round(Timer.getTimestamp() * 3) / 3.0;
       // if ((rounded % 1) == 0) {
       // SpindexFlexLeft.setVoltage(primaryVoltage);
@@ -77,17 +91,22 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
       // SpindexFlexRight.setVoltage(-primaryVoltage);
       // }
     } else if (!beamBreakLeft.get() && beamBreakRight.get()) {
-      SpindexFlexLeft.setVoltage(-primaryVoltage);
-      SpindexFlexRight.setVoltage(-secondaryVoltage);
+      // SpindexFlexLeft.setVoltage(-primaryVoltage);
+      // SpindexFlexRight.setVoltage(-secondaryVoltage);
+      m_ControllerLeft.setSetpoint(-primarySetpoint, ControlType.kVelocity);
+      m_ControllerRight.setSetpoint(-secondarySetpoint, ControlType.kVelocity);
 
     } else if (!beamBreakRight.get() && beamBreakLeft.get()) {
-
-      SpindexFlexLeft.setVoltage(secondaryVoltage);
-      SpindexFlexRight.setVoltage(primaryVoltage);
+      m_ControllerLeft.setSetpoint(secondarySetpoint, ControlType.kVelocity);
+      m_ControllerRight.setSetpoint(primarySetpoint, ControlType.kVelocity);
+      // SpindexFlexLeft.setVoltage(secondaryVoltage);
+      // SpindexFlexRight.setVoltage(primaryVoltage);
 
     } else {
-      SpindexFlexLeft.setVoltage(-primaryVoltage);
-      SpindexFlexRight.setVoltage(primaryVoltage);
+      m_ControllerLeft.setSetpoint(-primarySetpoint, ControlType.kVelocity);
+      m_ControllerRight.setSetpoint(primarySetpoint, ControlType.kVelocity);
+      // SpindexFlexLeft.setVoltage(-primaryVoltage);
+      // SpindexFlexRight.setVoltage(primaryVoltage);
       // rounded = Math.round(Timer.getTimestamp() * 2) / 2.0;
       // if ((rounded % 1) == 0) {
       // SpindexFlexLeft.setVoltage(primaryVoltage);
