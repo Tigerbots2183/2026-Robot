@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -18,13 +17,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 
@@ -152,10 +147,16 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
 
     drivetrain.setDefaultCommand(trenchDrive);
   }
+  
+  DoubleSupplier setSpeedModifier = ()->1;
+
+  public void setSpeedModifier(double modifier){
+    setSpeedModifier = ()->modifier;
+  }
 
   public void setValuesController() {
-    setY = () -> Math.copySign((xStick.getAsDouble() * xStick.getAsDouble()), (-xStick.getAsDouble()));
-    setX = () -> Math.copySign((yStick.getAsDouble() * yStick.getAsDouble()), (-yStick.getAsDouble()));
+    setY = () -> Math.copySign((xStick.getAsDouble() * xStick.getAsDouble()), (-xStick.getAsDouble())) * setSpeedModifier.getAsDouble();
+    setX = () -> Math.copySign((yStick.getAsDouble() * yStick.getAsDouble()), (-yStick.getAsDouble())) * setSpeedModifier.getAsDouble();
     setRot = () -> -rotStick.getAsDouble() * MaxAngularRate;
   }
 

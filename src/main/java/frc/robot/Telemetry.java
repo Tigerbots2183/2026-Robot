@@ -19,8 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Telemetry {
     private final double MaxSpeed;
@@ -91,7 +89,6 @@ public class Telemetry {
     };
 
     private final double[] m_poseArray = new double[3];
-    private CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
     public void telemeterize(SwerveDriveState state) {
         /* Telemeterize the swerve drive state */

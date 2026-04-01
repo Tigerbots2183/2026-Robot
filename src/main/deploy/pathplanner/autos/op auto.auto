@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "corral test swipe"
+                  "pathName": "op corral side"
                 }
               },
               {
@@ -40,7 +40,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 4.3
+                        "waitTime": 4.2
                       }
                     },
                     {
@@ -58,12 +58,6 @@
                             "data": {
                               "name": "revshoot"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "sethood"
-                            }
                           }
                         ]
                       }
@@ -77,31 +71,13 @@
         {
           "type": "named",
           "data": {
-            "name": "sintake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "spindex"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intakeup"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
+            "pathName": "op shoot on the move"
           }
         },
         {
@@ -117,32 +93,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "zerohood"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "stopspindexer"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
                 }
               }
             ]
@@ -191,16 +142,9 @@
                 }
               },
               {
-                "type": "parallel",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "spindex"
-                      }
-                    }
-                  ]
+                  "name": "spindex"
                 }
               }
             ]

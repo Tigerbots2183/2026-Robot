@@ -64,7 +64,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case OUT:
         stateShower.set("OUT");
-        intake.setDegrees(-119);
+        intake.setDegrees(-130);
 
         intake.setSpeed(0);
         break;
@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         stateShower.set("INTAKING");
 
         // intake.setDegrees(-118);
-        intake.setDegrees(-119);
+        intake.setDegrees(-130);
         intake.setSpeed(-1);
         // intake.setDegrees(-12.5);
 
@@ -82,7 +82,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
       case RAISING:
         stateShower.set("RAISING");
 
-        intake.setDegrees(-119);
+        intake.setDegrees(-130);
         intake.setSpeed(0);
 
         angleAdder = -175;
@@ -111,7 +111,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case CONTROLLED:
         
-        intake.setDegrees((120 * (Math.pow(joystick.getRightTriggerAxis(), 2))) - 120);
+        intake.setDegrees((130 * (joystick.getRightTriggerAxis())) - 130);
         break;
       case MANUAL:
         break;

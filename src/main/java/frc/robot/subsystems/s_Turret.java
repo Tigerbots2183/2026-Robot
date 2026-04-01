@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -36,7 +35,6 @@ import yams.motorcontrollers.remote.TalonFXWrapper;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.*;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -75,7 +73,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   boolean isSim = RobotBase.isSimulation();
 
   TalonFX turretMotor = new TalonFX(3);
-  double[] ratio = { 144 / 15, 5, 1.085};
+  double[] ratio = { 144 / 15, 5, 1.084};
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)

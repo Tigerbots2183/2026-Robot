@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Hood;
+import frc.robot.subsystems.u_Lut;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Feet;
@@ -59,11 +60,11 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   // networkTable.getTable("HoodState");
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
 
-  private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
+  private final CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
 
-  private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
+  private final Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
 
-  private Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_Swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
+  private final Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_Swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 
   private final Supplier<Pose2d> goalPosition = () -> Turret.getInstance().getGoal();
 
@@ -74,13 +75,13 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   public double findSpeedModifier(double speed) {
     switch (alliance) {
       case "":
-        return -1.08 * speed;
+        return -u_Lut.getTof() * speed;
       case "blue":
-        return -1.08 * speed;
+        return -u_Lut.getTof() * speed;
       case "red":
-        return 1.08 * speed;
+        return u_Lut.getTof()* speed;
     }
-    return 1.08 * speed;
+    return u_Lut.getTof() * speed;
 
   }
 
@@ -144,19 +145,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
         goalDistance.set(dist);
 
-
-
-      if (dist < 8.45) {
-        currentDegree = 14.13043 * dist - 84.47826;
-        } else if (dist < 11.35) {
-          currentDegree = 7.33333 * dist -49.16667;
-        } else if (dist < 14.25){
-          currentDegree = 5*dist-37;
-        } else if (dist < 17.5) {
-          currentDegree = 9.04255 * dist -122.18085;
-        }
-        
-        hood.setDegrees(currentDegree);
+        hood.setDegrees(u_Lut.getAngleFrom(dist));
 
         break;
       case MANUAL:
@@ -212,16 +201,6 @@ public class Hood extends SubsystemBase implements StateSubsystem {
     }
 
     currentState = desiredState;
-  }
-
-  public void increaseDeg() {
-    currentManualDeg += 2;
-    hood.setOffset(currentManualDeg);
-  }
-
-  public void decreaseDeg() {
-    currentManualDeg -= 2;
-    hood.setOffset(currentManualDeg);
   }
 
   public void setDesiredState(State state) {

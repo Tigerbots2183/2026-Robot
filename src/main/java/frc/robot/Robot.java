@@ -4,22 +4,21 @@
 
 package frc.robot;
 
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.ctre.phoenix6.HootAutoReplay;
 import com.ctre.phoenix6.SignalLogger;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleTopic;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.handlers.Turret;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Touchboard.JukeboxUtil;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -51,9 +50,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-
-        // mJukebox.mOrchestra.loadMusic("pyramids.chrp");
-        // //songs[ThreadLocalRandom.current().nextInt(songs.length)] );
 
         // mJukebox.mOrchestra.play();
     }
@@ -113,13 +109,32 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopExit() {
     }
+        JukeboxUtil jukebox = new JukeboxUtil();
 
     @Override
     public void testInit() {
         SignalLogger.start();
         CommandScheduler.getInstance().cancelAll();
+        jukebox.mOrchestra.stop();
+        CommandSwerveDrivetrain drivetrain = TunerConstants.getInstance();
 
-        Turret.getInstance().setDesiredState(Turret.TurretStates.SYSID);
+        jukebox.addTalon(drivetrain.getModule(0).getDriveMotor());
+        jukebox.addTalon(drivetrain.getModule(1).getDriveMotor());
+        jukebox.addTalon(drivetrain.getModule(2).getDriveMotor());
+        jukebox.addTalon(drivetrain.getModule(3).getDriveMotor());
+
+        jukebox.addTalon(drivetrain.getModule(0).getSteerMotor());
+        jukebox.addTalon(drivetrain.getModule(1).getSteerMotor());
+        jukebox.addTalon(drivetrain.getModule(2).getSteerMotor());
+        jukebox.addTalon(drivetrain.getModule(3).getSteerMotor());
+
+        jukebox.mOrchestra.loadMusic(songs[ThreadLocalRandom.current().nextInt(songs.length)] );
+        jukebox.mOrchestra.play();
+
+        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(()-> jukebox.mOrchestra.stop()));
+        RobotModeTriggers.teleop().onTrue(Commands.runOnce(()-> jukebox.mOrchestra.stop()));
+
+        // Turret.getInstance().setDesiredState(Turret.TurretStates.SYSID);
     }
 
     @Override

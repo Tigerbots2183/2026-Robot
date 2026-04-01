@@ -4,19 +4,13 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
 
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.IO.TurretIO;
 import yams.mechanisms.config.PivotConfig;
@@ -32,7 +26,6 @@ import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.remote.TalonFXSWrapper;
-import yams.motorcontrollers.remote.TalonFXWrapper;
 import edu.wpi.first.wpilibj2.command.*;
 
 public class s_Hood extends SubsystemBase implements CheckableSubsystem {
@@ -82,10 +75,8 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
       .withMOI(KilogramSquareMeters.of(0.04475326));
 
   private Pivot hood = new Pivot(m_config);
-  DoubleSupplier offset = () -> 0;
   Double angle = 0.0;
-  private Command stopCommand = hood.set(0);
-  private Command setAngleCommand = hood.setAngle(() -> Degrees.of(angle + offset.getAsDouble())).ignoringDisable(true);
+  private Command setAngleCommand = hood.setAngle(() -> Degrees.of(angle)).ignoringDisable(true);
 
   public boolean checkSubsystem() {
     return getInitialized();
@@ -104,12 +95,18 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
   }
 
   public void setDegrees(double actualDegrees) {
+    if (actualDegrees < 0) {
+      actualDegrees = 0;
+    }
     angle = actualDegrees;
     // CommandScheduler.getInstance().schedule(
     // hood.setAngle(Degrees.of(actualDegrees)));
   }
 
   public void setDegrees(DoubleSupplier actualDegrees) {
+    if (actualDegrees.getAsDouble() < 0) {
+      actualDegrees = () -> 0;
+    }
     angle = actualDegrees.getAsDouble();
     // CommandScheduler.getInstance().schedule(
     // hood.setAngle(Degrees.of(actualDegrees)));
@@ -119,24 +116,22 @@ public class s_Hood extends SubsystemBase implements CheckableSubsystem {
     return hood.getAngle();
   }
 
-  public void setOffset(double offset) {
-    this.offset = () -> offset;
-  }
-
   public Command getStallHome() {
     CommandScheduler.getInstance().cancel(setAngleCommand);
     return Commands.run(() -> {
       motor.stopClosedLoopController();
       motor.setMechanismLowerLimit(Degrees.of(-100));
-      motor.setVoltage(Volts.of(-4));
+      motor.setVoltage(Volts.of(-1));
     })
         .until(() -> motor.getStatorCurrent().gte(Amps.of(15)))
         .andThen(Commands.runOnce(
             () -> {
               motor.setVoltage(Volts.of(0));
-              motor.startClosedLoopController();
               motor.setMechanismLowerLimit(Degrees.of(-7));
-            }));
+            }))
+        .andThen(Commands.none().withTimeout(1)).andThen(() -> {
+          motor.startClosedLoopController();
+        });
   }
 
   public void stop() {

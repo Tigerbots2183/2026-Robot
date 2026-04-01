@@ -14,7 +14,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Telemetry;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -34,7 +33,6 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Seconds;
 import static yams.units.YUnits.PoundSquareInches;
 
-import java.util.function.DoubleSupplier;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -42,7 +40,6 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 
 
 public class s_Intake extends SubsystemBase implements CheckableSubsystem {
@@ -52,10 +49,12 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
 
   private SparkFlex intakeRoller = new SparkFlex(32, MotorType.kBrushless);
+  private SparkFlex intakeRollerBlue = new SparkFlex(33, MotorType.kBrushless);
+
   
   public s_Intake() {
     initialized = true;
-    SparkBaseConfig config = new SparkFlexConfig().openLoopRampRate(0.4).openLoopRampRate(0.4).smartCurrentLimit(80);
+    SparkBaseConfig config = new SparkFlexConfig().openLoopRampRate(0.4).openLoopRampRate(0.4).smartCurrentLimit(40);
     intakeRoller.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
   }
@@ -70,8 +69,6 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
   .withClosedLoopController(100, 0, 0, DegreesPerSecond.of(280), DegreesPerSecondPerSecond.of(365))
   .withSimClosedLoopController(100, 0, 0, DegreesPerSecond.of(280), DegreesPerSecondPerSecond.of(365))
   // Feedforward Constants
-  .withFeedforward(new ArmFeedforward(0, 0, 0))
-  .withSimFeedforward(new ArmFeedforward(0, 0, 0))
   // Telemetry name and verbosity level
   .withTelemetry("Intake L R Motor", TelemetryVerbosity.LOW)
   // Gearing from the motor rotor to final shaft.
@@ -133,6 +130,8 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
   public void setSpeed(double dutyCycle){
     intakeRoller.set(dutyCycle);
+    intakeRollerBlue.set(-dutyCycle);
+
   }
 
   public TalonFX getLeftPivotTalonFX(){
@@ -155,6 +154,8 @@ public class s_Intake extends SubsystemBase implements CheckableSubsystem {
 
   public void stop(){
     intakeRoller.stopMotor();
+    intakeRollerBlue.stopMotor();
+
     lPivotTalonFX.stopMotor();
     rPivotTalonFX.stopMotor();
   }

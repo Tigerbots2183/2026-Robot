@@ -4,11 +4,7 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
-
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.networktables.BooleanArrayEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -18,7 +14,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
-import frc.robot.handlers.Vision;
 
 public class s_Vision extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Example. */

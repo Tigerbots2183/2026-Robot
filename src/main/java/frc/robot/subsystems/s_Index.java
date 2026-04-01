@@ -4,93 +4,41 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Telemetry;
-import yams.gearing.GearBox;
-import yams.gearing.MechanismGearing;
-import yams.mechanisms.config.FlyWheelConfig;
-import yams.mechanisms.velocity.FlyWheel;
-import yams.motorcontrollers.SmartMotorController;
-import yams.motorcontrollers.SmartMotorControllerConfig;
-import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.local.SparkWrapper;
-import yams.motorcontrollers.remote.TalonFXWrapper;
-
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
-import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RPM;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.handlers.Spindex;
 
 public class s_Index extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Shooter. */
   public static s_Index m_Instance;
 
   private TalonFX indexTalon = new TalonFX(50);
-
-  private double rpmIndex = 0;
-
-  private SmartMotorControllerConfig indexSMCConfig = new SmartMotorControllerConfig(this)
-      .withControlMode(ControlMode.CLOSED_LOOP)
-      // Feedback Constants (PID Constants)
-      .withClosedLoopController(.2, 0, 0)
-      .withSimClosedLoopController(.1, 0, 0)
-      // Feedforward Constants
-      .withGearing(new MechanismGearing(1,1))
-      .withClosedLoopRampRate(Second.of(0.1))
-      .withFeedforward(new SimpleMotorFeedforward(0, 0.134, 0))
-      .withSimFeedforward(new SimpleMotorFeedforward(0, 0.134, 0))
-      // Telemetry name and verbosity level
-      // .withTelemetry("ShooterMotor", TelemetryVerbosity.LOW)
-      // Motor properties to prevent over currenting.
-      .withMotorInverted(true)
-      .withIdleMode(MotorMode.COAST)
-      .withTelemetry("IndexMotor", TelemetryVerbosity.HIGH)
-      .withSupplyCurrentLimit(Amps.of(70));
-
-  // Create our SmartMotorController from our Talon.
-  private SmartMotorController indexController = new TalonFXWrapper(indexTalon, DCMotor.getKrakenX60(1),
-      indexSMCConfig);
-
-  private final FlyWheelConfig indexConfig = new FlyWheelConfig(indexController)
-      // Diameter of the flywheel.
-      .withDiameter(Inches.of(2))
-      // Mass of the flywheel.
-      .withMass(Pounds.of(0.8))
-      // Maximum speed of the shooter.
-      .withUpperSoftLimit(RPM.of(5000))
-      .withTelemetry("Index", TelemetryVerbosity.HIGH);
-
-  // Telemetry name and verbosity for the arm.
-  // .withTelemetry("Flywheel", TelemetryVerbosity.LOW);
-
-  private FlyWheel index = new FlyWheel(indexConfig);
-
-  private Command setIndex = index.run(() -> RPM.of(rpmIndex)).ignoringDisable(true);
+  final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
 
   public s_Index() {
     initialized = true;
+
+    // in init function
+    var talonFXConfigs = new TalonFXConfiguration();
+
+    // set slot 0 gains
+    var slot0Configs = talonFXConfigs.Slot0;
+    slot0Configs.kS = 0.25; // Add 0.25 V output to overcome static friction
+    slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+    slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    slot0Configs.kP = 0.11; // An error of 1 rps results in 0.11 V output
+
+    // set Motion Magic Velocity settings
+    var motionMagicConfigs = talonFXConfigs.MotionMagic;
+    motionMagicConfigs.MotionMagicAcceleration = 400; // Target acceleration of 400 rps/s (0.25 seconds to max)
+    motionMagicConfigs.MotionMagicJerk = 4000; // Target jerk of 4000 rps/s/s (0.1 seconds)
+
+    indexTalon.getConfigurator().apply(talonFXConfigs);
   }
 
   public static s_Index getInstance() {
@@ -106,14 +54,31 @@ public class s_Index extends SubsystemBase implements CheckableSubsystem {
     return getInitialized();
   }
 
-  public void setIndexRpm(DoubleSupplier rpm) {
-    this.rpmIndex = rpm.getAsDouble();
+  boolean jamming = false;
+  Spindex serializer = Spindex.getInstance();
+
+  public void setIndexRpmAndUnjam(double rpm) {
+
+    if (indexTalon.getVelocity().getValue().in(RPM) < 100 && jamming == false) {
+      indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+      serializer.setDesiredState(Spindex.SpindexStates.REVERSE);
+      jamming = true;
+
+    } else if (jamming = true) {
+      indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+      serializer.setDesiredState(Spindex.SpindexStates.FEEDING);
+      jamming = false;
+
+    }
   }
 
   public void setIndexRpm(double rpm) {
-    this.rpmIndex = rpm;
-  }
+    indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
 
+    if (rpm == 0) {
+      serializer.setDesiredState(Spindex.SpindexStates.IDLE);
+    }
+  }
   // public void setIndexVolts(double volts) {
   // indexTalon.setVoltage(-volts);
 
@@ -127,17 +92,10 @@ public class s_Index extends SubsystemBase implements CheckableSubsystem {
   // public void setIndexSpeed(DoubleSupplier dutyCycle) {
   // indexTalon.set(-dutyCycle.getAsDouble());
   // }
-  public void setIndexCommand() {
-    CommandScheduler.getInstance().schedule(setIndex);
 
+  public double getVelocity() {
+    return indexTalon.getVelocity().getValue().in(RPM);
   }
-
-  public double getVelocity(){
-    return index.getSpeed().in(RPM);
-  }
-
-  
-
 
   public boolean getInitialized() {
     return initialized;
@@ -149,15 +107,9 @@ public class s_Index extends SubsystemBase implements CheckableSubsystem {
 
   @Override
   public void periodic() {
-    // shooter.updateTelemetry();
-    index.updateTelemetry();
-
-    // This method will be called once per scheduler run
   }
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-    index.simIterate();
   }
 }

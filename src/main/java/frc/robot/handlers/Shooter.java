@@ -4,13 +4,11 @@
 
 package frc.robot.handlers;
 
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meter;
 
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.databind.ser.BeanSerializer;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,7 +28,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.s_Index;
 import frc.robot.subsystems.s_Shooter;
-import frc.robot.subsystems.Touchboard.Touchboard;
+import frc.robot.subsystems.u_Lut;
 
 public class Shooter extends SubsystemBase implements StateSubsystem {
   /** Creates a new Shooter. */
@@ -56,13 +54,13 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   public double findSpeedModifier(double speed) {
     switch (alliance) {
       case "":
-        return -1.08 * speed;
+        return -u_Lut.getTof() * speed;
       case "blue":
-        return -1.08 * speed;
+        return -u_Lut.getTof() * speed;
       case "red":
-        return 1.08 * speed;
+        return u_Lut.getTof() * speed;
     }
-    return 1.08 * speed;
+    return u_Lut.getTof() * speed;
 
   }
 
@@ -119,19 +117,14 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   }
 
   public void handleStateTransition() {
-    Index.setIndexCommand();
 
     switch (desiredState) {
-      case WOAH:
-        Index.setIndexRpm(3501);
-
-        break;
 
       case IDLE:
         stateShower.set("IDLE");
         Index.setIndexRpm(0);
 
-        Shooter.setStopCommand();
+        Shooter.setRPM(60);
 
         break;
       case BROKEN:
@@ -139,9 +132,8 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case MANUAL:
         stateShower.set("MANUAL");
-        Index.setIndexRpm(3501);
+        Index.setIndexRpm(4501);
 
-        Shooter.setShooterCommand();
 
         currentGoalPosition = goalPosition.get();
         translatedTurretPose = robotPoseSupplier.get().transformBy(new Transform2d(0.196, 0.0, new Rotation2d()));
@@ -154,11 +146,10 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
       case SHOOTING:
         stateShower.set("SHOOTING");
-        Shooter.setShooterCommand();
 
         if (OverrideSpeed) {
           Shooter.setRPM(1800);
-          Index.setIndexRpm(3501);
+          Index.setIndexRpmAndUnjam(4501);
 
           return;
         }
@@ -176,17 +167,9 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 8.45) {
-          Shooter.setRPM(1700);
-        } else if (dist < 11.35) {
-          Shooter.setRPM(1850);
-        } else if (dist < 14.25) {
-          Shooter.setRPM(2000);
-        } else if (dist < 17.5) {
-          Shooter.setRPM(2150);
-        }
+       Shooter.setRPM(u_Lut.getRpmFrom(dist));
 
-        Index.setIndexRpm(3501);
+        Index.setIndexRpmAndUnjam(4501);
 
         break;
 
@@ -195,11 +178,10 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         // Shooter.setIndexSpeed(11);
 
         timeout = 0.0;
-        Shooter.setShooterCommand();
 
         if (OverrideSpeed) {
           Shooter.setRPM(1800);
-          Index.setIndexRpm(3501);
+          Index.setIndexRpm(4501);
 
           return;
         }
@@ -217,30 +199,21 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 8.45) {
-          Shooter.setRPM(1700);
-        } else if (dist < 11.35) {
-          Shooter.setRPM(1850);
-        } else if (dist < 14.25) {
-          Shooter.setRPM(2000);
-        } else if (dist < 17.5) {
-          Shooter.setRPM(2150);
-        }
-        Index.setIndexRpm(3501);
+       Shooter.setRPM(u_Lut.getRpmFrom(dist));
+
+        Index.setIndexRpm(4501);
 
         break;
 
       case REVERSE:
         Index.setIndexRpm(-3000);
-        Shooter.setShooterCommand();
         Shooter.setRPM(-500);
         break;
       case TRENCH:
         stateShower.set("TRENCH");
-        Index.setIndexRpm(3501);
+        Index.setIndexRpmAndUnjam(4501);
 
-        Shooter.setShooterCommand();
-        Shooter.setRPM(2000);
+        Shooter.setRPM(u_Lut.getRpmFrom(10.5));
         break;
 
       default:
@@ -249,6 +222,15 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
     }
 
     currentState = desiredState;
+  }
+
+  public void increaseRpm(){
+    Shooter.offset += 10;
+  }
+
+  public void decreaseRpm(){
+    Shooter.offset -= 10;
+    
   }
 
   public void update() {
@@ -266,7 +248,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
         if (OverrideSpeed) {
           Shooter.setRPM(1800);
-          Index.setIndexRpm(3501);
+          Index.setIndexRpmAndUnjam(4501);
 
           return;
         }
@@ -284,21 +266,13 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         dist = Meter.of(Math.sqrt(Math.pow((translatedTurretPose.getX() - translatedGoalPose.getX()), 2)
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
-        if (dist < 8.45) {
-          Shooter.setRPM(1700);
-        } else if (dist < 11.35) {
-          Shooter.setRPM(1850);
-        } else if (dist < 14.25) {
-          Shooter.setRPM(2000);
-        } else if (dist < 17.5) {
-          Shooter.setRPM(2150);
-        }
-        
+       Shooter.setRPM(u_Lut.getRpmFrom(dist));
+
       case REVVING:
         timeout += 0.3;
         timePublish.set(timeout);
         if (timeout > 5) {
-          Index.setIndexRpm(3501);
+          Index.setIndexRpm(4501);
         }
         break;
       default:

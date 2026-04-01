@@ -4,20 +4,14 @@
 
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.handlers.Spindex;
 
 public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   /** Creates a new s_Spindex. */
@@ -38,8 +32,14 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
 
   public s_Spindex() {
     initialized = true;
-    config.closedLoop.p(0.003).i(0).d(0.1);
-    config2.closedLoop.p(0.003).i(0).d(0.1);
+    config.closedLoop.p(0.0001).i(0).d(0.0);
+    config2.closedLoop.p(0.0001).i(0).d(0.0);
+    config.closedLoop.feedForward.kV(0.0018);
+    config2.closedLoop.feedForward.kV(0.0018);
+
+    config.smartCurrentLimit(70);
+    config2.smartCurrentLimit(70);
+
 
     SpindexFlexLeft.configure(config, com.revrobotics.ResetMode.kNoResetSafeParameters,
         com.revrobotics.PersistMode.kNoPersistParameters);
@@ -70,8 +70,8 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   // final double primaryVoltage = 6;
   // final double secondaryVoltage = 3;
 
-  final double primarySetpoint = 3000;
-  final double secondarySetpoint = 1500;
+  final double primarySetpoint = 4000;
+  final double secondarySetpoint = 500;
   double rounded;
 
   public void setFromBeamBreaks() {
