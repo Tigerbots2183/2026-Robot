@@ -202,7 +202,7 @@ public class RobotContainer {
                         .finallyDo(() -> {
                             H_Turret.setDesiredState(Turret.TurretStates.TRACKING);
                             H_Hood.setDesiredState(Hood.HoodStates.TRACKING);
-                            H_Shooter.setOverride();
+                            H_Shooter.resetOverride();
                         }));
 
         coPilot.rightStick().toggleOnTrue(Commands.run(() -> H_Turret.setDesiredState(Turret.TurretStates.ZEROING))

@@ -4,8 +4,10 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -28,6 +30,9 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
 
   private SparkFlexConfig config = new SparkFlexConfig();
   private SparkFlexConfig config2 = new SparkFlexConfig();
+
+  private RelativeEncoder leftEncoder = SpindexFlexLeft.getEncoder();
+  private RelativeEncoder rightEncoder = SpindexFlexRight.getEncoder();
 
 
   public s_Spindex() {
@@ -74,7 +79,20 @@ public class s_Spindex extends SubsystemBase implements CheckableSubsystem {
   final double secondarySetpoint = 500;
   double rounded;
 
+  // public double timeout = 100; 
+
   public void setFromBeamBreaks() {
+    // timeout--;
+
+    // if((Math.abs(leftEncoder.getVelocity()) < 20) || (Math.abs(rightEncoder.getVelocity()) < 20)&& (beamBreakLeft.get() || beamBreakRight.get()) && timeout <= 0){
+    //   m_ControllerLeft.setSetpoint(primarySetpoint, ControlType.kVelocity);
+    //   m_ControllerRight.setSetpoint(secondarySetpoint, ControlType.kVelocity);
+
+    //   return;
+    // } else if (!(Math.abs(leftEncoder.getVelocity()) < 20) || (Math.abs(rightEncoder.getVelocity()) < 20)) {
+    //   timeout = 100;
+    // }
+
 
     if (!beamBreakLeft.get() && !beamBreakRight.get()) {
       m_ControllerLeft.setSetpoint(primarySetpoint, ControlType.kVelocity);

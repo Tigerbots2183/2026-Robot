@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.ctre.phoenix6.HootAutoReplay;
 import com.ctre.phoenix6.SignalLogger;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,6 +32,10 @@ public class Robot extends TimedRobot {
             .withJoystickReplay();
 
     public Robot() {
+        // SignalLogger.start();
+
+        DataLogManager.start();
+
         m_robotContainer = new RobotContainer();
         addPeriodic(()->m_robotContainer.H_Spindex.update(), 0.01);
 

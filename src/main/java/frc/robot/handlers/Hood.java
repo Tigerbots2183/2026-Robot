@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.s_Hood;
 import frc.robot.subsystems.u_Lut;
 
@@ -61,6 +62,8 @@ public class Hood extends SubsystemBase implements StateSubsystem {
   private final StringPublisher stateShower = stateTable.getStringTopic("HoodState").publish();
 
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
+
+  private QuestNavSubsystem QNav = QuestNavSubsystem.getInstance();
 
   private final Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
 

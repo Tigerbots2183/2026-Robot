@@ -9,6 +9,11 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -16,22 +21,17 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.VecBuilder;
-import gg.questnav.questnav.PoseFrame;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import gg.questnav.questnav.QuestNav;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Touchboard.Touchboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Touchboard.Touchboard;
+import gg.questnav.questnav.PoseFrame;
+import gg.questnav.questnav.QuestNav;
 
 public class QuestNavSubsystem extends SubsystemBase {
     /** Creates a new QuestNavSubsystem. */
@@ -67,7 +67,7 @@ public class QuestNavSubsystem extends SubsystemBase {
 
         Touchboard.bindOptGroup("initalPose", ()-> Commands.runOnce(()-> setPoseFromString(()->initalPose.get())).ignoringDisable(true));
 
-
+        // LimelightHelpers.SetIMUMode("limelight-rsl", 3);
     }
 
     public void setPose(Pose3d position) {
@@ -148,8 +148,15 @@ public class QuestNavSubsystem extends SubsystemBase {
 
     boolean doRejectUpdate;
 
+    Pose2d derivedPose = new Pose2d();
+
+    public Pose2d getPose(){
+        return derivedPose;
+    }   
+
     @Override
     public void periodic() {
+            // setFromMT2("limelight-rsl");
 
         questNav.commandPeriodic();
 
@@ -157,7 +164,7 @@ public class QuestNavSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("QuestPercent", questNav.getBatteryPercent().getAsInt());
         }
 
-        if (questNav.isTracking()) {
+        if (questNav.isTracking() && questNav.isConnected()) {
             hasQuest.set(true);
             // Get the latest pose data frames from the Quest
             questFrames = questNav.getAllUnreadPoseFrames();
@@ -178,10 +185,12 @@ public class QuestNavSubsystem extends SubsystemBase {
                 // You can put some sort of filtering here if you would like!
                 // Add the measurement to our estimator
                 s_Drivetrain.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
+                derivedPose = robotPose.toPose2d();
             }
         } else {
-            // hasQuest.set(false);
-            // setFromMT2("limelight-rsl");
+            hasQuest.set(false);
+            setFromMT2("limelight-rsl");
+
             // setFromMt1("limelight-quest");
         }
     }
@@ -204,13 +213,12 @@ public class QuestNavSubsystem extends SubsystemBase {
         }
 
         if (!doRejectUpdate) {
-            s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+            // s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
             s_Drivetrain.addVisionMeasurement(
                     mt1.pose,
                     mt1.timestampSeconds);
         }
     }
-
     public void setFromMT2(String name){
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
         if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
@@ -226,8 +234,10 @@ public class QuestNavSubsystem extends SubsystemBase {
         }
 
         if (!doRejectUpdate) {
-            setPose(new Pose3d(mt2.pose));
-            s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+            // setPose(new Pose3d(mt2.pose));
+            // s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+            derivedPose = mt2.pose;
+
             s_Drivetrain.addVisionMeasurement(
                     mt2.pose,
                     mt2.timestampSeconds);

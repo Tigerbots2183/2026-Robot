@@ -69,7 +69,7 @@ public class Drivetrain extends SubsystemBase implements StateSubsystem {
         break;
       case SOTM:
         Drivetrain.setController();
-        Drivetrain.setSpeedModifier(0.15);
+        Drivetrain.setSpeedModifier(0.1);
       case INTAKING:
         Drivetrain.setController();
         Drivetrain.setSpeedModifier(0.5);

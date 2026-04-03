@@ -64,6 +64,12 @@
                             "data": {
                               "name": "sethood"
                             }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "spindex"
+                            }
                           }
                         ]
                       }
@@ -81,9 +87,27 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "spindex"
+            "name": "intakeup"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake"
           }
         },
         {
@@ -101,7 +125,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
           }
         },
         {
@@ -130,32 +166,13 @@
           }
         },
         {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "corral test swipe 2"
+                  "pathName": "Copy of corral test swipe 2"
                 }
               },
               {
@@ -165,7 +182,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 4.5
+                        "waitTime": 4.8
                       }
                     },
                     {
@@ -173,27 +190,7 @@
                       "data": {
                         "name": "revshoot"
                       }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "corral"
-                }
-              },
-              {
-                "type": "parallel",
-                "data": {
-                  "commands": [
+                    },
                     {
                       "type": "named",
                       "data": {
@@ -223,6 +220,67 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intakeup"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "stopshoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "zerohood"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "stopspindexer"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "feed moving 1"
           }
         }
       ]

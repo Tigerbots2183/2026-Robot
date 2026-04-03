@@ -5,11 +5,14 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.handlers.Spindex;
 
@@ -56,20 +59,44 @@ public class s_Index extends SubsystemBase implements CheckableSubsystem {
 
   boolean jamming = false;
   Spindex serializer = Spindex.getInstance();
+  double indexVelocity = 0;
+  double startJamTimestamp = 0;
 
   public void setIndexRpmAndUnjam(double rpm) {
+    indexVelocity = -indexTalon.getVelocity().getValue().in(RPM);
 
-    if (indexTalon.getVelocity().getValue().in(RPM) < 100 && jamming == false) {
-      indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+    if (indexVelocity < 100 && Timer.getFPGATimestamp() - startJamTimestamp > 1 && startJamTimestamp != 0) {
+      indexTalon.setControl(m_request.withVelocity(RPM.of(-5000)));
       serializer.setDesiredState(Spindex.SpindexStates.REVERSE);
-      jamming = true;
 
-    } else if (jamming = true) {
+    } else if (indexVelocity <= -1500) {
       indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
       serializer.setDesiredState(Spindex.SpindexStates.FEEDING);
-      jamming = false;
+      startJamTimestamp = 0;
+    } else if (indexVelocity < 100) {
+
+      startJamTimestamp = Timer.getFPGATimestamp();
+    } else if (indexVelocity >= 100) {
+      indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+      serializer.setDesiredState(Spindex.SpindexStates.FEEDING);
+      startJamTimestamp = 0;
 
     }
+
+    // if (indexVelocity < 100 && jamming == false) {
+    // indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+    // serializer.setDesiredState(Spindex.SpindexStates.REVERSE);
+    // jamming = true;
+
+    // } else if ((indexVelocity > 100 && jamming == true)) {
+    // indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+    // serializer.setDesiredState(Spindex.SpindexStates.FEEDING);
+    // jamming = false;
+
+    // } else if ( indexVelocity < -1400){
+    // indexTalon.setControl(m_request.withVelocity(RPM.of(rpm)));
+    // serializer.setDesiredState(Spindex.SpindexStates.FEEDING);
+    // }
   }
 
   public void setIndexRpm(double rpm) {

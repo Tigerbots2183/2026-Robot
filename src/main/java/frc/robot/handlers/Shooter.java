@@ -113,7 +113,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   double revRpm;
 
   public void setOverride() {
-    OverrideSpeed = !OverrideSpeed;
+    OverrideSpeed = true;
+  }
+
+  
+  public void resetOverride(){
+    OverrideSpeed = false;
   }
 
   public void handleStateTransition() {
@@ -149,7 +154,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
         if (OverrideSpeed) {
           Shooter.setRPM(1800);
-          Index.setIndexRpmAndUnjam(4501);
+          Index.setIndexRpm(4501);
 
           return;
         }
@@ -169,7 +174,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
        Shooter.setRPM(u_Lut.getRpmFrom(dist));
 
-        Index.setIndexRpmAndUnjam(4501);
+        Index.setIndexRpm(4501);
 
         break;
 
@@ -206,12 +211,12 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
         break;
 
       case REVERSE:
-        Index.setIndexRpm(-3000);
+        Index.setIndexRpm(-6000);
         Shooter.setRPM(-500);
         break;
       case TRENCH:
         stateShower.set("TRENCH");
-        Index.setIndexRpmAndUnjam(4501);
+        Index.setIndexRpm(4501);
 
         Shooter.setRPM(u_Lut.getRpmFrom(10.5));
         break;
@@ -248,7 +253,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
 
         if (OverrideSpeed) {
           Shooter.setRPM(1800);
-          Index.setIndexRpmAndUnjam(4501);
+          Index.setIndexRpm(4501);
 
           return;
         }
@@ -267,6 +272,8 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
             + Math.pow((translatedTurretPose.getY() - translatedGoalPose.getY()), 2))).in(Feet);
 
        Shooter.setRPM(u_Lut.getRpmFrom(dist));
+          Index.setIndexRpm(4501);
+
 
       case REVVING:
         timeout += 0.3;

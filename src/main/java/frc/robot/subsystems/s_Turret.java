@@ -105,7 +105,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .withMOI(yams.units.YUnits.PoundSquareInches.of(362.787082)); // MOI Calculation
 //
   private Pivot turret = new Pivot(m_config);
-  private DoubleSupplier offset = () -> 0;
+  private DoubleSupplier offset = () -> -5.25;
   private double angle = 0;
   private Command angleCommand = turret.setAngle(() -> Degrees.of(angle)).ignoringDisable(true);
 

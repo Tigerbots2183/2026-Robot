@@ -8,48 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.361024445291666,
-        "y": 7.176296085283654
+        "x": 1.9041797432239649,
+        "y": 7.483152639087019
       },
       "isLocked": false,
       "linkedName": "corral trench shot"
     },
     {
       "anchor": {
-        "x": 0.700884450784593,
-        "y": 7.056176890156919
+        "x": 0.5197432239657629,
+        "y": 5.425905848787448
       },
       "prevControl": {
-        "x": 1.4147497376060505,
-        "y": 7.658282180499256
-      },
-      "nextControl": {
-        "x": 0.3341027406431624,
-        "y": 6.7468171101621826
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 0.4291726105563479,
-        "y": 6.059900142653353
-      },
-      "prevControl": {
-        "x": 0.5165178709869066,
-        "y": 6.419153751166467
+        "x": 0.4938659058487874,
+        "y": 6.331611982881598
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0660980810234388,
-      "rotationDegrees": 91.49012743021815
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -71,5 +50,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

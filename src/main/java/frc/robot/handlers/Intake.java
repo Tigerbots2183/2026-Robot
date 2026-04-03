@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
 
       case IDLE:
         stateShower.set("IDLE");
-        intake.setDegrees(0);
+        intake.setDegrees(-20);
         intake.setSpeed(0);
 
         break;
@@ -92,7 +92,7 @@ public class Intake extends SubsystemBase implements StateSubsystem {
         break;
       case HUMAN:
         stateShower.set("RAISING");
-        intake.setDegrees(0);
+        intake.setDegrees(-20);
         intake.setSpeed(-.75);
         break;
       default:

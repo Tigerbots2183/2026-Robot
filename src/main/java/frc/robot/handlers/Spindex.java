@@ -37,6 +37,7 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
   }
 
   public void handleStateTransition() {
+
     switch (desiredState) {
       case IDLE:
         Spindex.setVoltage(0);
@@ -53,7 +54,7 @@ public class Spindex extends SubsystemBase implements StateSubsystem {
         break;
       case REVERSE:
         stateShower.set("REVERSE");
-        Spindex.setDiffVoltage(-11);
+        Spindex.setDiffVoltage(-13);
         break;
 
       case FEEDING:
