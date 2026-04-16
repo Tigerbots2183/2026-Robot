@@ -56,7 +56,9 @@ public class QuestNavSubsystem extends SubsystemBase {
     BooleanPublisher hasQuest = visionTable.getBooleanTopic("Quest").publish();
     StringSubscriber initalPose = tbTable.getStringTopic("initalPose").subscribe("BlueLeft");
 
-    StructPublisher<Pose2d> questInitPosPublisher = visionTable.getStructTopic("questInitPose", Pose2d.struct).publish();
+    StructPublisher<Pose2d> questInitPosPublisher = visionTable.getStructTopic("questInitPose", Pose2d.struct)
+            .publish();
+    StructPublisher<Pose2d> visionPosePublisher = visionTable.getStructTopic("unfilteredPose", Pose2d.struct).publish();
 
     Boolean haveQuest = false;
 
@@ -65,7 +67,8 @@ public class QuestNavSubsystem extends SubsystemBase {
     public QuestNavSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.s_Drivetrain = swerveSubsystem;
 
-        Touchboard.bindOptGroup("initalPose", ()-> Commands.runOnce(()-> setPoseFromString(()->initalPose.get())).ignoringDisable(true));
+        Touchboard.bindOptGroup("initalPose",
+                () -> Commands.runOnce(() -> setPoseFromString(() -> initalPose.get())).ignoringDisable(true));
 
         // LimelightHelpers.SetIMUMode("limelight-rsl", 3);
     }
@@ -88,37 +91,33 @@ public class QuestNavSubsystem extends SubsystemBase {
     }
 
     Pose2d BlueLeft = new Pose2d(4.401, 7.215, new Rotation2d());
-    Pose2d BlueRight = new Pose2d(4.401, 0.833 , new Rotation2d());
+    Pose2d BlueRight = new Pose2d(4.401, 0.833, new Rotation2d());
     Pose2d RedLeft = FlippingUtil.flipFieldPose(BlueLeft);
     Pose2d RedRight = FlippingUtil.flipFieldPose(BlueRight);
 
-    
-
-    public void setPoseFromString(Supplier<String> whereSupplier){
+    public void setPoseFromString(Supplier<String> whereSupplier) {
         System.out.println(whereSupplier.get());
         String where = whereSupplier.get();
-        if(where.equals("BlueLeft")){
+        if (where.equals("BlueLeft")) {
             setPose(new Pose3d(BlueLeft));
-            s_Drivetrain.addVisionMeasurement(BlueLeft, Timer.getFPGATimestamp());
+            s_Drivetrain.resetPose(BlueLeft);
             questInitPosPublisher.set(BlueLeft);
-        } else if (where.equals("BlueRight")){
+            
+        } else if (where.equals("BlueRight")) {
             setPose(new Pose3d(BlueRight));
             questInitPosPublisher.set(BlueRight);
-            s_Drivetrain.addVisionMeasurement(BlueRight, Timer.getFPGATimestamp());
+            s_Drivetrain.resetPose(BlueRight);
 
-        
-        }else if (where.equals("RedLeft")){
+        } else if (where.equals("RedLeft")) {
             setPose(new Pose3d(RedLeft));
             questInitPosPublisher.set(RedLeft);
-            s_Drivetrain.addVisionMeasurement(RedLeft, Timer.getFPGATimestamp());
+            s_Drivetrain.resetPose(RedLeft);
 
-        
-        }else if (where.equals("RedRight")){
+        } else if (where.equals("RedRight")) {
             setPose(new Pose3d(RedRight));
             questInitPosPublisher.set(RedRight);
-            s_Drivetrain.addVisionMeasurement(RedRight, Timer.getFPGATimestamp());
+            s_Drivetrain.resetPose(RedRight);
 
-        
         }
     }
 
@@ -150,19 +149,28 @@ public class QuestNavSubsystem extends SubsystemBase {
 
     Pose2d derivedPose = new Pose2d();
 
-    public Pose2d getPose(){
+    public Pose2d getPose() {
         return derivedPose;
-    }   
+    }
 
     @Override
     public void periodic() {
-            // setFromMT2("limelight-rsl");
+        // setFromMT2("limelight-rsl");
+        // LimelightHelpers.PoseEstimate mt2 =
+        // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-rsl");
 
-        questNav.commandPeriodic();
+        // questNav.commandPeriodic();
+        // derivedPose = mt2.pose;
+        // visionPosePublisher.set(mt2.pose);
+
+        // s_Drivetrain.addVisionMeasurement(
+        // mt2.pose,
+        // mt2.timestampSeconds);
 
         if (questNav.getBatteryPercent().isPresent()) {
             SmartDashboard.putNumber("QuestPercent", questNav.getBatteryPercent().getAsInt());
         }
+   
 
         if (questNav.isTracking() && questNav.isConnected()) {
             hasQuest.set(true);
@@ -186,13 +194,16 @@ public class QuestNavSubsystem extends SubsystemBase {
                 // Add the measurement to our estimator
                 s_Drivetrain.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
                 derivedPose = robotPose.toPose2d();
+                visionPosePublisher.set(derivedPose);
             }
-        } else {
-            hasQuest.set(false);
-            setFromMT2("limelight-rsl");
 
-            // setFromMt1("limelight-quest");
+            return;
         }
+        hasQuest.set(false);
+        // setFromMT2("limelight-rsl");
+
+        // setFromMt1("limelight-quest");
+
     }
 
     private void setFromMt1(String name) {
@@ -219,16 +230,19 @@ public class QuestNavSubsystem extends SubsystemBase {
                     mt1.timestampSeconds);
         }
     }
-    public void setFromMT2(String name){
+
+    public void setFromMT2(String name) {
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
-        if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
-            if (mt2.rawFiducials[0].ambiguity > .7) {
-                doRejectUpdate = true;
-            }
-            if (mt2.rawFiducials[0].distToCamera > 3) {
-                doRejectUpdate = true;
-            }
-        }
+        doRejectUpdate = false;
+
+        // if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
+        // if (mt2.rawFiducials[0].ambiguity > .7) {
+        // doRejectUpdate = true;
+        // }
+        // if (mt2.rawFiducials[0].distToCamera > 3) {
+        // doRejectUpdate = true;
+        // }
+        // }
         if (mt2.tagCount == 0) {
             doRejectUpdate = true;
         }
@@ -237,6 +251,7 @@ public class QuestNavSubsystem extends SubsystemBase {
             // setPose(new Pose3d(mt2.pose));
             // s_Drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
             derivedPose = mt2.pose;
+            visionPosePublisher.set(mt2.pose);
 
             s_Drivetrain.addVisionMeasurement(
                     mt2.pose,

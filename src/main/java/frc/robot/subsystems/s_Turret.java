@@ -65,7 +65,9 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
   private final StructPublisher<Pose3d> actualAngleShowerPose = driveStateTable
       .getStructTopic("actualAngleShowerPose", Pose3d.struct).publish();
 
-  private Supplier<Pose2d> robotPose = () -> TunerConstants.getInstance().getState().Pose;
+  private final QuestNavSubsystem QNav = QuestNavSubsystem.getInstance();
+  private Supplier<Pose2d> robotPose = () -> QNav.getPose();
+  
 
   // private Supplier<Pose3d> angleShowerPose = () -> new
   // Pose3d(robotPose.get()).transformBy(new Transform3d(0,0,1,new Rotation3d()));
@@ -105,7 +107,7 @@ public class s_Turret extends SubsystemBase implements CheckableSubsystem {
       .withMOI(yams.units.YUnits.PoundSquareInches.of(362.787082)); // MOI Calculation
 //
   private Pivot turret = new Pivot(m_config);
-  private DoubleSupplier offset = () -> -5.25;
+  private DoubleSupplier offset = () -> 0;
   private double angle = 0;
   private Command angleCommand = turret.setAngle(() -> Degrees.of(angle)).ignoringDisable(true);
 

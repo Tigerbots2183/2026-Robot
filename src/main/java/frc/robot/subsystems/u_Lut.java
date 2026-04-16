@@ -29,46 +29,50 @@ public class u_Lut {
     private static InterpolatingDoubleTreeMap tofMap = new InterpolatingDoubleTreeMap();
 
     private static void initialize() {
-        rpmMap.put(7.45, 1690.0);
+        rpmMap.put(7.45, 1700.0);
         angleMap.put(7.45, 22.0);
-        tofMap.put(7.45, .58);
+        tofMap.put(7.45, .93);
 
-        rpmMap.put(10.73, 1880.0);//short
+        rpmMap.put(10.73, 1850.0);//short
         angleMap.put(10.73, 24.2);
         tofMap.put(10.73, .79);
 
-        rpmMap.put(13.39, 2015.0);//Short
-        angleMap.put(13.39, 28.0);
-        tofMap.put(13.39, 1.2);
+        rpmMap.put(13.39, 2000.0);//Short
+        angleMap.put(13.39, 25.0);
+        tofMap.put(13.39, 1.33);
 
-        rpmMap.put(15.42, 2170.0);
-        angleMap.put(15.42, 29.0);
-        tofMap.put(15.42, 1.3);
+        rpmMap.put(15.42, 2100.0);
+        angleMap.put(15.42, 25.0);
+        tofMap.put(15.42, 1.44);
+
+
 
         
-        rpmMap.put(16.91, 2300.0);
-        angleMap.put(16.91, 29.0);
-        tofMap.put(16.91, 1.4);
+        rpmMap.put(16.91, 2200.0);
+        angleMap.put(16.91, 26.0);
+        tofMap.put(16.91, 1.38);
 
-        rpmMap.put(19.84, 2360.0);
-        angleMap.put(19.84, 29.0);
-        tofMap.put(16.84, 1.5);
+        
+        rpmMap.put(18.22, 200.0);
+        angleMap.put(18.22, 25.0);
+        tofMap.put(18.22, 1.44);
+
 
         //       rpmMap.put(7.45, 1650.0);
         // angleMap.put(7.45, 22.0);
         // tofMap.put(7.45, .88);
 
-        // rpmMap.put(10.73, 1840.0);//short
+        // rpmMap.put(10.73, 1875.0);//short
         // angleMap.put(10.73, 24.2);
-        // tofMap.put(10.73, .9);
+        // tofMap.put(10.73, 1.2);
 
-        // rpmMap.put(13.39, 1975.0);//Short
-        // angleMap.put(13.39, 28.0);
+        // rpmMap.put(13.39, 2005.0);//Short
+        // angleMap.put(13.39, 26.0);
         // tofMap.put(13.39, 1.2);
 
         // rpmMap.put(15.42, 2100.0);
-        // angleMap.put(15.42, 29.0);
-        // tofMap.put(15.42, .9);
+        // angleMap.put(15.42, 26.0);
+        // tofMap.put(15.42, 1.2);
 
         
         // rpmMap.put(16.91, 2200.0);
@@ -79,6 +83,36 @@ public class u_Lut {
         // angleMap.put(19.84, 29.0);
         // tofMap.put(16.84, .9);
 
+        // rpmMap.put(5.05, 1610.0);
+        // angleMap.put(5.05, 15.0);
+        // tofMap.put(5.05,1.01);
+
+        // rpmMap.put(6.6, 1660.0);
+        // angleMap.put(6.6, 18.0);
+        // tofMap.put(6.6,1.10);
+
+        // rpmMap.put(8.24, 1810.0);
+        // angleMap.put(8.24, 20.0);
+        // tofMap.put(8.24,1.10);
+
+        // rpmMap.put(8.24, 1810.0);
+        // angleMap.put(8.24, 20.0);
+        // tofMap.put(8.24,1.10);
+
+        
+        // rpmMap.put(10.66, 1860.0);
+        // angleMap.put(10.66, 21.5);
+        // tofMap.put(10.66,1.16);
+
+        
+        // rpmMap.put(13.52, 1960.0);
+        // angleMap.put(13.52, 23.5);
+        // tofMap.put(13.52,1.16);
+
+               
+        // rpmMap.put(15.45, 209.0);
+        // angleMap.put(15.45, 25.5);
+        // tofMap.put(15.45,1.15);
         initialized = true;
     }
 
@@ -119,7 +153,8 @@ public class u_Lut {
     static double gears;
 
     final static private CommandSwerveDrivetrain s_swerve = TunerConstants.getInstance();
-    final static private Supplier<Pose2d> robotPoseSupplier = () -> s_swerve.getState().Pose;
+    final static private QuestNavSubsystem QNav = QuestNavSubsystem.getInstance();
+    final static private Supplier<Pose2d> robotPoseSupplier = () -> QNav.getPose();
     
     final static private Supplier<ChassisSpeeds> chassisSpeedSupplier = () -> ChassisSpeeds
             .fromRobotRelativeSpeeds(s_swerve.getState().Speeds, robotPoseSupplier.get().getRotation());

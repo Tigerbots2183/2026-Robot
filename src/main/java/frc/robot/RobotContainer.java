@@ -5,6 +5,8 @@
 package frc.robot;
 
 
+import java.util.function.Supplier;
+
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -159,11 +161,18 @@ public class RobotContainer {
 
         coPilot.leftBumper().onTrue(Commands.runOnce(() -> {
             H_Shooter.setDesiredState(Shooter.ShooterStates.REVVING);
+            H_Drivetrain.setDesiredState(Drivetrain.DrivetrainStates.SOTM);
+
         }));
 
         
         coPilot.leftBumper().onFalse(Commands.runOnce(() -> {
             H_Shooter.setDesiredState(Shooter.ShooterStates.IDLE);
+
+            if(H_Shooter.currentState != Shooter.ShooterStates.SHOOTING){
+                H_Drivetrain.setDesiredState(Drivetrain.DrivetrainStates.TELEOP);
+            }
+
         }));
         // coPilot.leftBumper().onFalse(Commands.runOnce(() -> ));
 
@@ -308,6 +317,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("zerohood", Commands.runOnce(() -> s_Hood.getInstance().setDegrees(0)));
         NamedCommands.registerCommand("stopspindexer",
                 Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.IDLE)));
+        NamedCommands.registerCommand("outtakeshooter",
+            Commands.runOnce(() -> H_Shooter.setDesiredState(Shooter.ShooterStates.REVERSE)));
+        NamedCommands.registerCommand("outtakespindexer",
+            Commands.runOnce(() -> H_Spindex.setDesiredState(Spindex.SpindexStates.REVERSE)));
+            
         NamedCommands.registerCommand("track turret", Commands.runOnce(() -> {
             Pose2d goalPose = new Pose2d(4.620419, 4.034631, new Rotation2d());
 
@@ -360,6 +374,10 @@ public class RobotContainer {
         })));
 
     }
+
+    // private Command createAutonomous(Supplier<String> whichSupplier){
+    //     return
+    // }
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton

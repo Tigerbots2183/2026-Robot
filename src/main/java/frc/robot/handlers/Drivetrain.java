@@ -52,7 +52,7 @@ public class Drivetrain extends SubsystemBase implements StateSubsystem {
   }
 
   public void handleStateTransition() {
-    Drivetrain.setSpeedModifier(1);
+         Drivetrain.setSpeedModifier(1);
 
     switch (desiredState) {
       case IDLE:
@@ -60,19 +60,28 @@ public class Drivetrain extends SubsystemBase implements StateSubsystem {
         stateShower.set("IDLE");
         break;
       case TELEOP:
+      
+
         Drivetrain.setController();
         stateShower.set("TELEOP");
+        
         break;
       case TRENCH:
         Drivetrain.setTrenchLock();        
         stateShower.set("TRENCH");
         break;
       case SOTM:
+        // Drivetrain.setSpeedModifier(0.23);
         Drivetrain.setController();
-        Drivetrain.setSpeedModifier(0.1);
+        stateShower.set("SOTM");
+        
+        break;
       case INTAKING:
+        // Drivetrain.setSpeedModifier(0.5);
         Drivetrain.setController();
-        Drivetrain.setSpeedModifier(0.5);
+        stateShower.set("INTAKING");
+
+        break;
       default:
         stateShower.set("UNKNOWN");
         break;

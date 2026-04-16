@@ -65,7 +65,7 @@ public class Hood extends SubsystemBase implements StateSubsystem {
 
   private QuestNavSubsystem QNav = QuestNavSubsystem.getInstance();
 
-  private final Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
+  private final Supplier<Pose2d> robotPoseSupplier = () -> QNav.getPose();
 
   private final Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_Swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 

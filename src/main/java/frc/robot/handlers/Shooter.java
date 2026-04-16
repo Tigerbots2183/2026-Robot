@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.s_Index;
 import frc.robot.subsystems.s_Shooter;
 import frc.robot.subsystems.u_Lut;
@@ -65,7 +66,7 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   }
 
   private static Shooter m_Instance;
-  private ShooterStates desiredState, currentState = ShooterStates.IDLE;
+  public ShooterStates desiredState, currentState = ShooterStates.IDLE;
 
   private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
   private final NetworkTable stateTable = networkTable.getTable("RobotStates");
@@ -74,7 +75,9 @@ public class Shooter extends SubsystemBase implements StateSubsystem {
   private final Supplier<Pose2d> goalPosition = () -> Turret.getInstance().getGoal();
 
   private CommandSwerveDrivetrain s_Swerve = TunerConstants.getInstance();
-  private Supplier<Pose2d> robotPoseSupplier = () -> s_Swerve.getState().Pose;
+
+  private QuestNavSubsystem QNav = QuestNavSubsystem.getInstance();
+  private Supplier<Pose2d> robotPoseSupplier = () -> QNav.getPose();
 
   private Supplier<ChassisSpeeds> chassisSpeedSupplier = () -> ChassisSpeeds
       .fromRobotRelativeSpeeds(s_Swerve.getState().Speeds, robotPoseSupplier.get().getRotation());

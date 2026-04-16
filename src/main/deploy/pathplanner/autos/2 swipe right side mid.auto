@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "corral test swipe"
+                  "pathName": "hp test swipe 1"
                 }
               },
               {
@@ -40,64 +40,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.5
-                      }
-                    },
-                    {
-                      "type": "parallel",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "outtakespindexer"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "outtakeshooter"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.7
-                      }
-                    },
-                    {
-                      "type": "parallel",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "stopspindexer"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "stopshoot"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 4.3
+                        "waitTime": 4.4
                       }
                     },
                     {
@@ -134,19 +77,13 @@
         {
           "type": "named",
           "data": {
-            "name": "sintake"
+            "name": "spindex"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "intakeup"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "spindex"
           }
         },
         {
@@ -199,7 +136,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Copy of corral test swipe 2"
+                  "pathName": "hp test swipe 2"
                 }
               },
               {
@@ -209,64 +146,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 4.0
-                      }
-                    },
-                    {
-                      "type": "parallel",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "outtakespindexer"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "outtakeshooter"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.7
-                      }
-                    },
-                    {
-                      "type": "parallel",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "stopspindexer"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "stopshoot"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 4.8
+                        "waitTime": 5.4
                       }
                     },
                     {
@@ -304,12 +184,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.5
           }
         }
       ]

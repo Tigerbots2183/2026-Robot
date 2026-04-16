@@ -52,6 +52,8 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   private DoublePublisher PIDY = driveStateTable.getDoubleTopic("CALCY").publish();
   private DoublePublisher TrenchY = driveStateTable.getDoubleTopic("TrenchY").publish();
   private DoublePublisher RobotY = driveStateTable.getDoubleTopic("RobotY").publish();
+  private DoublePublisher SpeedMod = driveStateTable.getDoubleTopic("SpeedMod").publish();
+
 
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -152,10 +154,11 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   DoubleSupplier setSpeedModifier = ()->1;
 
   public void setSpeedModifier(double modifier){
-    setSpeedModifier = ()->modifier;
+    setSpeedModifier = ()-> modifier;
   }
 
   public void setValuesController() {
+    SpeedMod.set(setSpeedModifier.getAsDouble());
     setY = () -> Math.copySign((xStick.getAsDouble() * xStick.getAsDouble()), (-xStick.getAsDouble())) * setSpeedModifier.getAsDouble();
     setX = () -> Math.copySign((yStick.getAsDouble() * yStick.getAsDouble()), (-yStick.getAsDouble())) * setSpeedModifier.getAsDouble();
     setRot = () -> -rotStick.getAsDouble() * MaxAngularRate;
@@ -221,7 +224,7 @@ public class s_Drivetrain extends SubsystemBase implements CheckableSubsystem {
   public void periodic() {
     
     // This method will be called once per scheduler run
-    //  LimelightHelpers.SetRobotOrientation("limelight-rsl", drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+     LimelightHelpers.SetRobotOrientation("limelight-rsl", drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
     // SmartDashboard.putNumber("Raw Heading", drivetrain.getState().Pose.getRotation().getDegrees());
   }
 }

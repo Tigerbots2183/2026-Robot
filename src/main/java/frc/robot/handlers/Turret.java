@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.s_Turret;
 import frc.robot.subsystems.u_Lut;
 
@@ -49,7 +50,10 @@ public class Turret extends SubsystemBase implements StateSubsystem {
 
 
   private CommandSwerveDrivetrain s_swerve = TunerConstants.getInstance();
-  private Supplier<Pose2d> robotPoseSupplier = () -> s_swerve.getState().Pose;
+
+  private QuestNavSubsystem QNav = QuestNavSubsystem.getInstance();
+
+  private Supplier<Pose2d> robotPoseSupplier = () -> QNav.getPose() ;
 
   private Supplier<ChassisSpeeds> chassisSpeedSupplier = ()-> ChassisSpeeds.fromRobotRelativeSpeeds(s_swerve.getState().Speeds, robotPoseSupplier.get().getRotation());
 
